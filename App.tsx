@@ -25,6 +25,11 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+// 아이콘 import 추가
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Entypo from 'react-native-vector-icons/Entypo';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
@@ -76,6 +81,13 @@ function App(): React.JSX.Element {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
+          <Section title="아이콘 예시">
+            <View style={styles.iconContainer}>
+              <AntDesign name="home" size={24} color={isDarkMode ? Colors.white : Colors.black} />
+              <Entypo name="heart" size={24} color={isDarkMode ? Colors.white : Colors.black} />
+              <EvilIcons name="user" size={30} color={isDarkMode ? Colors.white : Colors.black} />
+            </View>
+          </Section>
           <Section title="Step One">
             Edit <Text style={styles.highlight}>App.tsx</Text> to change this
             screen and then come back to see your edits.
@@ -112,6 +124,12 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
   },
 });
 
