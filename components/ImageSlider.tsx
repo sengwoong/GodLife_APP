@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Image, StyleSheet, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { colors } from '../constants/index';
-import { SLIDER_LAYOUT } from '../constants/slider';
 
 const { width: screenWidth } = Dimensions.get('window');
-const sliderWidth = screenWidth - (SLIDER_LAYOUT.PADDING * 2);
+const sliderWidth = screenWidth - 64; // 32 * 2
 
 interface ImageSliderProps {
   images: Array<{ uri: string } | number>; 
@@ -17,9 +16,9 @@ interface ImageSliderProps {
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ 
   images, 
-  interval = SLIDER_LAYOUT.DEFAULT_INTERVAL,
-  dotSize = SLIDER_LAYOUT.DOT_SIZE,
-  activeDotWidth = SLIDER_LAYOUT.ACTIVE_DOT_WIDTH,
+  interval = 3000,
+  dotSize = 8,
+  activeDotWidth = 30,
   dotColor = colors.GRAY,
   activeDotColor = colors.GREEN
 }) => {
@@ -73,7 +72,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
                 width: dotSize,
                 height: dotSize,
                 borderRadius: dotSize / 2,
-                marginHorizontal: SLIDER_LAYOUT.DOT_MARGIN,
+                marginHorizontal: 4,
                 backgroundColor: currentIndex === index ? activeDotColor : dotColor,
                 ...(currentIndex === index && { width: activeDotWidth })
               },
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
   pagination: {
     flexDirection: 'row',
     position: 'absolute',
-    bottom: SLIDER_LAYOUT.PAGINATION_BOTTOM,
+    bottom: 10,
     alignSelf: 'center',
   },
   dot: {
