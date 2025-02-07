@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import RootNavigator from './navigations/stack/beforeLogin/MainStackNavigator';
+import RootNavigator from './navigations/root/RootNavigator';
 
 const Drawer = createDrawerNavigator();
 
