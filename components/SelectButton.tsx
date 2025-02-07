@@ -37,13 +37,19 @@ const SelectButton: React.FC<SelectButtonProps> = ({
     setIsModalVisible(false);
   };
 
+  const handlePress = () => {
+    if (!disabled) {
+      setIsModalVisible(true);
+    }
+  };
+
   return (
     <View>
       <Pressable
         style={[styles.button, disabled && styles.disabled]}
-        onPress={() => !disabled && setIsModalVisible(true)}
+        onPress={handlePress}
       >
-        <Text style={styles.buttonText}>
+        <Text style={[styles.buttonText, disabled && styles.disabledText]}>
           {selectedOption || '선택하세요'}
         </Text>
       </Pressable>
@@ -53,9 +59,16 @@ const SelectButton: React.FC<SelectButtonProps> = ({
         visible={isModalVisible}
         animationType="fade"
         onRequestClose={() => setIsModalVisible(false)}
+        statusBarTranslucent={true}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+        <Pressable 
+          style={styles.modalOverlay} 
+          onPress={() => setIsModalVisible(false)}
+        >
+          <Pressable 
+            style={styles.modalContainer}
+            onPress={e => e.stopPropagation()}
+          >
             <FlatList
               data={options}
               keyExtractor={(item, index) => index.toString()}
@@ -68,8 +81,8 @@ const SelectButton: React.FC<SelectButtonProps> = ({
                 </TouchableOpacity>
               )}
             />
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
@@ -91,6 +104,9 @@ const styling = () =>
       backgroundColor: colors.GRAY,
       color: colors.GRAY,
     },
+    disabledText: {
+      color: colors.WHITE,
+    },
     modalOverlay: {
       flex: 1,
       justifyContent: 'center',
@@ -99,9 +115,11 @@ const styling = () =>
     },
     modalContainer: {
       width: '80%',
+      maxHeight: '70%',
       backgroundColor: colors.WHITE,
-      borderRadius: 5,
-      padding: 30,
+      borderRadius: 10,
+      padding: spacing.M16,
+      elevation: 5,
     },
     option: {
       paddingVertical: 20,
