@@ -11,14 +11,12 @@ import {
 
 import { mergeRefs } from '../utils/common';
 import { colors, getFontStyle, spacing } from '../constants/index';
-import { INPUT_LAYOUT, INPUT_STRINGS } from '../constants/input';
 
 interface InputFieldProps extends TextInputProps {
   disabled?: boolean;
   error?: string;
   touched?: boolean;
   icon?: ReactNode;
-  locale?: keyof typeof INPUT_STRINGS;
 }
 
 const InputField = forwardRef(
@@ -28,14 +26,12 @@ const InputField = forwardRef(
       error, 
       touched, 
       icon = null, 
-      locale = 'ko',
       ...props
     }: InputFieldProps,
     ref?: ForwardedRef<TextInput>,
   ) => {
     const styles = styling();
     const innerRef = useRef<TextInput | null>(null);
-    const strings = INPUT_STRINGS[locale];
 
     const handlePressInput = () => {
       innerRef.current?.focus();
@@ -74,14 +70,15 @@ const InputField = forwardRef(
 const styling = () =>
   StyleSheet.create({
     container: {
-      borderWidth: INPUT_LAYOUT.BORDER_WIDTH,
+      borderWidth: 1,
       borderColor: colors.GRAY,
       borderRadius: spacing.M4,
     },
     input: {
+      height: 48,
+      paddingHorizontal: 16,
+      borderRadius: 8,
       ...getFontStyle('titleBody', 'small', 'medium'),
-      paddingHorizontal: spacing.M12,
-      paddingVertical: spacing.M8,
     } as TextStyle,
     innerContainer: {
       flexDirection: 'row',
@@ -93,13 +90,13 @@ const styling = () =>
       color: colors.GRAY,
     },
     inputError: {
-      borderWidth: INPUT_LAYOUT.BORDER_WIDTH,
+      borderWidth: 1,
       borderColor: colors.RED,
     },
     error: {
       color: colors.RED,
       ...getFontStyle('body', 'small', 'medium'),
-      padding: INPUT_LAYOUT.PADDING.ERROR,
+      padding: 4,
     } as TextStyle,
   });
 
