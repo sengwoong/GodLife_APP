@@ -4,7 +4,7 @@ import { drawerNavigations } from '../../constants';
 import CustomDrawerContent from './CustomDrawerContent';
 import MainStackNavigator from '../stack/beforeLogin/MainStackNavigator';
 import FeedStackNavigator from '../stack/FeedStackNavigator';
-
+import VocaStackNavigator from '../stack/beforeLogin/VocaStackNavigator';
 const Drawer = createDrawerNavigator();
 
 export type MainDrawerParamList = {
@@ -12,7 +12,7 @@ export type MainDrawerParamList = {
   // [drawerNavigations.CALENDAR]: undefined;
   // [drawerNavigations.SETTING]: undefined;
   [drawerNavigations.MAIN]: undefined;
-  // [drawerNavigations.VOCA]: undefined;
+  [drawerNavigations.VOCA]: undefined;
   // [drawerNavigations.FEED]: undefined;
 };
 
@@ -24,7 +24,8 @@ function MainDrawerNavigator() {
         headerShown: false, 
         drawerType: 'front',
       }}>
-      <Drawer.Screen name={drawerNavigations.MAIN} component={MainStackNavigator} />
+      <Drawer.Screen name={drawerNavigations.MAIN} component={MainStackNavigator} />  
+      <Drawer.Screen name={drawerNavigations.VOCA} component={VocaStackNavigator} />
     </Drawer.Navigator>
   );
 }
