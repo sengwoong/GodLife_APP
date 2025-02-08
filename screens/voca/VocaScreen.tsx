@@ -3,7 +3,7 @@ import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextS
 import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { VocaStackParamList } from '../../navigations/stack/VocaStackNavigator';
+import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
 import { colors, getFontStyle, spacing, VocaNavigations } from '../../constants';
 import SearchBar from '../../components/searchbar/SearchBar';
