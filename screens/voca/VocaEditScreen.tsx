@@ -11,7 +11,7 @@ import {
   Keyboard, 
   TextStyle 
 } from 'react-native';
-import { VocaStackParamList } from '../../navigations/stack/VocaStackNavigator';
+import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import SelectButton from '../../components/SelectButton';
