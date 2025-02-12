@@ -3,12 +3,12 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import { drawerNavigations } from '../../constants';
 import CustomDrawerContent from './CustomDrawerContent';
 import MainStackNavigator from '../stack/beforeLogin/MainStackNavigator';
-import FeedStackNavigator from '../stack/FeedStackNavigator';
+import PlayListStackNavigator from '../stack/beforeLogin/PlayListStackNavigator';
 import VocaStackNavigator from '../stack/beforeLogin/VocaStackNavigator';
 const Drawer = createDrawerNavigator();
 
 export type MainDrawerParamList = {
-  // [drawerNavigations.PlayList]: undefined;
+  [drawerNavigations.PLAYLIST]: undefined;
   // [drawerNavigations.CALENDAR]: undefined;
   // [drawerNavigations.SETTING]: undefined;
   [drawerNavigations.MAIN]: undefined;
@@ -26,6 +26,7 @@ function MainDrawerNavigator() {
       }}>
       <Drawer.Screen name={drawerNavigations.MAIN} component={MainStackNavigator} />  
       <Drawer.Screen name={drawerNavigations.VOCA} component={VocaStackNavigator} />
+      <Drawer.Screen name={drawerNavigations.PLAYLIST} component={PlayListStackNavigator} />
     </Drawer.Navigator>
   );
 }

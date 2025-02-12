@@ -5,7 +5,7 @@ const authNavigations = {
   } as const;
 
 const drawerNavigations = {
-  PlayList: 'PlayList',
+  PLAYLIST: 'PlayList',
   CALENDAR: 'Calendar',
   SETTING: 'Setting',
   VOCA: 'Voca',
