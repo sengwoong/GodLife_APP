@@ -1,8 +1,8 @@
 import React from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
-import PlayListLayout from '../../components/playlist/PlayListLayout';
-import PlaylistLayout from '../../components/playlist/PlayListLayout';
+import PlayListLayout from '../../components/playlist/PlaylistLayout.tsx';
+
 type PlayListContentScreenRouteProp = RouteProp<PlayListStackParamList, 'PlayListContent'>;
 
 function PlayListContentScreen() {
@@ -28,8 +28,8 @@ function PlayListContentScreen() {
     // 메뉴 처리 로직
   };
 
-  return (
-    <PlaylistLayout
+  return (  
+    <PlayListLayout
       title={`플레이리스트 ${playListIndex + 1}`}
       data={playListData}
       onPlayAll={handlePlayAll}
