@@ -13,7 +13,11 @@ function SignScreen() {
   const passwordRef = useRef<TextInput | null>(null);
 
   const login = useForm({
-    initialValue: { email: '', password: '', age: '' },
+    initialValue: {
+      email: '',
+      password: '',
+      age: '',
+    },
     validate: validateLogin,
   });
 
@@ -51,7 +55,11 @@ function SignScreen() {
         <SelectButton
           options={['10대', '20대', '30대', '40대', '50대 이상']}
           selectedOption={login.values.age}
-          onSelect={(value) => login.setFieldValue('age', value)}
+          onSelect={(value) => {
+            console.log('Selected age:', value);
+            login.setFieldValue('age', value);
+            console.log('Updated form values:', login.values);
+          }}
         />
         
         <CustomButton

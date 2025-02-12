@@ -1,19 +1,16 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, Keyboard, TextStyle } from 'react-native';
-import SearchResults from './SearchResults';
+import SearchResults from '../searchbar/SearchResults';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { SEARCH_LAYOUT } from '../../constants/layout';
-import { SEARCH_STRINGS } from '../../constants/i18n';
+
 import { useSearch } from '../../hooks/useSearch';
 
 interface SearchBarProps {
   initialSuggestions: string[];
-  locale?: keyof typeof SEARCH_STRINGS;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
   initialSuggestions,
-  locale = 'ko'
 }) => {
   const {
     searchText,
@@ -36,7 +33,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     <View style={styles.search}>
       <TextInput
         style={styles.search__input}
-        placeholder={SEARCH_STRINGS[locale].PLACEHOLDER}
+        placeholder="검색어를 입력해주세요."
         value={searchText}
         onChangeText={handleSearchChange}
         onBlur={handleBlur}
@@ -48,7 +45,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
           filteredSuggestions={filteredSuggestions}
           recentSearches={recentSearches}
           onSuggestionSelect={handleSuggestionSelect}
-          locale={locale}
         />
       )}
     </View>
@@ -58,15 +54,15 @@ const SearchBar: React.FC<SearchBarProps> = ({
 const styles = StyleSheet.create({
   search: {
     zIndex: 1,
-    width: SEARCH_LAYOUT.SEARCH_WIDTH,
+    width: '100%',
     alignContent: 'center',
   },
   search__input: {
     ...getFontStyle('titleBody', 'small', 'medium'),
     backgroundColor: colors.WHITE,
-    borderRadius: SEARCH_LAYOUT.INPUT_BORDER_RADIUS,
+    borderRadius: 10,
     paddingHorizontal: spacing.M16,
-    height: SEARCH_LAYOUT.INPUT_HEIGHT,
+    height: 40,
     marginBottom: spacing.M12,
     elevation: 3,
     shadowColor: colors.BLACK,

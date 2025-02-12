@@ -1,15 +1,13 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { SEARCH_LAYOUT } from '../../constants/layout';
-import { SEARCH_STRINGS } from '../../constants/i18n';
+
 
 interface SearchResultsProps {
   searchText: string;
   filteredSuggestions: string[];
   recentSearches: string[];
   onSuggestionSelect: (suggestion: string) => void;
-  locale?: keyof typeof SEARCH_STRINGS;
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({
@@ -17,7 +15,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   filteredSuggestions,
   recentSearches,
   onSuggestionSelect,
-  locale = 'ko'
 }) => {
   const renderSuggestionItem = ({ item }: { item: string }) => (
     <TouchableOpacity onPress={() => onSuggestionSelect(item)}>
@@ -41,7 +38,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   return (
     <View style={styles.results}>
       <View style={[styles.results__column, styles.results__columnWide]}>
-        <Text style={styles.results__title}>{SEARCH_STRINGS[locale].SUGGESTED_WORDS}</Text>
+        <Text style={styles.results__title}>추천 검색어</Text>
         <FlatList
           data={filteredSuggestions}
           keyExtractor={(_, index) => `suggestion-${index}`}
@@ -49,8 +46,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         />
       </View>
 
-      <View style={[styles.results__column, styles.results__columnNarrow]}>
-        <Text style={styles.results__title}>{SEARCH_STRINGS[locale].RECENT_SEARCHES}</Text>
+      <View style={[styles.results__column, styles.results__columnNarrow, styles.results__marginHorizontal]}>
+        <Text style={styles.results__title}>최근 검색어</Text>
         <FlatList
           data={recentSearches}
           keyExtractor={(_, index) => `recent-${index}`}
@@ -71,18 +68,21 @@ const styles = StyleSheet.create({
   results__column: {
     backgroundColor: colors.WHITE,
     padding: spacing.M12,
-    borderRadius: SEARCH_LAYOUT.RESULTS_BORDER_RADIUS,
+    borderRadius: 10,
     elevation: 2,
     shadowColor: colors.BLACK,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3.84,
   },
+  results__marginHorizontal:{
+    marginHorizontal: spacing.M12,
+  },
   results__columnWide: {
-    width: SEARCH_LAYOUT.COLUMN_WIDE,
+    width: '70%',
   },
   results__columnNarrow: {
-    width: SEARCH_LAYOUT.COLUMN_NARROW,
+    width: '25%',
   },
   results__title: {
     ...getFontStyle('titleBody', 'large', 'bold'),

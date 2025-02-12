@@ -2,7 +2,7 @@ import React from 'react';
 import AuthStackNavigator from '../stack/afterLogin/AuthStackNavigator';
 import MainDrawerNavigator from '../drawer/MainDrawerNavigator';
 
-function RootNavigator() {
+function RootNavigator() {  
   const isLoggedIn = true;
   return (
     <>
