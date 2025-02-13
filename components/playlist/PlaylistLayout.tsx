@@ -1,6 +1,7 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View, TextStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 interface PlaylistItem {
   id: number;
@@ -37,14 +38,16 @@ function PlaylistLayout({
       <View style={styles.topButtons}>
         <View style={styles.leftButtons}>
           <TouchableOpacity style={styles.playButton} onPress={onPlayAll}>
-            <Text style={styles.playButtonText}>▶ 전체 재생</Text>
+            <Icon name="playcircleo" size={16} color={colors.WHITE} />
+            <Text style={styles.playButtonText}>전체 재생</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.shuffleButton} onPress={onShuffle}>
-            <Text style={styles.shuffleButtonText}>↗ 셔플</Text>
+            <Icon name="retweet" size={16} color={colors.WHITE} />
+            <Text style={styles.shuffleButtonText}>셔플</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-          <Text style={styles.menuButtonText}>☰</Text>
+          <Icon name="bars" size={24} color={colors.BLACK} />
         </TouchableOpacity>
       </View>
 
@@ -105,6 +108,9 @@ const styles = StyleSheet.create({
     gap: spacing.M12,
   },
   playButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.M4,
     paddingVertical: spacing.M8,
     paddingHorizontal: spacing.M16,
     backgroundColor: colors.BLACK,
@@ -115,6 +121,9 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'small', 'medium'),
   } as TextStyle,
   shuffleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.M4,
     paddingVertical: spacing.M8,
     paddingHorizontal: spacing.M16,
     backgroundColor: colors.BLACK,
@@ -127,10 +136,6 @@ const styles = StyleSheet.create({
   menuButton: {
     padding: spacing.M8,
   },
-  menuButtonText: {
-    color: colors.BLACK,
-    ...getFontStyle('body', 'large', 'medium'),
-  } as TextStyle,
   header: {
     paddingHorizontal: spacing.M20,
     paddingVertical: spacing.M16,

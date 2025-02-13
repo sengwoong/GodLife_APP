@@ -1,12 +1,17 @@
 import React from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { CompositeNavigationProp, RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import PlayListLayout from '../../components/playlist/PlaylistLayout.tsx';
+import FAB from '../../components/common/FAB';
+import { PlayListNavigations } from '../../constants';
 
 type PlayListContentScreenRouteProp = RouteProp<PlayListStackParamList, 'PlayListContent'>;
+type PlayListNavigationProp = StackNavigationProp<PlayListStackParamList>;
 
 function PlayListContentScreen() {
   const route = useRoute<PlayListContentScreenRouteProp>();
+  const navigation = useNavigation<PlayListNavigationProp>();
   const { playListIndex } = route.params;
 
   const playListData = [
@@ -28,14 +33,24 @@ function PlayListContentScreen() {
     // 메뉴 처리 로직
   };
 
+  const handleAddMusic = () => {
+    navigation.navigate('PlayListEdit', {
+      type: '음악',
+      Index: playListIndex
+    });
+  };
+
   return (  
-    <PlayListLayout
-      title={`플레이리스트 ${playListIndex + 1}`}
-      data={playListData}
-      onPlayAll={handlePlayAll}
-      onShuffle={handleShuffle}
-      onMenuPress={handleMenu}
-    />
+    <>
+      <PlayListLayout
+        title={`플레이리스트 ${playListIndex + 1}`}
+        data={playListData}
+        onPlayAll={handlePlayAll}
+        onShuffle={handleShuffle}
+        onMenuPress={handleMenu}
+      />
+      <FAB onPress={handleAddMusic} />
+    </>
   );
 }
 

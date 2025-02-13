@@ -22,7 +22,7 @@ export default function PlayListEditScreen() {
   const route = useRoute<RouteProp<PlayListStackParamList, 'PlayListEdit'>>();
   const { type, Index } = route.params || {};
 
-  const typeNamePlayList = '플레이 리스트';
+  const typeNameMusic = '음악';
 
   const handleSubmit = () => {
     console.log('Title:', title);
@@ -47,7 +47,7 @@ export default function PlayListEditScreen() {
           onChangeText={setTitle}
         />
         
-        {type === typeNamePlayList && (
+        {type === typeNameMusic && (
           <TextInput
             style={[styles.form__input, styles.form__textarea]}
             placeholder="URL 링크"
