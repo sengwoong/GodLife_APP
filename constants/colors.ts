@@ -9,9 +9,11 @@ const common = {
   LIGHT_GREEN: '#B2E0B2',
   LIGHT_RED: '#FFCCCC',
   LIGHT_GRAY: '#F2F2F2',
+  YELLOW: '#FFD700',
 };
 
 const colors = {
+  YELLOW: common.YELLOW,
   GREEN: common.GREEN_400,
   RED: common.RED_500,
   BLUE: common.BLUE_400,
