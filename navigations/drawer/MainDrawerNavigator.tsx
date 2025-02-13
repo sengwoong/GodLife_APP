@@ -5,11 +5,12 @@ import CustomDrawerContent from './CustomDrawerContent';
 import MainStackNavigator from '../stack/beforeLogin/MainStackNavigator';
 import PlayListStackNavigator from '../stack/beforeLogin/PlayListStackNavigator';
 import VocaStackNavigator from '../stack/beforeLogin/VocaStackNavigator';
+import CalendarStackNavigator from '../stack/beforeLogin/CalendarStackNavigator';
 const Drawer = createDrawerNavigator();
 
 export type MainDrawerParamList = {
   [drawerNavigations.PLAYLIST]: undefined;
-  // [drawerNavigations.CALENDAR]: undefined;
+  [drawerNavigations.CALENDAR]: undefined;
   // [drawerNavigations.SETTING]: undefined;
   [drawerNavigations.MAIN]: undefined;
   [drawerNavigations.VOCA]: undefined;
@@ -27,6 +28,7 @@ function MainDrawerNavigator() {
       <Drawer.Screen name={drawerNavigations.MAIN} component={MainStackNavigator} />  
       <Drawer.Screen name={drawerNavigations.VOCA} component={VocaStackNavigator} />
       <Drawer.Screen name={drawerNavigations.PLAYLIST} component={PlayListStackNavigator} />
+      <Drawer.Screen name={drawerNavigations.CALENDAR} component={CalendarStackNavigator} />
     </Drawer.Navigator>
   );
 }
