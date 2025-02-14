@@ -60,7 +60,7 @@ function FeedStackNavigator() {
         name={FeedNavigations.FEEDAVATAR}
         component={FeedAvatarScreen}
         options={{
-          headerTitle: '피로필',
+          headerTitle: '프로필',
         }}
       />
     </Stack.Navigator>
