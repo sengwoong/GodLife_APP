@@ -29,7 +29,7 @@ const ScrollWheelPicker: React.FC<ScrollWheelPickerProps> = ({
     }
   }, [selectedValue, data]);
 
-  const getItemLayout = (_, index: number) => ({
+  const getItemLayout = (_:any, index: number) => ({
     length: ITEM_HEIGHT,
     offset: ITEM_HEIGHT * index,
     index,
