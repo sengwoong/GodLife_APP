@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { FeedStackParamList } from '../../navigations/stack/FeedStackNavigator';
+import { FeedStackParamList } from '../../navigations/stack/beforeLogin/FeedStackNavigator';
 import { FeedNavigations } from '../../constants';
 import { colors, getFontStyle, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
