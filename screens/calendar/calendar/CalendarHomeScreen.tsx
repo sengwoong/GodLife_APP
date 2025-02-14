@@ -7,13 +7,12 @@ import ScrollWheelPicker from '../../../components/ScrollWheelPicker';
 interface CalendarProps {
   year: number;
   month: number;
+  day?: number;
   schedules: Array<{
     day: string;
     [key: string]: any;
   }>;
-  onChangeMonth: (increment: number) => void;
-  setDay: (date: number) => void;
-  onChangeYear?: (year: number) => void;
+  onDateChange: (year: number, month: number, date: number) => void;
 }
 
 interface DayProps {
@@ -24,20 +23,37 @@ interface DayProps {
 const Calendar: React.FC<CalendarProps> = ({
   year,
   month,
+  day,
   schedules,
-  onChangeMonth,
-  setDay,
-  onChangeYear,
+  onDateChange,
 }) => {
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [selectedYear, setSelectedYear] = useState(year);
   const [selectedMonth, setSelectedMonth] = useState(month);
 
-  const handleDateSelect = () => {
-    if (onChangeYear) {
-      onChangeYear(selectedYear);
+  const onChangeMonthYear = (year: number, month: number) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+    // onDateChange(year, month, 1);
+  };
+
+  const onChangeMonth = (increment: number) => {
+    let newMonth = selectedMonth + increment;
+    let newYear = selectedYear;
+
+    if (newMonth > 12) {
+      newMonth = 1;
+      newYear += 1;
+    } else if (newMonth < 1) {
+      newMonth = 12;
+      newYear -= 1;
     }
-    onChangeMonth(selectedMonth - month);
+
+    onChangeMonthYear(newYear, newMonth);
+  };
+
+  const handleDateSelect = () => {
+    onDateChange(selectedYear, selectedMonth, 1);
     setDatePickerVisible(false);
   };
 
@@ -50,11 +66,19 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const renderCalendarDay = ({ date, scheduleCount }: DayProps) => {
     const backgroundColor = getDayColor(scheduleCount);
+    const isSelected = day === date && 
+                      year === selectedYear && 
+                      month === selectedMonth;
     
     return (
       <TouchableOpacity 
-        style={[styles.day]}
-        onPress={() => setDay(date)}
+        style={[
+          styles.day,
+          isSelected && { backgroundColor: colors.LIGHT_GRAY }
+        ]}
+        onPress={() => {
+          onDateChange(selectedYear, selectedMonth, date);
+        }}
       >
         <Text style={styles.dayText}>{date > 0 ? date : ''}</Text>
         {scheduleCount > 0 && (
@@ -72,8 +96,8 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const renderCalendar = () => {
     const days = [];
-    const lastDate = new Date(year, month, 0).getDate();
-    const firstDOW = new Date(year, month - 1, 1).getDay();
+    const lastDate = new Date(selectedYear, selectedMonth, 0).getDate();
+    const firstDOW = new Date(selectedYear, selectedMonth - 1, 1).getDay();
 
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDOW; i++) {
@@ -82,7 +106,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
     // Add cells for each day of the month
     for (let date = 1; date <= lastDate; date++) {
-      const dateString = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+      const dateString = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
       const scheduleCount = schedules.filter(s => s.day === dateString).length;
 
       days.push(
@@ -102,7 +126,7 @@ const Calendar: React.FC<CalendarProps> = ({
           <Text style={styles.headerButton}>{'<'}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
-          <Text style={styles.headerTitle}>{`${year}년 ${month}월`}</Text>
+          <Text style={styles.headerTitle}>{`${selectedYear}년 ${selectedMonth}월`}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => onChangeMonth(1)}>
           <Text style={styles.headerButton}>{'>'}</Text>

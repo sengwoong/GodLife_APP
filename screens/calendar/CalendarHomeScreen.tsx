@@ -24,6 +24,18 @@ interface DayProps {
   scheduleCount: number;
 }
 
+interface Schedule {
+  content: string;
+  id: number;
+  time: string;
+  title: string;
+  day: string;
+}
+
+interface EditableSchedule extends Schedule {
+  isNew?: boolean;
+}
+
 function CalendarHomeScreen() {
   const { year: initialYear, month: initialMonth, firstDOW: initialDay } = getMonthYearDetails();
   const navigation = useNavigation<Navigation>();
@@ -31,15 +43,9 @@ function CalendarHomeScreen() {
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const [day, setDay] = useState(initialDay);
-
-  interface Schedule {
-    content: string;
-    id: number;
-    time: string;
-    title: string;
-    day: string;
-  }
-
+  const [selectedDate, setSelectedDate] = useState(initialDay);
+  const [editedSchedule, setEditedSchedule] = useState<EditableSchedule | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   const [schedules, setSchedules] = useState<Schedule[]>([
     {
@@ -65,113 +71,94 @@ function CalendarHomeScreen() {
     },
   ]);
 
-
-    
-  const [editedSchedule, setEditedSchedule] = useState<Schedule | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
-  const [selectedMonth, setSelectedMonth] = useState<number>(12);
-  const [selectedDay, setSelectedDay] = useState<number>(1);
-
-
-  const [isVisible, setIsVisible] = useState(false);
-
   const hideOption = () => {
-    setIsVisible(false);  // 모달 숨기기
-    
-  console.log(selectedDay)
+    setIsVisible(false);
+    setEditedSchedule(null);
   };
 
   const showOption = () => {
-    setIsVisible(true);  // 모달 보이기
-    
-  console.log(selectedDay)
+    setEditedSchedule({
+      id: schedules.length + 1,
+      content: '',
+      time: '',
+      title: '',
+      day: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+      isNew: true
+    });
+    setIsVisible(true);
   };
-
-
-  console.log(selectedDay)
 
   function handleSave() {
     if (editedSchedule) {
-      const updatedDay = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
-      setSchedules((prev) =>
-        prev.map((schedule) =>
-          schedule.id === editedSchedule.id
-            ? { ...editedSchedule, day: updatedDay }
-            : schedule
-        )
-      );
+      const updatedDay = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      
+      if (editedSchedule.isNew) {
+        setSchedules(prev => [...prev, { ...editedSchedule, day: updatedDay }]);
+      } else {
+        setSchedules(prev =>
+          prev.map(schedule =>
+            schedule.id === editedSchedule.id
+              ? { ...editedSchedule, day: updatedDay }
+              : schedule
+          )
+        );
+      }
+      
       setEditedSchedule(null);
+      setIsVisible(false);
     }
   }
 
-
   const monthYear = useMemo(() => {
-    // 유틸로빼빼
     const lastDate = new Date(year, month, 0).getDate();
     const firstDOW = new Date(year, month - 1, 1).getDay();
     const startDate = new Date(year, month - 1, 1); 
     return { year, month, lastDate, firstDOW, startDate };
   }, [year, month]);
 
-  const onChangeMonth = (increment: number) => {
-    let newMonth = month + increment;
-    let newYear = year;
-
-    // 유틸로빼빼
-    if (newMonth > 12) {
-      newMonth = 1;
-      newYear += 1;
-    } else if (newMonth < 1) {
-      newMonth = 12;
-      newYear -= 1;
-    }
-
-    setMonth(newMonth);
-    setYear(newYear);
-  };
-
-  const onChangeYear = (selectYear: number) => {
-    setYear(selectYear)
-  };
 
   const onChangePressItem = (itemindex: number) => {
     navigation.navigate(CalendarNavigations.CALENDAREDIT, {calendaritemIndex: itemindex});
   };
 
-  
-
   const moveToToday = () => {
     const { year, month, firstDOW } = getMonthYearDetails();
     setYear(year);
     setMonth(month);
-    setDay(firstDOW);
+    setSelectedDate(firstDOW);
   };
+
+  const handleDateChange = (newYear: number, newMonth: number, newDate: number) => {
+    setYear(newYear);
+    setMonth(newMonth);
+    setSelectedDate(newDate);
+    setDay(newDate);
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
       <Calendar 
         year={year}
         month={month}
+        day={selectedDate}
         schedules={schedules}
-        onChangeMonth={onChangeMonth}
-        setDay={setDay}
+        onDateChange={handleDateChange}
       />
 
       <View style={styles.rowContainer}>
-        <Text style={styles.SelectDayText}>{day}일 할일</Text>
+        <Text style={styles.SelectDayText}>{selectedDate}일 할일</Text>
         <CustomButton 
           size='text_size' 
           label='생성하기' 
           color='BLACK' 
           shape='rounded' 
-          style={{ flexWrap: 'nowrap'  }} 
+          style={{ flexWrap: 'nowrap' }} 
           onPress={showOption}
         />
       </View>
 
       <EventList posts={schedules} onChangePressItem={onChangePressItem} />
-
-
 
       {isVisible && (
         <CompoundOption isVisible={isVisible} hideOption={hideOption}>
@@ -179,33 +166,33 @@ function CalendarHomeScreen() {
             <CompoundOption.Container style={styles.editContainer}>
               <Text style={styles.header}>새 일정 생성</Text>
               <View style={styles.pickerContainer}>
-              <ScrollWheelPicker
+                <ScrollWheelPicker
                   data={Array.from({ length: 14 }, (_, i) => 2020 + i)}
-                  onValueChange={setSelectedYear}
-                  selectedValue={selectedYear}
+                  onValueChange={setYear}
+                  selectedValue={year}
                 />
                 <ScrollWheelPicker
                   data={Array.from({ length: 12 }, (_, i) => i + 1)}
-                  onValueChange={setSelectedMonth}
-                  selectedValue={selectedMonth}
+                  onValueChange={setMonth}
+                  selectedValue={month}
                 />
                 <ScrollWheelPicker
-                  data={Array.from({ length:30 }, (_, i) => i + 1)}
-                  onValueChange={setSelectedDay}
-                  selectedValue={selectedDay}
+                  data={Array.from({ length: 31 }, (_, i) => i + 1)}
+                  onValueChange={setDay}
+                  selectedValue={day}
                 />
               </View>
               <TextInput
                 style={styles.input}
                 placeholder="제목"
-                value={''}
-                onChangeText={(text) => setEditedSchedule((prev) => (prev ? { ...prev, title: text } : null))}
+                value={editedSchedule?.title || ''}
+                onChangeText={(text) => setEditedSchedule(prev => prev ? { ...prev, title: text } : null)}
               />
               <TextInput
                 style={styles.input}
                 placeholder="내용"
-                value={''}
-                onChangeText={(text) => setEditedSchedule((prev) => (prev ? { ...prev, content: text } : null))}
+                value={editedSchedule?.content || ''}
+                onChangeText={(text) => setEditedSchedule(prev => prev ? { ...prev, content: text } : null)}
               />
 
               <View style={styles.buttonContainer}>
@@ -327,6 +314,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 0.5,
     height: "50%",
+  },
+  selectedDayCell: {
+    backgroundColor: colors.LIGHT_GRAY, // GRAY200를 LIGHT_GRAY로 수정
   },
   dayText: {
     ...getFontStyle('body', 'medium', 'regular'),

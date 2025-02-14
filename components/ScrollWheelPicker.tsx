@@ -15,18 +15,25 @@ const ScrollWheelPicker: React.FC<ScrollWheelPickerProps> = ({
   onValueChange,
   selectedValue,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState<number>(selectedValue!);
+  const [currentIndex, setCurrentIndex] = useState<number>(data.indexOf(selectedValue));
   const flatListRef = useRef<FlatList>(null);
 
-  useLayoutEffect(() => {
-    const initialIndex = data.indexOf(selectedValue!);
-    if (initialIndex !== -1 && flatListRef.current) {
+  useEffect(() => {
+    const index = data.indexOf(selectedValue);
+    if (index !== -1 && flatListRef.current) {
       flatListRef.current.scrollToOffset({
-        animated: false,
-        offset: initialIndex * ITEM_HEIGHT,
+        animated: true,
+        offset: index * ITEM_HEIGHT,
       });
+      setCurrentIndex(index);
     }
-  }, []);
+  }, [selectedValue, data]);
+
+  const getItemLayout = (_, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  });
 
   const handleScrollEndDrag = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
@@ -49,6 +56,8 @@ const ScrollWheelPicker: React.FC<ScrollWheelPickerProps> = ({
         bounces={false}
         extraData={currentIndex}
         onMomentumScrollEnd={handleScrollEndDrag}
+        getItemLayout={getItemLayout}
+        initialScrollIndex={currentIndex}
         initialNumToRender={data.length}
         maxToRenderPerBatch={data.length}
         windowSize={data.length}
