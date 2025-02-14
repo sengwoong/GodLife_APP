@@ -7,6 +7,7 @@ import PlayListStackNavigator from '../stack/beforeLogin/PlayListStackNavigator'
 import VocaStackNavigator from '../stack/beforeLogin/VocaStackNavigator';
 import CalendarStackNavigator from '../stack/beforeLogin/CalendarStackNavigator';
 import FeedStackNavigator from '../stack/beforeLogin/FeedStackNavigator';
+import SettingStackNavigator from '../stack/beforeLogin/SettingStackNavigator';
 const Drawer = createDrawerNavigator();
 
 export type MainDrawerParamList = {
@@ -31,6 +32,7 @@ function MainDrawerNavigator() {
       <Drawer.Screen name={drawerNavigations.PLAYLIST} component={PlayListStackNavigator} />
       <Drawer.Screen name={drawerNavigations.CALENDAR} component={CalendarStackNavigator} />  
       <Drawer.Screen name={drawerNavigations.FEED} component={FeedStackNavigator} />
+      <Drawer.Screen name={drawerNavigations.SETTING} component={SettingStackNavigator} />
     </Drawer.Navigator>
   );
 }
