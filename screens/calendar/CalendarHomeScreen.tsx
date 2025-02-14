@@ -253,8 +253,10 @@ const styles = StyleSheet.create({
   }as TextStyle ,
   pickerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    alignItems: 'center',
     marginBottom: spacing.M12,
+    paddingHorizontal: spacing.M16,
   },
   header: {
     ...getFontStyle('title', 'large', 'bold'), // 제목 스타일
