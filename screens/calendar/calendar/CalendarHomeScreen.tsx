@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../../constants/index';
+import { CompoundOption } from '../../../components/Modal';
+import ScrollWheelPicker from '../../../components/ScrollWheelPicker';
 
 interface CalendarProps {
   year: number;
@@ -11,6 +13,7 @@ interface CalendarProps {
   }>;
   onChangeMonth: (increment: number) => void;
   setDay: (date: number) => void;
+  onChangeYear?: (year: number) => void;
 }
 
 interface DayProps {
@@ -24,7 +27,20 @@ const Calendar: React.FC<CalendarProps> = ({
   schedules,
   onChangeMonth,
   setDay,
+  onChangeYear,
 }) => {
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(year);
+  const [selectedMonth, setSelectedMonth] = useState(month);
+
+  const handleDateSelect = () => {
+    if (onChangeYear) {
+      onChangeYear(selectedYear);
+    }
+    onChangeMonth(selectedMonth - month);
+    setDatePickerVisible(false);
+  };
+
   const getDayColor = (scheduleCount: number) => {
     if (scheduleCount === 0) return colors.WHITE;
     if (scheduleCount === 1) return colors.GREEN;
@@ -85,7 +101,9 @@ const Calendar: React.FC<CalendarProps> = ({
         <TouchableOpacity onPress={() => onChangeMonth(-1)}>
           <Text style={styles.headerButton}>{'<'}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{`${year}년 ${month}월`}</Text>
+        <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+          <Text style={styles.headerTitle}>{`${year}년 ${month}월`}</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => onChangeMonth(1)}>
           <Text style={styles.headerButton}>{'>'}</Text>
         </TouchableOpacity>
@@ -101,6 +119,42 @@ const Calendar: React.FC<CalendarProps> = ({
           {renderCalendar()}
         </View>
       </View>
+
+      {isDatePickerVisible && (
+        <CompoundOption 
+          isVisible={isDatePickerVisible} 
+          hideOption={() => setDatePickerVisible(false)}
+        >
+          <CompoundOption.Background>
+            <CompoundOption.Container style={styles.datePickerContainer}>
+              <Text style={styles.datePickerTitle}>날짜 선택</Text>
+              <View style={styles.pickerContainer}>
+                <ScrollWheelPicker
+                  data={Array.from({ length: 14 }, (_, i) => 2020 + i)}
+                  onValueChange={setSelectedYear}
+                  selectedValue={selectedYear}
+                />
+                <ScrollWheelPicker
+                  data={Array.from({ length: 12 }, (_, i) => i + 1)}
+                  onValueChange={setSelectedMonth}
+                  selectedValue={selectedMonth}
+                />
+              </View>
+              <View style={styles.buttonContainer}>
+                <CompoundOption.Button onPress={handleDateSelect}>
+                  선택
+                </CompoundOption.Button>
+                <CompoundOption.Button 
+                  onPress={() => setDatePickerVisible(false)} 
+                  isDanger
+                >
+                  취소
+                </CompoundOption.Button>
+              </View>
+            </CompoundOption.Container>
+          </CompoundOption.Background>
+        </CompoundOption>
+      )}
     </View>
   );
 };
@@ -175,6 +229,29 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   } as TextStyle,
+  datePickerContainer: {
+    padding: spacing.M16,
+    backgroundColor: colors.WHITE,
+    borderRadius: 8,
+    width: '80%',
+    alignSelf: 'center',
+  },
+  datePickerTitle: {
+    ...getFontStyle('title', 'large', 'bold'),
+    color: colors.BLACK,
+    textAlign: 'center',
+    marginBottom: spacing.M16,
+  } as TextStyle,
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: spacing.M16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: spacing.M16,
+  },
 });
 
 export default Calendar;
