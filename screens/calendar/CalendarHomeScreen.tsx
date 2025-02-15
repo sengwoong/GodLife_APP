@@ -137,7 +137,7 @@ function CalendarHomeScreen() {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView >
       <Calendar 
         year={year}
         month={month}
@@ -212,9 +212,6 @@ function CalendarHomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   SelectDayText: {
     ... getFontStyle('display', 'small', 'bold'),
     color: colors.BLACK,
@@ -224,17 +221,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: 10,
+    marginVertical: spacing.M12,
   },
   editContainer: {
     padding: spacing.M16,
     backgroundColor: colors.WHITE,
     borderRadius: 8,
-    marginTop: spacing.M20,
+    marginTop: spacing.M12,
     justifyContent: 'space-between',
   },
   editHeader: {
-    ...getFontStyle('titleBody', 'large', 'bold'), // 편집 화면 제목 스타일
+    ...getFontStyle('titleBody', 'large', 'bold'),
     color: colors.BLACK,
     marginBottom: spacing.M12,
   }as TextStyle ,
@@ -246,18 +243,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.M16,
   },
   header: {
-    ...getFontStyle('title', 'large', 'bold'), // 제목 스타일
+    ...getFontStyle('title', 'large', 'bold'),
     color: colors.BLACK,
-    marginBottom: spacing.M20,
+    marginBottom: spacing.M12,
   } as TextStyle ,
 
   input: {
-    ...getFontStyle('body', 'medium', 'medium'), // 입력 필드 텍스트 스타일
+    ...getFontStyle('body', 'medium', 'medium'),
     height: 40,
     borderColor: colors.BLACK,
     borderWidth: 0.5,
     borderRadius: 4,
-    marginBottom: spacing.M12,
+    marginBottom: spacing.M4,
     paddingHorizontal: spacing.M8,
   } as TextStyle  ,
   buttonContainer: {
@@ -266,7 +263,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.M16,
   },
   modal: {
-    ...getFontStyle('body', 'medium', 'medium'), // 모달 텍스트 스타일
+    ...getFontStyle('body', 'medium', 'medium'),
     borderColor: colors.BLACK,
     borderWidth: 1,
     margin: spacing.M12,
@@ -314,9 +311,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 0.5,
     height: "50%",
+    margin: spacing.M4,
   },
   selectedDayCell: {
-    backgroundColor: colors.LIGHT_GRAY, // GRAY200를 LIGHT_GRAY로 수정
+    backgroundColor: colors.LIGHT_GRAY,
   },
   dayText: {
     ...getFontStyle('body', 'medium', 'regular'),
@@ -347,6 +345,9 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   } as TextStyle,
+  calendarContainer: {
+    marginBottom: spacing.M16,
+  },
 });
 
 
