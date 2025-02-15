@@ -1,11 +1,20 @@
-import React from 'react'
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function PurchasedWordsScreen() {
   return (
-    <div>
-      
-    </div>
-  )
+    <SafeAreaView style={styles.container}>
+      <Text>구매한 단어</Text>
+    </SafeAreaView>
+  );
 }
 
-export default PurchasedWordsScreen
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+});
+
+export default PurchasedWordsScreen; 
