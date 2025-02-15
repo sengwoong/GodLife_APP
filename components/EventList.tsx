@@ -47,9 +47,9 @@ const styling = () =>
       flexDirection: 'row',
     }as ViewStyle,
     infoContainer: {
-      borderTopWidth: 1,
+      marginTop: spacing.M16,
       borderColor: colors.GRAY,
-      padding: spacing.M8,
+      paddingHorizontal: spacing.M16,
       width: '100%',
     } as ViewStyle,
     infoText: {

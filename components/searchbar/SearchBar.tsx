@@ -59,16 +59,11 @@ const styles = StyleSheet.create({
   },
   search__input: {
     ...getFontStyle('titleBody', 'small', 'medium'),
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.LIGHT_GRAY,
+    borderWidth: 1,
+    borderColor: colors.GRAY,
     borderRadius: 10,
-    paddingHorizontal: spacing.M16,
-    height: 40,
-    marginBottom: spacing.M12,
-    elevation: 3,
-    shadowColor: colors.BLACK,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3.84,
+    padding: spacing.M12,
   } as TextStyle,
 });
 

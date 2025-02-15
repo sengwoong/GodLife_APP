@@ -2,6 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View, TextStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Margin from '../division/Margin';
 
 interface PlaylistItem {
   id: number;
@@ -52,10 +53,12 @@ function PlaylistLayout({
       </View>
 
       <View style={styles.header}>
+      <Margin size={'M16'} />
         <Text style={styles.header__title}>{title}</Text>
         {subtitle && (
           <Text style={styles.header__subtitle}>{subtitle}</Text>
         )}
+        <Margin size={'M12'} />
         {showTabs && (
           <View style={styles.header__tabs}>
             <TouchableOpacity style={styles.tab__active}>
@@ -67,7 +70,7 @@ function PlaylistLayout({
           </View>
         )}
       </View>
-      
+      <Margin size={'M4'} />
       <FlatList
         data={data}
         renderItem={({ item }) => (
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.M20,
+    paddingHorizontal: spacing.M16,
     paddingVertical: spacing.M12,
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
@@ -137,27 +140,25 @@ const styles = StyleSheet.create({
     padding: spacing.M8,
   },
   header: {
-    paddingHorizontal: spacing.M20,
-    paddingVertical: spacing.M16,
+    paddingHorizontal: spacing.M16,
     backgroundColor: colors.WHITE,
   },
   header__title: {
     color: colors.BLACK,
     ...getFontStyle('title', 'large', 'bold'),
-    marginBottom: spacing.M16,
   } as TextStyle,
   header__subtitle: {
     color: colors.BLACK,
     ...getFontStyle('body', 'medium', 'regular'),
-    marginBottom: spacing.M16,
+    marginBottom: spacing.M4,
   } as TextStyle,
   header__tabs: {
     flexDirection: 'row',
-    gap: spacing.M16,
+    gap: spacing.M4,
   },
   tab: {
     paddingVertical: spacing.M8,
-    paddingHorizontal: spacing.M16,
+    paddingHorizontal: spacing.M12,
   },
   tab__active: {
     paddingVertical: spacing.M8,
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   tab__text: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,
   tab__text_active: {
@@ -174,12 +175,12 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,
   list: {
-    paddingHorizontal: spacing.M20,
+    paddingHorizontal: spacing.M12,
   },
   list__item: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.M12,
+    paddingVertical: spacing.M8,
     gap: spacing.M16,
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
@@ -197,9 +198,8 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,
   list__artist: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
-    marginTop: spacing.M4,
   } as TextStyle,
 });
 

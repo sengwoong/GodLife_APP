@@ -49,12 +49,12 @@ function VocaScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Margin size={'M2'} />
+      <Margin size={'M16'} />
       <View style={styles.header}>
         <Text style={styles.header__title}>단어장</Text>
         <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
       </View>
-      <Margin size={'M16'} />
+      <Margin size={'M12'} />
       <View style={styles.search}>
         <SearchBar 
           initialSuggestions={['React', 'React Native', 'JavaScript', 'TypeScript', 'Node.js', 'Python', 'Django', 'Spring']} 
@@ -93,7 +93,6 @@ function VocaScreen() {
                 value={newVocaName}
                 onChangeText={setNewVocaName}
                 autoFocus
-                style={styles.modal__textInput}
               />
             </View>
             <Margin size={'M12'} />
@@ -138,7 +137,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.M20,
     width: '100%',
     alignItems: 'center',
-    marginBottom: spacing.M16,
   },
   list: {
     paddingHorizontal: spacing.M20,
@@ -163,23 +161,23 @@ const styles = StyleSheet.create({
   } as TextStyle,
   modal: {
     backgroundColor: colors.WHITE,
-    paddingTop: spacing.M16,
   },
   modal__input: {
     paddingHorizontal: spacing.M16,
+    paddingBottom: spacing.M16,
   },
   modal__textInput: {
     borderWidth: 1,
     borderColor: colors.GRAY,
     borderRadius: 8,
     padding: spacing.M12,
-    fontSize: 16,
     color: colors.BLACK,
+    ...getFontStyle('body', 'medium', 'regular'),
   },
   modal__buttons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.M16,
+    borderTopWidth: 1,
+    borderTopColor: colors.GRAY,
   },
 });
 

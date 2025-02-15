@@ -6,7 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  TouchableWithoutPostback,
+  TouchableWithoutFeedback,
   Keyboard,
   TextStyle,
 } from 'react-native';
@@ -32,9 +32,9 @@ export default function PlayListEditScreen() {
   };
 
   return (
-    <TouchableWithoutPostback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.container}>
-        <Margin size={'M12'} />
+        <Margin size={'M16'} />
         <View style={styles.header}>
           <Text style={styles.header__title}>{type || 'Type 없음'}</Text>
         </View>
@@ -46,7 +46,7 @@ export default function PlayListEditScreen() {
           value={title}
           onChangeText={setTitle}
         />
-        
+                <Margin size={'M4'} />
         {type === typeNameMusic && (
           <TextInput
             style={[styles.form__input, styles.form__textarea]}
@@ -57,7 +57,7 @@ export default function PlayListEditScreen() {
           />
         )}
      
-        <Margin size={'M20'} />
+        <Margin size={'M12'} />
         
         <TouchableOpacity 
           style={styles.button} 
@@ -66,14 +66,14 @@ export default function PlayListEditScreen() {
           <Text style={styles.button__text}>등록하기</Text>
         </TouchableOpacity>
       </SafeAreaView>
-    </TouchableWithoutPostback>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: spacing.M20,
+    paddingHorizontal: spacing.M16,
     backgroundColor: colors.WHITE,
   },
   header: {
@@ -89,8 +89,6 @@ const styles = StyleSheet.create({
     borderColor: colors.GRAY,
     borderWidth: 1,
     borderRadius: 5,
-    paddingLeft: spacing.M12,
-    marginBottom: spacing.M12,
   },
   form__textarea: {
     height: 100,
@@ -98,7 +96,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.GREEN,
-    paddingVertical: spacing.M16,
+    paddingVertical: spacing.M12,
     borderRadius: 5,
     alignItems: 'center',
   },

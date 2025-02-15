@@ -225,13 +225,10 @@ const styles = StyleSheet.create({
   postContainer: {
     backgroundColor: colors.WHITE,
     borderRadius: spacing.M12,
-    marginBottom: spacing.M16,
-    padding: spacing.M12,
-    shadowColor: colors.BLACK,
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    marginBottom: spacing.M20,
+    paddingHorizontal: spacing.M16,
+    borderWidth: 1,
+    borderColor: colors.GRAY,
   },
   postHeader: {
     flexDirection: 'row',

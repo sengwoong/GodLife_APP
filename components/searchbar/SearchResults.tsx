@@ -62,21 +62,18 @@ const styles = StyleSheet.create({
   results: {
     flexDirection: 'row',
     position: 'absolute',
-    marginTop: spacing.M60,
+    marginTop: spacing.M4,
     justifyContent: 'space-between',
   },
   results__column: {
     backgroundColor: colors.WHITE,
-    padding: spacing.M12,
+    padding: spacing.M4,
     borderRadius: 10,
-    elevation: 2,
-    shadowColor: colors.BLACK,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3.84,
+    borderWidth: 1,
+    borderColor: colors.GRAY,
   },
   results__marginHorizontal:{
-    marginHorizontal: spacing.M12,
+    marginHorizontal: spacing.M4,
   },
   results__columnWide: {
     width: '70%',
@@ -86,7 +83,7 @@ const styles = StyleSheet.create({
   },
   results__title: {
     ...getFontStyle('titleBody', 'large', 'bold'),
-    marginBottom: spacing.M12,
+    marginBottom: spacing.M4,
   } as TextStyle,
   suggestion__item: {
     ...getFontStyle('titleBody', 'mediumSmall', 'bold'),

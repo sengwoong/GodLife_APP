@@ -43,18 +43,17 @@ function PlayListScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Margin size={'M2'} />
+      <Margin size={'M16'} />
       <View style={styles.header}>
         <Text style={styles.header__title}>플레이리스트</Text>
         <Text style={styles.header__subtitle}>플레이리스트를 선택하세요</Text>
       </View>
-      <Margin size={'M16'} />
+      <Margin size={'M12'} />
       <View style={styles.search}>
         <SearchBar 
           initialSuggestions={['React', 'React Native', 'JavaScript', 'TypeScript', 'Node.js', 'Python', 'Django', 'Spring']} 
         />
       </View>
-      
       <FlatList
         data={playListList}
         renderItem={({ item }) => (

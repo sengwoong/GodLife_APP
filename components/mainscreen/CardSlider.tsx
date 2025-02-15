@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.BLACK,
-    padding: spacing.M20,
+    padding: spacing.M16,
     width: width,
     height: 300,
     borderTopLeftRadius: 15,
@@ -147,7 +147,6 @@ const styles = StyleSheet.create({
   cardDescription: {
     ...getFontStyle('titleBody', 'large', 'regular'),
     color: colors.LIGHT_GRAY,
-    marginBottom: spacing.M16,
   } as TextStyle,
   cardContent: {
     flexGrow: 1,

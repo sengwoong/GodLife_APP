@@ -122,7 +122,7 @@ const styling = () =>
       elevation: 5,
     },
     option: {
-      paddingVertical: 20,
+      paddingVertical: spacing.M12,
     },
     optionText: {
       ...getFontStyle('body', 'large', 'medium'),
