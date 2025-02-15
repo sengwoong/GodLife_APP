@@ -56,6 +56,29 @@ function SettingScreen() {
           <Text style={styles.menuText}>포인트 사용 내역</Text>
         </TouchableOpacity>
 
+        {/* Post Management Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>포스트 관리</Text>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate(SettingNavigations.POSTCOMMENTS)}
+          >
+            <Text style={styles.menuText}>댓글 관리</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate(SettingNavigations.POSTADS)}
+          >
+            <Text style={styles.menuText}>포스트 광고 관리</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate(SettingNavigations.POSTSHARE)}
+          >
+            <Text style={styles.menuText}>포스트 친구에게 전송</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Playlist Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>플레이리스트</Text>

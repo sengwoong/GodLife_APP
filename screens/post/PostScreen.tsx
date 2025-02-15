@@ -39,7 +39,7 @@ const data: Post[] = [
     id: '2',
     userName: '김철수',
     profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 피드 디자인 테스트중!',
+    postContent: 'React Native 포스트 디자인 테스트중!',
     postImage: 'https://placekitten.com/600/401',
     likes: 10,
     comments: 3
@@ -48,7 +48,7 @@ const data: Post[] = [
     id: '3',
     userName: '김철수',
     profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 피드 디자인 테스트중!',
+    postContent: 'React Native 포스트 디자인 테스트중!',
     postImage: 'https://placekitten.com/600/401',
     likes: 8,
     comments: 2
@@ -57,7 +57,7 @@ const data: Post[] = [
     id: '4',
     userName: '김철수',
     profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 피드 디자인 테스트중!',
+    postContent: 'React Native 포스트 디자인 테스트중!',
     postImage: 'https://placekitten.com/600/401',
     likes: 12,
     comments: 4
@@ -66,7 +66,7 @@ const data: Post[] = [
     id: '5',
     userName: '김철수',
     profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 피드 디자인 테스트중!',
+    postContent: 'React Native 포스트 디자인 테스트중!',
     postImage: 'https://placekitten.com/600/401',
     likes: 10,
     comments: 3

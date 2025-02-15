@@ -6,8 +6,9 @@ import BulletinBoard from '../../components/BulletinBoard';
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
+
 import { PostNavigations } from '../../constants';
+import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import PostMenu from '../../components/PostMenu';
 
 type PostDetailScreenNavigationProp = StackNavigationProp<PostStackParamList>;
@@ -38,7 +39,7 @@ export const PostDetailScreen = () => {
   const navigation = useNavigation<PostDetailScreenNavigationProp>();
 
   const handleUserPress = () => {
-    navigation.navigate(PostNavigations.FEEDAVATAR, { userName: '고민해결사' });
+    navigation.navigate(PostNavigations.POSTAVATAR, { userName: '고민해결사' });
   };
 
   return (

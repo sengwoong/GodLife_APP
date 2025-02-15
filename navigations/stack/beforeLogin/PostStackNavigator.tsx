@@ -45,7 +45,7 @@ function PostStackNavigator() {
         name={PostNavigations.POST}
         component={PostScreen}
         options={{
-          headerTitle: '피드',
+          headerTitle: '포스트',
           headerLeft: () => <HomeHeaderLeft />,
         }}
       />
@@ -53,7 +53,7 @@ function PostStackNavigator() {
         name={PostNavigations.POSTDETAIL}
         component={PostDetailScreen}
         options={{
-          headerTitle: '피드 상세',
+          headerTitle: '포스트 상세',
         }}
       />
       <Stack.Screen

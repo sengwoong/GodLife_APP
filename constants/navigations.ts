@@ -51,6 +51,9 @@ export const SettingNavigations = {
   STUDYWORDS: 'StudyWords',
   PURCHASEDWORDS: 'PurchasedWords',
   MYWORDS: 'MyWords',
+  POSTCOMMENTS: 'PostComments',
+  POSTADS: 'PostAds',
+  POSTSHARE: 'PostShare',
 } as const;
 
 export { 

@@ -15,7 +15,9 @@ import PointUsageScreen from '../../../screens/setting/PointUsageScreen';
 import MyPlaylistScreen from '../../../screens/setting/MyPlaylistScreen';
 import PurchasedWordsScreen from '../../../screens/setting/PurchasedWordsScreen';
 import MyWordsScreen from '../../../screens/setting/MyWordsScreen';
-
+import PostCommentsScreen from '../../../screens/setting/PostCommentsScreen';
+import PostAdsScreen from '../../../screens/setting/PostAdsScreen';
+import PostShareScreen from '../../../screens/setting/PostShareScreen';
 
 export type SettingStackParamList = {
   [SettingNavigations.SETTING]: undefined;
@@ -28,6 +30,9 @@ export type SettingStackParamList = {
   [SettingNavigations.STUDYWORDS]: undefined;
   [SettingNavigations.PURCHASEDWORDS]: undefined;
   [SettingNavigations.MYWORDS]: undefined;
+  [SettingNavigations.POSTCOMMENTS]: undefined;
+  [SettingNavigations.POSTADS]: undefined;
+  [SettingNavigations.POSTSHARE]: undefined;
 };
 
 const Stack = createStackNavigator<SettingStackParamList>();
@@ -118,6 +123,28 @@ function SettingStackNavigator() {
         component={MyWordsScreen}
         options={{
           headerTitle: '나의 단어',
+        }}
+      />
+      <Stack.Screen
+        name={SettingNavigations.POSTCOMMENTS}
+        component={PostCommentsScreen}
+        options={{
+          headerTitle: '포스트 댓글 관리',
+        }}
+      />
+      <Stack.Screen
+        name={SettingNavigations.POSTADS}
+        component={PostAdsScreen}
+        options={{
+          headerTitle: '포스트 광고 관리',
+        }}
+      />
+
+      <Stack.Screen
+        name={SettingNavigations.POSTSHARE}
+        component={PostShareScreen}
+        options={{
+          headerTitle: '포스트 친구에게 전송',
         }}
       />
     </Stack.Navigator>
