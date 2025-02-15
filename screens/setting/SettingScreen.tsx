@@ -7,6 +7,7 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
 import { SettingStackParamList } from '../../navigations/stack/beforeLogin/SettingStackNavigator';
 import { drawerNavigations, SettingNavigations } from '../../constants';
+import { colors, spacing, getFontStyle } from '../../styles';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<SettingStackParamList>,
@@ -135,80 +136,78 @@ function SettingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.WHITE,
   },
   header: {
-    padding: 16,
+    padding: spacing.M16,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...getFontStyle('title', 'large', 'bold'),
+    color: colors.BLACK,
   },
   pointsContainer: {
     flexDirection: 'row',
-    padding: 16,
+    padding: spacing.M16,
     justifyContent: 'space-around',
   },
   pointBox: {
     alignItems: 'center',
   },
   pointValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...getFontStyle('title', 'medium', 'bold'),
+    color: colors.BLACK,
   },
   pointLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.GRAY,
+    marginTop: spacing.M4,
   },
   totalPoints: {
-    backgroundColor: '#000',
-    padding: 16,
-    marginHorizontal: 16,
-    borderRadius: 8,
+    backgroundColor: colors.BLACK,
+    padding: spacing.M16,
+    marginHorizontal: spacing.M16,
+    borderRadius: spacing.M8,
   },
   totalPointsLabel: {
-    color: '#fff',
-    fontSize: 14,
+    color: colors.WHITE,
+    ...getFontStyle('body', 'small', 'regular'),
   },
   totalPointsValue: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 4,
+    color: colors.WHITE,
+    ...getFontStyle('title', 'large', 'bold'),
+    marginTop: spacing.M4,
   },
   menuItem: {
-    padding: 16,
+    padding: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    marginHorizontal: 16,
+    borderBottomColor: colors.LIGHT_GRAY,
+    marginHorizontal: spacing.M16,
   },
   menuText: {
-    fontSize: 16,
+    ...getFontStyle('body', 'medium', 'regular'),
   },
   section: {
-    marginTop: 24,
+    marginTop: spacing.M24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 16,
-    marginBottom: 8,
+    ...getFontStyle('title', 'medium', 'bold'),
+    marginLeft: spacing.M16,
+    marginBottom: spacing.M8,
   },
   playlistItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    marginHorizontal: 16,
+    borderBottomColor: colors.LIGHT_GRAY,
+    marginHorizontal: spacing.M16,
   },
   playlistText: {
-    fontSize: 16,
+    ...getFontStyle('body', 'medium', 'regular'),
   },
   playlistCount: {
-    fontSize: 14,
-    color: '#666',
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.GRAY,
   },
 });
 

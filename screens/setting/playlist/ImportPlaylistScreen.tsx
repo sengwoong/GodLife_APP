@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { colors, spacing, getFontStyle } from '../../../styles/theme';
 
 function ImportPlaylistScreen() {
   const navigation = useNavigation();
@@ -72,58 +73,56 @@ function ImportPlaylistScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.WHITE,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.LIGHT_GRAY,
   },
   backButton: {
-    fontSize: 24,
-    width: 40,
+    ...getFontStyle('title', 'large', 'regular'),
+    width: spacing.M40,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...getFontStyle('title', 'medium', 'bold'),
   },
   settingButton: {
-    fontSize: 20,
-    width: 40,
+    ...getFontStyle('title', 'medium', 'regular'),
+    width: spacing.M40,
     textAlign: 'right',
   },
   importButton: {
-    backgroundColor: '#000',
-    margin: 16,
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: colors.BLACK,
+    margin: spacing.M16,
+    padding: spacing.M16,
+    borderRadius: spacing.M8,
     alignItems: 'center',
   },
   importButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: colors.WHITE,
+    ...getFontStyle('body', 'medium', 'bold'),
   },
   playlistContainer: {
     flex: 1,
   },
   playlistItem: {
     flexDirection: 'row',
-    padding: 16,
+    padding: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.LIGHT_GRAY,
   },
   thumbnail: {
-    width: 50,
-    height: 50,
-    borderRadius: 4,
-    marginRight: 12,
+    width: spacing.M50,
+    height: spacing.M50,
+    borderRadius: spacing.M4,
+    marginRight: spacing.M12,
   },
   placeholderThumbnail: {
-    backgroundColor: '#E5E5E5',  // 회색 배경
+    backgroundColor: colors.LIGHT_GRAY,
   },
   contentContainer: {
     flex: 1,
@@ -133,28 +132,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    marginBottom: 4,
+    ...getFontStyle('body', 'medium', 'regular'),
+    marginBottom: spacing.M4,
   },
   artist: {
-    fontSize: 14,
-    color: '#666',
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.GRAY,
   },
   timestamp: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.GRAY,
+    marginTop: spacing.M4,
   },
   arrowIndicator: {
     position: 'absolute',
-    bottom: 20,
+    bottom: spacing.M20,
     left: 0,
     right: 0,
     alignItems: 'center',
   },
   arrowText: {
-    fontSize: 24,
-    color: '#666',
+    ...getFontStyle('title', 'large', 'regular'),
+    color: colors.GRAY,
   },
 });
 

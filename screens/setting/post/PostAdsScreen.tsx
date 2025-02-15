@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   list__item: {
     paddingVertical: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.GRAY,
+    borderBottomColor: colors.BLACK,
   },
   list__content: {
     flexDirection: 'row',
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.M4,
   } as TextStyle,
   list__date: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
   list__statusContainer: {
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   list__statusText: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
     marginRight: spacing.M8,
   } as TextStyle,
