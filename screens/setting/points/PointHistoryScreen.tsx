@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, getFontStyle } from '../../styles/theme';
+import { colors, spacing, getFontStyle } from '../../../constants';
 
 function PointHistoryScreen() {
   const historyData = [
@@ -44,14 +44,14 @@ const styles = StyleSheet.create({
   title: {
     ...getFontStyle('body', 'medium', 'regular'),
     marginBottom: spacing.M4,
-  },
+  }as TextStyle,
   date: {
     ...getFontStyle('body', 'small', 'regular'),
     color: colors.GRAY,
-  },
+  }as TextStyle,
   points: {
     ...getFontStyle('body', 'medium', 'medium'),
-  },
+  }as TextStyle,
 });
 
 export default PointHistoryScreen; 

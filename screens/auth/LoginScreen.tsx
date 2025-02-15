@@ -1,21 +1,53 @@
-import React, { useRef } from 'react';
-import { SafeAreaView, StyleSheet, Text, TextStyle, View } from 'react-native';
-
+import React, { useRef, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, TextStyle, View, Alert } from 'react-native';
+import { useLogin } from '../../query/hooks/useAuth';
 import CustomButton from '../../components/CustomButton';
 import { TextInput } from 'react-native-gesture-handler';
-
 import { colors, getFontStyle } from '../../constants';
 import useForm from '../../hooks/useForm';
 import InputField from '../../components/InputField';
 import { validateLogin } from '../../utils/validateLogin';
+import useAuthStore from '../../store/useAuthStore';
 
 function LoginScreen() {
   const passwordRef = useRef<TextInput | null>(null);
+  const loginMutation = useLogin();
+  const setAuth = useAuthStore((state: any) => state.setAuth);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const login = useForm({
+  const { values, errors, touched, getTextInputProps, setFieldValue } = useForm({
     initialValue: { email: '', password: '' },
     validate: validateLogin,
   });
+
+  const onSubmit = async () => {
+    setMessage('오브젝트탐생중');
+    const validationErrors = validateLogin(values);
+    if (Object.keys(validationErrors).length > 0) {
+
+      Object.entries(validationErrors).forEach(([field, error]) => {
+        setFieldValue(field, values[field as keyof typeof values]);
+      });
+    }
+    
+      setMessage('로그인 시도중중');
+    try {
+      const response = await loginMutation.mutateAsync({
+        username: values.email,
+        password: values.password,
+      });
+      
+      setAuth(
+        { username: values.email },
+        response.token 
+      );
+      
+      setMessage('로그인 성공');
+      
+    } catch (error) {
+      setMessage('로그인 실패: 이메일 또는 비밀번호를 확인해주세요.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,30 +63,34 @@ function LoginScreen() {
         <InputField
           autoFocus
           placeholder="이메일"
-          error={login.errors.email}
-          touched={login.touched.email}
+          error={errors.email}
+          touched={touched.email}
           inputMode="email"
           returnKeyType="next"
           submitBehavior="blurAndSubmit"
           onSubmitEditing={() => passwordRef.current?.focus()}
-          {...login.getTextInputProps('email')}
+          {...getTextInputProps('email')}
         />
 
         <InputField
           ref={passwordRef}
           placeholder="비밀번호"
-          error={login.errors.password}
-          touched={login.touched.password}
+          error={errors.password}
+          touched={touched.password}
           secureTextEntry
           returnKeyType="join"
-          {...login.getTextInputProps('password')}
+          {...getTextInputProps('password')}
         />
         
         <CustomButton
           label="로그인"
           variant="filled"
           size="large"
+          onPress={onSubmit}
+          disabled={loginMutation.isPending}
         />
+
+         <Text style={styles.messageText}>{message}|| ㅁㄴㅇㅁㄴㅇ</Text>
       </View>
     </SafeAreaView>
   );
@@ -83,6 +119,11 @@ const styles = StyleSheet.create({
   }as TextStyle,
   loginContainer: {
     gap: 8, 
+  },
+  messageText: {
+    textAlign: 'center',
+    color: colors.BLACK,
+    marginTop: 20,
   },
 });
 

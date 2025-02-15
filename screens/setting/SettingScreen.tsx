@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -7,7 +7,7 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
 import { SettingStackParamList } from '../../navigations/stack/beforeLogin/SettingStackNavigator';
 import { drawerNavigations, SettingNavigations } from '../../constants';
-import { colors, spacing, getFontStyle } from '../../styles';
+import { colors, spacing, getFontStyle } from '../../constants';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<SettingStackParamList>,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...getFontStyle('title', 'large', 'bold'),
     color: colors.BLACK,
-  },
+  }as TextStyle,
   pointsContainer: {
     flexDirection: 'row',
     padding: spacing.M16,
@@ -156,12 +156,12 @@ const styles = StyleSheet.create({
   pointValue: {
     ...getFontStyle('title', 'medium', 'bold'),
     color: colors.BLACK,
-  },
+  }as TextStyle,
   pointLabel: {
     ...getFontStyle('body', 'small', 'regular'),
     color: colors.GRAY,
     marginTop: spacing.M4,
-  },
+  }as TextStyle,
   totalPoints: {
     backgroundColor: colors.BLACK,
     padding: spacing.M16,
@@ -171,12 +171,12 @@ const styles = StyleSheet.create({
   totalPointsLabel: {
     color: colors.WHITE,
     ...getFontStyle('body', 'small', 'regular'),
-  },
+  }as TextStyle,
   totalPointsValue: {
     color: colors.WHITE,
     ...getFontStyle('title', 'large', 'bold'),
     marginTop: spacing.M4,
-  },
+  }as TextStyle,
   menuItem: {
     padding: spacing.M16,
     borderBottomWidth: 1,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   menuText: {
     ...getFontStyle('body', 'medium', 'regular'),
-  },
+  }as TextStyle,
   section: {
     marginTop: spacing.M24,
   },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     ...getFontStyle('title', 'medium', 'bold'),
     marginLeft: spacing.M16,
     marginBottom: spacing.M8,
-  },
+  }as TextStyle,
   playlistItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -204,11 +204,11 @@ const styles = StyleSheet.create({
   },
   playlistText: {
     ...getFontStyle('body', 'medium', 'regular'),
-  },
+  }as TextStyle,
   playlistCount: {
     ...getFontStyle('body', 'small', 'regular'),
     color: colors.GRAY,
-  },
+  }as TextStyle,
 });
 
 export default SettingScreen;

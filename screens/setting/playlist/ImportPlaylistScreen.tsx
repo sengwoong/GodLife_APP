@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextStyle  } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { colors, spacing, getFontStyle } from '../../../styles/theme';
+import { colors, spacing, getFontStyle } from '../../../constants';
 
 function ImportPlaylistScreen() {
   const navigation = useNavigation();
@@ -29,7 +29,7 @@ function ImportPlaylistScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
+          <Text>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>유튜브 플레이리스트</Text>
         <TouchableOpacity>
@@ -47,7 +47,7 @@ function ImportPlaylistScreen() {
         {playlistData.map((item) => (
           <View key={item.id} style={styles.playlistItem}>
             {item.thumbnail ? (
-              <Image source={item.thumbnail} style={styles.thumbnail} />
+              <Image source={item.thumbnail}  />
             ) : (
               <View style={[styles.thumbnail, styles.placeholderThumbnail]} />
             )}
@@ -89,12 +89,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...getFontStyle('title', 'medium', 'bold'),
-  },
+  }as TextStyle,
   settingButton: {
     ...getFontStyle('title', 'medium', 'regular'),
     width: spacing.M40,
     textAlign: 'right',
-  },
+  }as TextStyle,
   importButton: {
     backgroundColor: colors.BLACK,
     margin: spacing.M16,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   importButtonText: {
     color: colors.WHITE,
     ...getFontStyle('body', 'medium', 'bold'),
-  },
+  }as TextStyle,
   playlistContainer: {
     flex: 1,
   },
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.LIGHT_GRAY,
   },
   thumbnail: {
-    width: spacing.M50,
-    height: spacing.M50,
+    width: spacing.M48,
+    height: spacing.M48,
     borderRadius: spacing.M4,
     marginRight: spacing.M12,
   },
@@ -134,16 +134,16 @@ const styles = StyleSheet.create({
   title: {
     ...getFontStyle('body', 'medium', 'regular'),
     marginBottom: spacing.M4,
-  },
+  }as TextStyle,
   artist: {
     ...getFontStyle('body', 'small', 'regular'),
     color: colors.GRAY,
-  },
+  }as TextStyle,
   timestamp: {
     ...getFontStyle('body', 'small', 'regular'),
     color: colors.GRAY,
     marginTop: spacing.M4,
-  },
+  }as TextStyle,
   arrowIndicator: {
     position: 'absolute',
     bottom: spacing.M20,
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   arrowText: {
     ...getFontStyle('title', 'large', 'regular'),
     color: colors.GRAY,
-  },
+  }as TextStyle,
 });
 
 export default ImportPlaylistScreen; 
