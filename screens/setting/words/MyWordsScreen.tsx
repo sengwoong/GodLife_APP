@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, getFontStyle, spacing } from '../../constants';
-import SearchBar from '../../components/searchbar/SearchBar';
-import Margin from '../../components/division/Margin';
+import { colors, getFontStyle, spacing } from '../../../constants';
+import SearchBar from '../../../components/searchbar/SearchBar';
+import Margin from '../../../components/division/Margin';
 
 interface WordList {
   id: number;

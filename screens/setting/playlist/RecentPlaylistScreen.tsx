@@ -4,11 +4,11 @@ import { CompositeNavigationProp, useNavigation } from '@react-navigation/native
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
-import { colors, getFontStyle, spacing } from '../../constants';
-import SearchBar from '../../components/searchbar/SearchBar';
-import Margin from '../../components/division/Margin';
-import { SettingStackParamList } from '../../navigations/stack/beforeLogin/SettingStackNavigator';
+import { MainDrawerParamList } from '../../../navigations/drawer/MainDrawerNavigator';
+import { colors, getFontStyle, spacing } from '../../../constants';
+import SearchBar from '../../../components/searchbar/SearchBar';
+import Margin from '../../../components/division/Margin';
+import { SettingStackParamList } from '../../../navigations/stack/beforeLogin/SettingStackNavigator';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<SettingStackParamList>,
