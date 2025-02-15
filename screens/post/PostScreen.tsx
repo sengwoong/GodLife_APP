@@ -6,6 +6,7 @@ import { colors, getFontStyle, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
 import PlaylistLayout from '../../components/playlist/PlaylistLayout';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
+import Margin from '../../components/division/Margin';
 type PostScreenNavigationProp = StackNavigationProp<PostStackParamList>;
 
 interface Post {
@@ -174,7 +175,7 @@ export const PostScreen = () => {
           />
         ))}
       </View>
-
+        <Margin size={'M12'} />
       {activeCategory === 'post' && (
         <FlatList
           data={data}
@@ -225,8 +226,7 @@ const styles = StyleSheet.create({
   postContainer: {
     backgroundColor: colors.WHITE,
     borderRadius: spacing.M12,
-    marginBottom: spacing.M20,
-    paddingHorizontal: spacing.M16,
+    marginBottom: spacing.M16,
     borderWidth: 1,
     borderColor: colors.GRAY,
   },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'regular'),
     marginBottom: spacing.M12,
     color: colors.BLACK,
-  }as TextStyle,
+  } as TextStyle,
   postImage: {
     width: '100%',
     height: 300,

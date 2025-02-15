@@ -93,7 +93,7 @@ export const PostDetailScreen = () => {
             <Text style={styles.section__title}>구매평</Text>
             <Margin size={'M4'} />
             <BulletinBoard data={product_content} onItemPress={navigateToContent} />
-            <Margin size={'M4'} />
+            <Margin size={'M8'} />
             <TextInput placeholder="구매평을 남기기 위해 댓글을 작성 하세요" style={styles.section__input} />
             <Margin size={'M4'} />
             <CustomButton size="large" label="구매평 남기기" />
@@ -117,7 +117,7 @@ export const PostDetailScreen = () => {
           <View style={styles.section}>
             <Text style={styles.section__title}>Q&A</Text>
             <BulletinBoard data={product_content} onItemPress={navigateToContent} />
-            <Margin size={'M4'} />
+            <Margin size={'M8'} />
             <TextInput placeholder="qa 를 입력 혹은 클릭하여 수정하세요" style={styles.section__input} />
             <Margin size={'M4'} />
             <CustomButton color='BLACK' size="large" label="질문하기" />
@@ -135,12 +135,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.WHITE,
   },
-  product: {
-    flex: 1,
-    backgroundColor: colors.WHITE,
-  },
   product__container: {
-    margin: spacing.M32,
+    margin: spacing.M16,
   },
   product__header: {
     flexDirection: 'row',
@@ -182,7 +178,7 @@ const styles = StyleSheet.create({
     left: 160,
   },
   section: {
-    padding: spacing.M20,
+    padding: spacing.M16,
   },
   section__title: {
     ...getFontStyle('title', 'large', 'bold'),
