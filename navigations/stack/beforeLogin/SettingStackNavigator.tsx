@@ -3,21 +3,22 @@ import { StyleSheet } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeHeaderLeft from '../HomeHeaderLeft';
 import SettingScreen from '../../../screens/setting/SettingScreen';
-import ImportPlaylistScreen from '../../../screens/setting/ImportPlaylistScreen';
+
 import { SettingNavigations } from '../../../constants';
 
 // 새로운 스크린들 import
-import PointHistoryScreen from '../../../screens/setting/PointHistoryScreen';
-import RecentPlaylistScreen from '../../../screens/setting/RecentPlaylistScreen';
-import LikedPlaylistScreen from '../../../screens/setting/LikedPlaylistScreen';
-import StudyWordsScreen from '../../../screens/setting/StudyWordsScreen';
-import PointUsageScreen from '../../../screens/setting/PointUsageScreen';
-import MyPlaylistScreen from '../../../screens/setting/MyPlaylistScreen';
-import PurchasedWordsScreen from '../../../screens/setting/PurchasedWordsScreen';
-import MyWordsScreen from '../../../screens/setting/MyWordsScreen';
-import PostCommentsScreen from '../../../screens/setting/PostCommentsScreen';
-import PostAdsScreen from '../../../screens/setting/PostAdsScreen';
-import PostShareScreen from '../../../screens/setting/PostShareScreen';
+import PointHistoryScreen from '../../../screens/setting/points/PointHistoryScreen';
+import RecentPlaylistScreen from '../../../screens/setting/playlist/RecentPlaylistScreen';
+import StudyWordsScreen from '../../../screens/setting/words/StudyWordsScreen';
+import PointUsageScreen from '../../../screens/setting/points/PointUsageScreen';
+import PurchasedWordsScreen from '../../../screens/setting/words/PurchasedWordsScreen';
+import MyWordsScreen from '../../../screens/setting/words/MyWordsScreen';
+import PostCommentsScreen from '../../../screens/setting/post/PostCommentsScreen';
+import PostAdsScreen from '../../../screens/setting/post/PostAdsScreen';
+import PostShareScreen from '../../../screens/setting/post/PostShareScreen';
+import ImportPlaylistScreen from '../../../screens/setting/playlist/ImportPlaylistScreen';
+import LikedPlaylistScreen from '../../../screens/setting/playlist/LikedPlaylistScreen';
+import MyPlaylistScreen from '../../../screens/setting/playlist/MyPlaylistScreen';
 
 export type SettingStackParamList = {
   [SettingNavigations.SETTING]: undefined;

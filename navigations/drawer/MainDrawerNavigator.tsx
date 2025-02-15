@@ -13,7 +13,7 @@ const Drawer = createDrawerNavigator();
 export type MainDrawerParamList = {
   [drawerNavigations.PLAYLIST]: undefined;
   [drawerNavigations.CALENDAR]: undefined;
-  // [drawerNavigations.SETTING]: undefined;
+  [drawerNavigations.SETTING]: undefined;
   [drawerNavigations.MAIN]: undefined;
   [drawerNavigations.VOCA]: undefined;
   [drawerNavigations.POST]: undefined;
