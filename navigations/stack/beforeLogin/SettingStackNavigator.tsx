@@ -8,11 +8,11 @@ import { SettingNavigations } from '../../../constants';
 
 // 새로운 스크린들 import
 import PointHistoryScreen from '../../../screens/setting/PointHistoryScreen';
-import RecentPlaylistScreen from '../../../screens/setting/MyPlaylistScreen';
+import RecentPlaylistScreen from '../../../screens/setting/RecentPlaylistScreen';
 import LikedPlaylistScreen from '../../../screens/setting/LikedPlaylistScreen';
 import StudyWordsScreen from '../../../screens/setting/StudyWordsScreen';
 import PointUsageScreen from '../../../screens/setting/PointUsageScreen';
-import MyPlaylistScreen from '../../../screens/setting/RecentPlaylistScreen';
+import MyPlaylistScreen from '../../../screens/setting/MyPlaylistScreen';
 import PurchasedWordsScreen from '../../../screens/setting/PurchasedWordsScreen';
 import MyWordsScreen from '../../../screens/setting/MyWordsScreen';
 
