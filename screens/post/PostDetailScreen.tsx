@@ -6,13 +6,13 @@ import BulletinBoard from '../../components/BulletinBoard';
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { FeedStackParamList } from '../../navigations/stack/beforeLogin/FeedStackNavigator';
-import { FeedNavigations } from '../../constants';
-import FeedMenu from '../../components/FeedMenu';
+import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
+import { PostNavigations } from '../../constants';
+import PostMenu from '../../components/PostMenu';
 
-type FeedDetailScreenNavigationProp = StackNavigationProp<FeedStackParamList>;
+type PostDetailScreenNavigationProp = StackNavigationProp<PostStackParamList>;
 
-export const FeedDetailScreen = () => {
+export const PostDetailScreen = () => {
   const CategoryButtons = [
     { label: '상품정보', id: 'product-info' }, 
     { label: '구매평', id: 'reviews' },         
@@ -35,10 +35,10 @@ export const FeedDetailScreen = () => {
     console.log(Index);
   };
 
-  const navigation = useNavigation<FeedDetailScreenNavigationProp>();
+  const navigation = useNavigation<PostDetailScreenNavigationProp>();
 
   const handleUserPress = () => {
-    navigation.navigate(FeedNavigations.FEEDAVATAR, { userName: '고민해결사' });
+    navigation.navigate(PostNavigations.FEEDAVATAR, { userName: '고민해결사' });
   };
 
   return (
@@ -72,7 +72,7 @@ export const FeedDetailScreen = () => {
 
           <View style={styles.navigation}>
             {CategoryButtons.map((button) => (
-              <FeedMenu
+              <PostMenu
                 key={button.id}
                 label={button.label}
                 color={"상품정보" === button.label ? 'BLACK' : 'WHITE'}

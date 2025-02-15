@@ -10,7 +10,7 @@ const drawerNavigations = {
   SETTING: 'Setting',
   VOCA: 'Voca',
   MAIN: 'Main',
-  FEED: 'Feed'
+  POST: 'Post'
 } as const;
 
 const VocaNavigations = {
@@ -34,10 +34,10 @@ const MainNavigations = {
   MAIN: 'MainPage',
 } as const;
 
-const FeedNavigations = {
-  FEED: 'FeedMain',
-  FEEDDETAIL: 'FeedDetail',
-  FEEDAVATAR: 'FeedAvatar',
+const PostNavigations = {
+  POST: 'PostMain',
+  POSTDETAIL: 'PostDetail',
+  POSTAVATAR: 'PostAvatar',
 } as const;
 
 export const SettingNavigations = {
@@ -60,5 +60,5 @@ export {
   CalendarNavigations,
   PlayListNavigations,
   MainNavigations,
-  FeedNavigations
+  PostNavigations
 };

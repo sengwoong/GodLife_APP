@@ -1,15 +1,15 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import FeedScreen from '../../../screens/feed/FeedScreen';
-import { FeedDetailScreen } from '../../../screens/feed/FeedDetailScreen';
-import { FeedAvatarScreen } from '../../../screens/feed/FeedAvatarScreen';
-import { FeedNavigations } from '../../../constants';
+import PostScreen from '../../../screens/post/PostScreen';
+import { PostDetailScreen } from '../../../screens/post/PostDetailScreen';
+import { PostAvatarScreen } from '../../../screens/post/PostAvatarScreen';
+import { PostNavigations } from '../../../constants';
 import HomeHeaderLeft from '../HomeHeaderLeft';
 
 
-export type FeedStackParamList = {
-  [FeedNavigations.FEED]: undefined;
-  [FeedNavigations.FEEDDETAIL]: {
+export type PostStackParamList = {
+  [PostNavigations.POST]: undefined;
+  [PostNavigations.POSTDETAIL]: {
     post: {
       id: string;
       userName: string;
@@ -18,14 +18,14 @@ export type FeedStackParamList = {
       postImage: string;
     };
   };
-  [FeedNavigations.FEEDAVATAR]: {
+  [PostNavigations.POSTAVATAR]: {
     userName: string;
   };
 };
 
-const Stack = createStackNavigator<FeedStackParamList>();
+const Stack = createStackNavigator<PostStackParamList>();
 
-function FeedStackNavigator() {
+function PostStackNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -42,23 +42,23 @@ function FeedStackNavigator() {
         headerTintColor: 'black',
       }}>
       <Stack.Screen
-        name={FeedNavigations.FEED}
-        component={FeedScreen}
+        name={PostNavigations.POST}
+        component={PostScreen}
         options={{
           headerTitle: '피드',
           headerLeft: () => <HomeHeaderLeft />,
         }}
       />
       <Stack.Screen
-        name={FeedNavigations.FEEDDETAIL}
-        component={FeedDetailScreen}
+        name={PostNavigations.POSTDETAIL}
+        component={PostDetailScreen}
         options={{
           headerTitle: '피드 상세',
         }}
       />
       <Stack.Screen
-        name={FeedNavigations.FEEDAVATAR}
-        component={FeedAvatarScreen}
+        name={PostNavigations.POSTAVATAR}
+        component={PostAvatarScreen}
         options={{
           headerTitle: '프로필',
         }}
@@ -67,4 +67,4 @@ function FeedStackNavigator() {
   );
 }
 
-export default FeedStackNavigator; 
+export default PostStackNavigator; 

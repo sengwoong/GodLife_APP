@@ -3,14 +3,14 @@ import { StyleSheet, Text, View, StyleProp, ViewStyle, TextStyle } from 'react-n
 import { colors, getFontStyle } from '../constants';
 
 
-interface FeedMenuProps {
+interface PostMenuProps {
   label: string;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   color: 'BLACK' | 'WHITE';
 }
 
-const FeedMenu: React.FC<FeedMenuProps> = ({
+const PostMenu: React.FC<PostMenuProps> = ({
   label,
   style = undefined,
   textStyle = null,
@@ -68,4 +68,4 @@ const styles = StyleSheet.create({
   } as TextStyle,
 });
 
-export default FeedMenu;
+export default PostMenu;

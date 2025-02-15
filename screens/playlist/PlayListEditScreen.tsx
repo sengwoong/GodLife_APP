@@ -6,7 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  TouchableWithoutFeedback,
+  TouchableWithoutPostback,
   Keyboard,
   TextStyle,
 } from 'react-native';
@@ -32,7 +32,7 @@ export default function PlayListEditScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutPostback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.container}>
         <Margin size={'M12'} />
         <View style={styles.header}>
@@ -66,7 +66,7 @@ export default function PlayListEditScreen() {
           <Text style={styles.button__text}>등록하기</Text>
         </TouchableOpacity>
       </SafeAreaView>
-    </TouchableWithoutFeedback>
+    </TouchableWithoutPostback>
   );
 }
 

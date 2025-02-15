@@ -32,7 +32,7 @@ const CATEGORY_BUTTONS = [
   { label: '일정표', id: 'schedule' },
 ];
 
-export const FeedAvatarScreen = () => {
+export const PostAvatarScreen = () => {
   const [activeCategory, setActiveCategory] = useState('전체보기');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8; 

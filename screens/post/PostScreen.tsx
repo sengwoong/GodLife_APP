@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { FeedStackParamList } from '../../navigations/stack/beforeLogin/FeedStackNavigator';
-import { FeedNavigations } from '../../constants';
 import { colors, getFontStyle, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
 import PlaylistLayout from '../../components/playlist/PlaylistLayout';
-
-type FeedScreenNavigationProp = StackNavigationProp<FeedStackParamList>;
+import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
+type PostScreenNavigationProp = StackNavigationProp<PostStackParamList>;
 
 interface Post {
   id: string;
@@ -90,20 +88,20 @@ const songList: PlaylistItem[] = [
   },
 ];
 
-export const FeedScreen = () => {
-  const navigation = useNavigation<FeedScreenNavigationProp>();
+export const PostScreen = () => {
+  const navigation = useNavigation<PostScreenNavigationProp>();
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  const [activeCategory, setActiveCategory] = useState('feed');
+  const [activeCategory, setActiveCategory] = useState('post');
 
   const CategoryButtons = [
-    { label: 'feed', id: 'feed' },
+    { label: 'post', id: 'post' },
     { label: 'shop', id: 'shop' },
     { label: 'music', id: 'music' },
     { label: 'like', id: 'like' },
   ];
 
   const handlePostPress = (post: Post) => {
-    navigation.navigate('FeedDetail', { post });
+    navigation.navigate('PostDetail', { post });
   };
 
   const toggleLike = (postId: string) => {
@@ -177,12 +175,12 @@ export const FeedScreen = () => {
         ))}
       </View>
 
-      {activeCategory === 'feed' && (
+      {activeCategory === 'post' && (
         <FlatList
           data={data}
           renderItem={renderPost}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.feedContainer}
+          contentContainerStyle={styles.postContainer}
         />
       )}
       
@@ -191,7 +189,7 @@ export const FeedScreen = () => {
           data={data}
           renderItem={renderPost}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.feedContainer}
+          contentContainerStyle={styles.postContainer}
         />
       )}
 
@@ -212,7 +210,7 @@ export const FeedScreen = () => {
         data={data}
         renderItem={renderPost}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.feedContainer}
+        contentContainerStyle={styles.postContainer}
       />
       )}
     </View>
@@ -223,9 +221,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.WHITE,
-  },
-  feedContainer: {
-    padding: spacing.M12,
   },
   postContainer: {
     backgroundColor: colors.WHITE,
@@ -305,6 +300,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FeedScreen;
+export default PostScreen;
 
 
