@@ -11,92 +11,67 @@ import FAB from '../../components/common/FAB';
 import { CompoundOption } from '../../components/Modal';
 import Margin from '../../components/division/Margin';
 import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
+import { useSearchStore } from '../../store/useSearchStore';
+import VocaList from '../../components/voca/VocaList'; 
+import VocaSearch from '../../components/voca/VocaSearch';
+import useAuthStore from '../../store/useAuthStore';
 
+// 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<VocaStackParamList>,
   DrawerNavigationProp<MainDrawerParamList>
 >;
 
-function VocaScreen() {
-  const navigation = useNavigation<Navigation>();
-  const [searchText, setSearchText] = useState<string>('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [newVocaName, setNewVocaName] = useState('');
+// 단어장 객체 타입 정의
+interface Voca {
+  id: number;
+  vocaTitle: string;
+  description: string;
+}
 
-  const userId = 1;
-  const {
-    data,
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteVoca(userId);
+// VocaScreen 컴포넌트
+const VocaScreen = () => {
+  const navigation = useNavigation<Navigation>(); 
+  const [isModalVisible, setIsModalVisible] = useState(false); 
+  const [newVocaName, setNewVocaName] = useState(''); 
 
+  const userId = useAuthStore(state => state.user?.id);
+
+  // 특정 단어장으로 이동하는 함수
   const navigateToVocaContent = (vocaIndex: number) => {
     navigation.navigate(VocaNavigations.VOCACONTENT, { vocaIndex });
   };
 
+  // 새로운 단어장을 추가하는 함수
   const handleAddVoca = () => {
-    if (!newVocaName.trim()) return;
-    
-    const newVoca = {
-      title: newVocaName.trim(),
-    };
-    
-    setIsModalVisible(false);
-    setNewVocaName('');
+    if (!newVocaName.trim()) return; 
+    setIsModalVisible(false); 
+    setNewVocaName(''); 
   };
-
-  if (isLoading) {
-    return <ActivityIndicator size="large" color={colors.GREEN} />;
-  }
-
-  if (error) {
-    return <Text>Error: {error.message}</Text>;
-  }
 
   return (
     <SafeAreaView style={styles.container}>
+
       <Margin size={'M16'} />
+
       <View style={styles.header}>
         <Text style={styles.header__title}>단어장</Text>
         <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
       </View>
+
       <Margin size={'M12'} />
-      <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={['React', 'React Native', 'JavaScript', 'TypeScript', 'Node.js', 'Python', 'Django', 'Spring']} 
-        />
-      </View>
+
+      <VocaSearch />
       
-      <FlatList
-        data={data?.pages.flatMap(page => page.content)}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.list__item}
-            onPress={() => navigateToVocaContent(item.id)}>
-            <View style={styles.list__content}>
-              <Text style={styles.list__title}>{item.vocaTitle}</Text>
-              <Text style={styles.list__count}>{item.description}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
-        contentContainerStyle={styles.list}
-        onEndReached={() => {
-          if (hasNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
+      <VocaList
+        userId={userId!}
+        navigateToVocaContent={navigateToVocaContent}
       />
       
-      <FAB onPress={() => setIsModalVisible(true)} />
+      <FAB onPress={() => setIsModalVisible(true)} /> 
 
       <CompoundOption
-        isVisible={isModalVisible}
+        isVisible={isModalVisible} 
         hideOption={() => setIsModalVisible(false)}
         animationType="slide">
         <CompoundOption.Background>
@@ -129,15 +104,16 @@ function VocaScreen() {
       </CompoundOption>
     </SafeAreaView>
   );
-}
+};
 
+// 스타일 정의
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.WHITE,
+    paddingHorizontal: spacing.M16,
   },
   header: {
-    paddingHorizontal: spacing.M20,
     backgroundColor: colors.WHITE,
   },
   header__title: {

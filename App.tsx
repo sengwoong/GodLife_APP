@@ -8,7 +8,6 @@ import { QueryProvider } from './server/query/QueryProvider';
 
 const Drawer = createDrawerNavigator();
 
-// 앱 상태 변경 핸들러
 
 function App() {
   const navTheme = {

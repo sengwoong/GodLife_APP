@@ -28,20 +28,30 @@ export const wordHandlers = [
     })
   }),
 
-  http.get(`${BASE_URL}/words/voca/:vocaId`, ({ params }) => {
+  http.get(`${BASE_URL}/words/voca/:vocaId`, ({ params, request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = 10;
+
+    // Mock data: Generate 1000 words for the given vocaId
+    const allWords = Array.from({ length: 1000 }, (_, i) => ({
+      id: i + 1,
+      word: `Word ${i + 1}`,
+      meaning: `Meaning ${i + 1}`,
+      vocaId: Number(params.vocaId)
+    }));
+
+    // Paginate the results
+    const start = page * size;
+    const end = start + size;
+    const paginatedWords = allWords.slice(start, end);
+
     return HttpResponse.json({
-      content: [
-        {
-          id: 1,
-          word: "Example",
-          meaning: "예시",
-          vocaId: Number(params.vocaId)
-        }
-      ],
-      totalPages: 1,
-      totalElements: 1,
-      size: 10,
-      number: 0
-    })
+      content: paginatedWords,
+      totalPages: Math.ceil(allWords.length / size),
+      totalElements: allWords.length,
+      size,
+      number: page
+    });
   })
 ] 

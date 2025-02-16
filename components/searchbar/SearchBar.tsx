@@ -1,26 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, TextInput, StyleSheet, Keyboard, TextStyle } from 'react-native';
 import SearchResults from '../searchbar/SearchResults';
 import { colors, getFontStyle, spacing } from '../../constants';
 
-import { useSearch } from '../../hooks/useSearch';
+import { useSearchStore } from '../../store/useSearchStore';
 
+// SearchBar 컴포넌트의 props 인터페이스
 interface SearchBarProps {
-  initialSuggestions: string[];
+  initialSuggestions: string[] | undefined;
 }
 
+// SearchBar 컴포넌트는 검색 입력과 결과를 표시합니다.
 const SearchBar: React.FC<SearchBarProps> = ({
   initialSuggestions,
 }) => {
   const {
     searchText,
-    recentSearches,
     filteredSuggestions,
     isSearchFocused,
     setIsSearchFocused,
     handleSearchChange,
-    handleSuggestionSelect,
-  } = useSearch(initialSuggestions);
+    setSuggestions,
+  } = useSearchStore();
+
+  console.log('initialSuggestions', initialSuggestions);
+
+  useEffect(() => {
+    if (initialSuggestions) {
+      setSuggestions(initialSuggestions);
+    }
+  }, [initialSuggestions]);
 
   const handleBlur = () => {
     setIsSearchFocused(false);
@@ -43,14 +52,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
         <SearchResults
           searchText={searchText}
           filteredSuggestions={filteredSuggestions}
-          recentSearches={recentSearches}
-          onSuggestionSelect={handleSuggestionSelect}
         />
       )}
     </View>
   );
 };
 
+// 스타일 정의
 const styles = StyleSheet.create({
   search: {
     zIndex: 1,

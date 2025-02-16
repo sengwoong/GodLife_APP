@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 interface User {
+  id: number;
   username: string;
   // 필요한 다른 사용자 정보들을 여기에 추가
 }

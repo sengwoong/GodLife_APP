@@ -38,7 +38,7 @@ function LoginScreen() {
       });
       
       setAuth(
-        { username: values.email },
+        { username: response.user },
         response.token 
       );
       
