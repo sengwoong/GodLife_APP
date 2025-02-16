@@ -7,14 +7,15 @@ import useForm from '../../hooks/useForm';
 import { validateLogin, validateSignup } from '../../utils/validateLogin';
 import { colors, getFontStyle } from '../../constants';
 import SelectButton from '../../components/SelectButton';
-import { useSignUp } from '../../server/query/hooks/useAuth';
+import { useLogin, useSignUp } from '../../server/query/hooks/useAuth';
+import useAuthStore from '../../store/useAuthStore';
 
 
 function SignScreen() {
   const nicknameRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
   const passwordConfirmRef = useRef<TextInput | null>(null);
-  const ageRef = useRef<TextInput | null>(null);
+
   
   const login = useForm({
     initialValue: {
@@ -28,11 +29,10 @@ function SignScreen() {
   });
 
   const signUpMutation = useSignUp();
-
+  const signInMutation = useLogin();
+  const setAuth = useAuthStore((state: any) => state.setAuth);
+  
   const handleSignUp = async () => {
-
-
-    // age 값을 숫자로 변환
     const ageMap: { [key: string]: number } = {
       '10대': 10,
       '20대': 20,
@@ -42,19 +42,31 @@ function SignScreen() {
     };
 
     try {
+      // 회원가입
       await signUpMutation.mutateAsync({
         email: login.values.email,
         nickName: login.values.nickname,
         password: login.values.password,
         phoneNumber: '', 
         address: '',
-        age: ageMap[login.values.age] || 0, // 문자열 나이를 숫자로 변환
+        age: ageMap[login.values.age] || 0, 
       });
       
-      Alert.alert('성공', '회원가입이 완료되었습니다.');
+      // 회원가입 성공 후 자동 로그인
+      const response = await signInMutation.mutateAsync({
+        email: login.values.email,
+        password: login.values.password,
+      });
+
+      // 로그인 성공 시 인증 정보 저장
+      setAuth(
+        { username: response.user },
+        response.token 
+      );
+
 
     } catch (error) {
-      Alert.alert('오류', '회원가입에 실패했습니다.');
+      Alert.alert('오류', '회원가입 또는 로그인에 실패했습니다.');
     }
   };
 
