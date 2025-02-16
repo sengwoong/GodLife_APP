@@ -1,25 +1,62 @@
 import React, { useRef, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TextStyle, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TextStyle, View, Alert } from 'react-native';
 import InputField from '../../components/InputField';
 import CustomButton from '../../components/CustomButton';
 import { TextInput } from 'react-native-gesture-handler';
 import useForm from '../../hooks/useForm';
-import { validateLogin } from '../../utils/validateLogin';
+import { validateLogin, validateSignup } from '../../utils/validateLogin';
 import { colors, getFontStyle } from '../../constants';
 import SelectButton from '../../components/SelectButton';
+import { useSignUp } from '../../server/query/hooks/useAuth';
 
 
 function SignScreen() {
+  const nicknameRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
-
+  const passwordConfirmRef = useRef<TextInput | null>(null);
+  const ageRef = useRef<TextInput | null>(null);
+  
   const login = useForm({
     initialValue: {
       email: '',
-      password: '',
+      nickname: '',
+      password: '', 
+      passwordConfirm: '',
       age: '',
     },
-    validate: validateLogin,
+    validate: validateSignup,
   });
+
+  const signUpMutation = useSignUp();
+
+  const handleSignUp = async () => {
+
+
+    // age 값을 숫자로 변환
+    const ageMap: { [key: string]: number } = {
+      '10대': 10,
+      '20대': 20,
+      '30대': 30,
+      '40대': 40,
+      '50대 이상': 50
+    };
+
+    try {
+      await signUpMutation.mutateAsync({
+        email: login.values.email,
+        nickName: login.values.nickname,
+        password: login.values.password,
+        phoneNumber: '', 
+        address: '',
+        age: ageMap[login.values.age] || 0, // 문자열 나이를 숫자로 변환
+      });
+      
+      Alert.alert('성공', '회원가입이 완료되었습니다.');
+
+    } catch (error) {
+      Alert.alert('오류', '회원가입에 실패했습니다.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,9 +76,17 @@ function SignScreen() {
           touched={login.touched.email}
           inputMode="email"
           returnKeyType="next"
-          blurOnSubmit={false}
-          onSubmitEditing={() => passwordRef.current?.focus()}
+          onSubmitEditing={() => nicknameRef.current?.focus()}
           {...login.getTextInputProps('email')}
+        />
+        <InputField
+          ref={nicknameRef}
+          placeholder="닉네임"
+          error={login.errors.nickname}
+          touched={login.touched.nickname}
+          returnKeyType="next"
+          onSubmitEditing={() => passwordRef.current?.focus()}
+          {...login.getTextInputProps('nickname')}
         />
         <InputField
           ref={passwordRef}
@@ -52,6 +97,17 @@ function SignScreen() {
           returnKeyType="join"
           {...login.getTextInputProps('password')}
         />
+        <InputField
+          ref={passwordConfirmRef}
+          placeholder="비밀번호 확인"
+          error={login.errors.passwordConfirm}
+          touched={login.touched.passwordConfirm}
+          secureTextEntry
+          returnKeyType="join"
+          {...login.getTextInputProps('passwordConfirm')}
+        />
+        
+
         <SelectButton
           options={['10대', '20대', '30대', '40대', '50대 이상']}
           selectedOption={login.values.age}
@@ -63,9 +119,11 @@ function SignScreen() {
         />
         
         <CustomButton
-          label="로그인"
+          label="회원가입"
           variant="filled"
           size="large"
+          onPress={handleSignUp}
+          disabled={signUpMutation.isPending}
         />
       </View>
     </SafeAreaView>

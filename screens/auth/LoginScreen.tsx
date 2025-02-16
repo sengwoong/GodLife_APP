@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TextStyle, View, Alert } from 'react-native';
-import { useLogin } from '../../query/hooks/useAuth';
+import { useLogin } from '../../server/query/hooks/useAuth';
 import CustomButton from '../../components/CustomButton';
 import { TextInput } from 'react-native-gesture-handler';
 import { colors, getFontStyle } from '../../constants';
@@ -33,7 +33,7 @@ function LoginScreen() {
       setMessage('로그인 시도중중');
     try {
       const response = await loginMutation.mutateAsync({
-        username: values.email,
+        email: values.email,
         password: values.password,
       });
       

@@ -1,24 +1,21 @@
 import { http, HttpResponse } from 'msw'
+import { BASE_URL } from './constants'
+import { LoginRequest } from '../types'
 
-interface LoginRequest {
-  username: string
-  password: string
-}
-
-export const handlers = [
+export const authHandlers = [
   http.post('http://10.0.2.2:8081/api/login', async ({ request }) => {
     console.log('/api/login 백엔드 호출')
-    const { username, password } = await request.json() as LoginRequest
-    console.log('username', username)
+    const { email, password } = await request.json() as LoginRequest
+    console.log('email', email)
     console.log('password', password)
-    if (username === 'test@test.com' && password === 'password') {
+    if (email === 'test@test.com' && password === 'password') {
       return HttpResponse.json({
         success: true,
         token: 'mock-jwt-token',
         user: {
           id: 1,
+          email: 'test@test.com',
           username: 'test',
-          name: '테스트 사용자'
         }
       })
     }
@@ -28,10 +25,4 @@ export const handlers = [
       statusText: '인증 실패'
     })
   }),
-
-  http.get('/api/example', () => {
-    return HttpResponse.json({
-      message: '모의 응답 데이터입니다',
-    })
-  }),
-] 
+]

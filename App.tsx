@@ -3,7 +3,7 @@ import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import RootNavigator from './navigations/root/RootNavigator';
-import { QueryProvider } from './query/QueryProvider';
+import { QueryProvider } from './server/query/QueryProvider';
 
 
 const Drawer = createDrawerNavigator();

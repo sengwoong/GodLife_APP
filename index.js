@@ -8,7 +8,7 @@ import {name as appName} from './app.json';
 
 if (__DEV__) {
   import('./msw.polyfills')
-    .then(() => import('./mocks/server'))
+    .then(() => import('./server/mocks/server'))
     .then(({ server }) => {
       server.listen();
     })
