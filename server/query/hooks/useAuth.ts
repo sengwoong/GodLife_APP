@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Platform } from 'react-native'
+import { BASE_URL } from '../../common/types/constants'
 
 interface LoginCredentials {
   email: string
@@ -40,11 +41,7 @@ interface UpdateUserRequest {
   address?: string
 }
 
-const baseURL = Platform.select({
-  android: 'http://10.0.2.2:8081',
-  ios: 'http://localhost:8081',
-  default: 'http://10.0.2.2:8081',
-})
+
 
 
 export function useLogin() {
@@ -53,7 +50,7 @@ export function useLogin() {
       try {
         console.log('useLogin 호출')
         console.log('credentials', credentials)
-        const response = await fetch(`${baseURL}/api/login`, {
+        const response = await fetch(`${BASE_URL}/api/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -82,7 +79,7 @@ export function useSignUp() {
       try {
         console.log('useSignUp 호출')
         console.log('userData', userData)
-        const response = await fetch(`${baseURL}/users`, {
+        const response = await fetch(`${BASE_URL}/users`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -119,7 +116,7 @@ export function useSignUp() {
 export function useGetUser(userId: string | number) {
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${baseURL}/users/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +137,7 @@ export function useGetUser(userId: string | number) {
 export function useUpdateUser(userId: string | number) {
   return useMutation({
     mutationFn: async (updateData: UpdateUserRequest) => {
-      const response = await fetch(`${baseURL}/api/users/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/api/users/user/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -162,7 +159,7 @@ export function useUpdateUser(userId: string | number) {
 export function useDeleteUser(userId: string | number) {
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${baseURL}/api/users/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/api/users/user/${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

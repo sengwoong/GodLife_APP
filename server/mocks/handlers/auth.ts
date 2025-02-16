@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { BASE_URL } from './constants'
-import { LoginRequest } from '../types'
+import { BASE_URL } from '../../common/types/constants'
+import { LoginRequest } from '../../common/types/serverType'
 
 export const authHandlers = [
   http.post('http://10.0.2.2:8081/api/login', async ({ request }) => {

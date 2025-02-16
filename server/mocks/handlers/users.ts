@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { BASE_URL } from './constants'
-import { UserRequest, UpdateUserRequest } from '../types'
+import { BASE_URL } from '../../common/types/constants'
+import { UserRequest, UpdateUserRequest } from '../../common/types/serverType'
 
 export const userHandlers = [
   http.get(`${BASE_URL}/users/user/:userId`, ({ params }) => {

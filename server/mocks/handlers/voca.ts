@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { BASE_URL } from './constants'
-import { VocaRequest } from '../types'
+import { BASE_URL } from '../../common/types/constants'
+import { VocaRequest } from '../../common/types/serverType'
 
 export const vocaHandlers = [
   http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
@@ -18,15 +18,13 @@ export const vocaHandlers = [
 
   http.get(`${BASE_URL}/vocas/user/:userId`, () => {
     return HttpResponse.json({
-      content: [
-        {
-          id: 1,
-          vocaTitle: "기본 단어장",
-          description: "기본 설명"
-        }
-      ],
-      totalPages: 1,
-      totalElements: 1,
+      content: Array.from({ length: 10 }, (_, i) => ({
+        id: i + 1,
+        vocaTitle: `기본 단어장 ${i + 1}`,
+        description: `기본 설명 ${i + 1}`
+      })),
+      totalPages: 5,
+      totalElements: 50,
       size: 10,
       number: 0
     })

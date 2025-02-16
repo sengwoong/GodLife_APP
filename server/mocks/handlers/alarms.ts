@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { BASE_URL } from './constants'
-import { AlarmRequest } from '../types'
+import { BASE_URL } from '../../common/types/constants'
+import { AlarmRequest } from '../../common/types/serverType'
 
 export const alarmHandlers = [
   http.put(`${BASE_URL}/alarms/alarm/:alarmId/user/:userId`, async ({ params, request }) => {

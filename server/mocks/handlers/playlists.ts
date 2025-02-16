@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { BASE_URL } from './constants'
-import { PlaylistRequest } from '../types'
+import { BASE_URL } from '../../common/types/constants'
+import { PlaylistRequest } from '../../common/types/serverType'
 
 export const playlistHandlers = [
   http.put(`${BASE_URL}/playlists/playlist/:playlistId/user/:userId`, async ({ params, request }) => {

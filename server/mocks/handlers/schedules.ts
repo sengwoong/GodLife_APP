@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { BASE_URL } from './constants'
-import { ScheduleRequest } from '../types'
+import { BASE_URL } from '../../common/types/constants'
+import { ScheduleRequest } from '../../common/types/serverType'
 
 export const scheduleHandlers = [
   http.put(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, async ({ params, request }) => {

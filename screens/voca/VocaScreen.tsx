@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput, ActivityIndicator } from 'react-native';
 import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -10,7 +10,7 @@ import SearchBar from '../../components/searchbar/SearchBar';
 import FAB from '../../components/common/FAB';
 import { CompoundOption } from '../../components/Modal';
 import Margin from '../../components/division/Margin';
-
+import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<VocaStackParamList>,
@@ -23,12 +23,15 @@ function VocaScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newVocaName, setNewVocaName] = useState('');
 
-  const [vocaList, setVocaList] = useState([
-    { id: 1, title: '초등단어' },
-    { id: 2, title: '중등단어' },
-    { id: 3, title: '고등단어' },
-    { id: 4, title: '중등단어' },
-  ]);
+  const userId = 1;
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteVoca(userId);
 
   const navigateToVocaContent = (vocaIndex: number) => {
     navigation.navigate(VocaNavigations.VOCACONTENT, { vocaIndex });
@@ -38,14 +41,20 @@ function VocaScreen() {
     if (!newVocaName.trim()) return;
     
     const newVoca = {
-      id: vocaList.length + 1,
       title: newVocaName.trim(),
     };
     
-    setVocaList([...vocaList, newVoca]);
     setIsModalVisible(false);
     setNewVocaName('');
   };
+
+  if (isLoading) {
+    return <ActivityIndicator size="large" color={colors.GREEN} />;
+  }
+
+  if (error) {
+    return <Text>Error: {error.message}</Text>;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,19 +71,26 @@ function VocaScreen() {
       </View>
       
       <FlatList
-        data={vocaList}
+        data={data?.pages.flatMap(page => page.content)}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.list__item}
             onPress={() => navigateToVocaContent(item.id)}>
             <View style={styles.list__content}>
-              <Text style={styles.list__title}>{item.title}</Text>
-              <Text style={styles.list__count}>32개의 단어</Text>
+              <Text style={styles.list__title}>{item.vocaTitle}</Text>
+              <Text style={styles.list__count}>{item.description}</Text>
             </View>
           </TouchableOpacity>
         )}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         contentContainerStyle={styles.list}
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
       />
       
       <FAB onPress={() => setIsModalVisible(true)} />
