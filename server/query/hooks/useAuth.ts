@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Platform } from 'react-native'
 import { BASE_URL } from '../../common/types/constants'
+import { User } from '../../../types/user'
 
 interface LoginCredentials {
   email: string
@@ -15,14 +16,6 @@ interface LoginResponse {
     email: string
     name: string
   }
-}
-
-interface User {
-  id: string | number
-  email: string
-  nickName: string
-  phoneNumber: string
-  address: string
 }
 
 interface SignUpRequest {

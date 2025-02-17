@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import PlaylistLayout from '../../../components/common/PlaylistMusicLayout';
+import PlaylistLayout from '../../../components/common/MusicListPlay/MusicListLayout';
 
 interface PlaylistItem {
   id: number;

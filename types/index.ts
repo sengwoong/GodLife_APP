@@ -1,2 +1,3 @@
 export * from './music';
-export * from './date';
+export * from '../utils/date';
+export * from './user';

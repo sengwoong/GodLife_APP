@@ -36,11 +36,11 @@ export const playlistHandlers = [
 
     const allPlaylists = Array.from({ length: 100 }, (_, i) => ({
       id: i + 1,
-      title: `Playlist ${i + 1}`
+      playlistTitle: `Playlist ${i + 1}`
     }));
 
     const filteredPlaylists = allPlaylists.filter(playlist =>
-      playlist.title.toLowerCase().includes(search)
+      playlist.playlistTitle.toLowerCase().includes(search)
     );
     console.log('filteredPlaylists', filteredPlaylists)
     console.log('allPlaylists', allPlaylists)

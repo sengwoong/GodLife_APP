@@ -1,19 +1,28 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, TextStyle } from 'react-native';
-import { colors, getFontStyle, spacing } from '../../constants';
+import React, { useMemo, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View, TextStyle } from 'react-native';
+import { colors, getFontStyle, spacing } from '../../../constants';
 import Icon from 'react-native-vector-icons/AntDesign';
-import Margin from '../division/Margin';
-import PlaylistItemList from './MusicListPlay/PlaylistItemList';
-import { Music } from '../../types/music';
+import Margin from '../../division/Margin';
+import PlaylistItemList from './MusiclistItemList';
+import { Music } from '../../../types/music';
+import SearchBar from '../../searchbar/SearchBar';
+
+interface PlaylistItem {
+  id: number;
+  title: string;
+  artist: string;
+  color: string;
+}
 
 interface PlaylistLayoutProps {
   title: string;
   subtitle?: string;
-  musicList: Music[];
-  onPlayAll: () => void;
-  onShuffle: () => void;
-  onMenuPress: () => void;
-  onItemPress: (id: string) => void;
+  showTabs?: boolean;
+  musicList?: Music[] | undefined;
+  onPlayAll?: () => void;
+  onShuffle?: () => void;
+  onMenuPress?: () => void;
+  onItemPress?: (id: string) => void;
 }
 
 function PlaylistLayout({
@@ -26,40 +35,48 @@ function PlaylistLayout({
   onItemPress,
 }: PlaylistLayoutProps) {
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.topButtons}>
-        <View style={styles.leftButtons}>
-          <TouchableOpacity style={styles.playButton} onPress={onPlayAll}>
-            <Icon name="playcircleo" size={16} color={colors.WHITE} />
-            <Text style={styles.playButtonText}>전체 재생</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.shuffleButton} onPress={onShuffle}>
-            <Icon name="retweet" size={16} color={colors.WHITE} />
-            <Text style={styles.shuffleButtonText}>셔플</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-          <Icon name="bars" size={24} color={colors.BLACK} />
+  const topButtons = useMemo(() => (
+    <View style={styles.topButtons}>
+      <View style={styles.leftButtons}>
+        <TouchableOpacity style={styles.playButton} onPress={onPlayAll}>
+          <Icon name="playcircleo" size={16} color={colors.WHITE} />
+          <Text style={styles.playButtonText}>전체 재생</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.shuffleButton} onPress={onShuffle}>
+          <Icon name="retweet" size={16} color={colors.WHITE} />
+          <Text style={styles.shuffleButtonText}>셔플</Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
+        <Icon name="bars" size={24} color={colors.BLACK} />
+      </TouchableOpacity>
+    </View>
+  ), [onPlayAll, onShuffle, onMenuPress]);
 
-      <View style={styles.header}>
-        <Margin size={'M16'} />
-        <Text style={styles.header__title}>{title}</Text>
-        {subtitle && (
-          <Text style={styles.header__subtitle}>{subtitle}</Text>
-        )}
-        <Margin size={'M12'} />
-      </View>
+  console.log('musicList', musicList)
+  console.log('musicList', musicList)
+  console.log('musicList', musicList)
+  const header = useMemo(() => (
+    <View style={styles.header}>
+      <Margin size={'M16'} />
+      <Text style={styles.header__title}>{title}</Text>
+      {subtitle && (
+        <Text style={styles.header__subtitle}>{subtitle}</Text>
+      )}
+      <Margin size={'M12'} />
+    </View>
+  ), [title, subtitle]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {topButtons}
+      <SearchBar initialSuggestions={musicList?.map(item => item.musicTitle)} />
+      {header}
       <Margin size={'M4'} />
-      
       <PlaylistItemList musicList={musicList} onItemPress={onItemPress} />
     </SafeAreaView>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: {

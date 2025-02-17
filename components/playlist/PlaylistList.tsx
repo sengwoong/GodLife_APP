@@ -3,11 +3,9 @@ import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, 
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useInfinitePlayList } from '../../server/query/hooks/usePlayList';
 import { useSearchStore } from '../../store/useSearchStore';
+import { Playlist } from '../../types/playlist';
 
-interface Playlist {
-  id: number;
-  title: string;
-}
+
 
 interface PlaylistListProps {
   navigateToPlayListContent: (playlistId: number) => void;
@@ -18,7 +16,7 @@ const PlaylistItem = ({ item, onPress }: { item: Playlist; onPress: (id: number)
     style={styles.list__item}
     onPress={() => onPress(item.id)}>
     <View style={styles.list__content}>
-      <Text style={styles.list__title}>{item.title}</Text>
+      <Text style={styles.list__title}>{item.playlistTitle}</Text>
     </View>
   </TouchableOpacity>
 );

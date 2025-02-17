@@ -14,20 +14,26 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
+import { Music } from '../../types/music';
 
 export default function PlayListEditScreen() {
   const [title, setTitle] = useState('');
   const [URL, setURL] = useState('');
 
   const route = useRoute<RouteProp<PlayListStackParamList, 'PlayListEdit'>>();
-  const { type, Index } = route.params || {};
+  const { Index } = route.params || {};
 
   const typeNameMusic = '음악';
 
   const handleSubmit = () => {
-    console.log('Title:', title);
-    console.log('URL:', URL);
-    console.log('Type:', type);
+    const newMusic: Music = {
+      id: Date.now().toString(),
+      musicTitle: title,
+      musicUrl: URL,
+      color: '#000000',
+      imageUrl: '',
+    };
+    console.log('New Music:', newMusic);
     console.log('Index:', Index);
   };
 
@@ -36,27 +42,24 @@ export default function PlayListEditScreen() {
       <SafeAreaView style={styles.container}>
         <Margin size={'M16'} />
         <View style={styles.header}>
-          <Text style={styles.header__title}>{type || 'Type 없음'}</Text>
+          <Text style={styles.header__title}>{typeNameMusic}</Text>
         </View>
         <Margin size={'M12'} />
         
         <TextInput
           style={styles.form__input}
-          placeholder={type+'추가하기'}
+          placeholder={`${typeNameMusic} 추가하기`}
           value={title}
           onChangeText={setTitle}
         />
-                <Margin size={'M4'} />
-        {type === typeNameMusic && (
-          <TextInput
-            style={[styles.form__input, styles.form__textarea]}
-            placeholder="URL 링크"
-            value={URL}
-            onChangeText={setURL}
-            multiline
-          />
-        )}
-     
+        <Margin size={'M4'} />
+        <TextInput
+          style={[styles.form__input, styles.form__textarea]}
+          placeholder="URL 링크"
+          value={URL}
+          onChangeText={setURL}
+          multiline
+        />
         <Margin size={'M12'} />
         
         <TouchableOpacity 
@@ -83,7 +86,7 @@ const styles = StyleSheet.create({
   header__title: {
     ...getFontStyle('title', 'large', 'bold'),
     color: colors.BLACK,
-  }as TextStyle ,
+  } as TextStyle,
   form__input: {
     height: 50,
     borderColor: colors.GRAY,

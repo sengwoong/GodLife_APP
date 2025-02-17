@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { StyleSheet, Text, SafeAreaView, View, TextStyle, TextInput, TouchableOpacity } from 'react-native';
-import { getMonthYearDetails } from '../../types/date';
+import { getMonthYearDetails } from '../../utils/date';
 import EventList from '../../components/EventList';
 import CustomButton from '../../components/CustomButton';
 import { CalendarNavigations, colors, getFontStyle, spacing } from '../../constants/index';  

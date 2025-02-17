@@ -5,12 +5,10 @@ import { colors, getFontStyle, spacing } from '../../constants';
 
 import { useSearchStore } from '../../store/useSearchStore';
 
-// SearchBar 컴포넌트의 props 인터페이스
 interface SearchBarProps {
   initialSuggestions: string[] | undefined;
 }
 
-// SearchBar 컴포넌트는 검색 입력과 결과를 표시합니다.
 const SearchBar: React.FC<SearchBarProps> = ({
   initialSuggestions,
 }) => {
@@ -23,10 +21,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setSuggestions,
   } = useSearchStore();
 
-  console.log('initialSuggestions', initialSuggestions);
 
   useEffect(() => {
     if (initialSuggestions) {
+      console.log('SearchBar')
+      console.log('SearchBar')
+      console.log('initialSuggestions', initialSuggestions)
       setSuggestions(initialSuggestions);
     }
   }, [initialSuggestions]);

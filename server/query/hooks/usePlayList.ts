@@ -1,10 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
-
-interface Playlist {
-  id: number;
-  title: string;
-}
+import { Playlist } from '../../../types/playlist';
 
 interface PlaylistResponse {
   content: Playlist[];
