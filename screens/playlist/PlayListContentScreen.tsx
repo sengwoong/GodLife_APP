@@ -2,7 +2,7 @@ import React from 'react';
 import { CompositeNavigationProp, RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
-import PlayListLayout from '../../components/playlist/PlaylistLayout.tsx';
+import PlayListLayout from '../../components/common/PlaylistMusicLayout.tsx';
 import FAB from '../../components/common/FAB';
 import { PlayListNavigations } from '../../constants';
 
@@ -35,7 +35,6 @@ function PlayListContentScreen() {
 
   const handleAddMusic = () => {
     navigation.navigate('PlayListEdit', {
-      type: '음악',
       Index: playListIndex
     });
   };

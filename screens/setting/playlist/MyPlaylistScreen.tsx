@@ -1,5 +1,5 @@
 import React from 'react';
-import PlaylistLayout from '../../../components/playlist/PlaylistLayout';
+import PlaylistLayout from '../../../components/common/PlaylistMusicLayout';
 import { useNavigation } from '@react-navigation/native';
 
 function MyPlaylistScreen() {

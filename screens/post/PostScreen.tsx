@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { colors, getFontStyle, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
-import PlaylistLayout from '../../components/playlist/PlaylistLayout';
+import PlaylistLayout from '../../components/common/PlaylistMusicLayout';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import Margin from '../../components/division/Margin';
 type PostScreenNavigationProp = StackNavigationProp<PostStackParamList>;
