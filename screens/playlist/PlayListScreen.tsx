@@ -10,6 +10,8 @@ import Margin from '../../components/division/Margin';
 import FAB from '../../components/common/FAB';
 import { CompoundOption } from '../../components/Modal';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
+import PlaylistSearch from '../../components/playlist/PlaylistSearch';
+import PlaylistList from '../../components/playlist/PlaylistList';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<PlayListStackParamList>,
@@ -22,17 +24,9 @@ function PlayListScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
 
-  const playListList = [
-    { id: 1, title: 'asmr' },
-    { id: 2, title: '힙합' },
-    { id: 3, title: '고등금지곡' },
-    { id: 4, title: '일렉트로닉' },
-  ];
-
-  const navigateToPlayListContent = (playlist: { id: number, title: string }) => {
+  const navigateToPlayListContent = (playlistId: number) => {
     navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
-      playListIndex: playlist.id,
-      playListTitle: playlist.title 
+      playListIndex: playlistId,
     });
   };
 
@@ -49,24 +43,10 @@ function PlayListScreen() {
         <Text style={styles.header__subtitle}>플레이리스트를 선택하세요</Text>
       </View>
       <Margin size={'M12'} />
-      <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={['React', 'React Native', 'JavaScript', 'TypeScript', 'Node.js', 'Python', 'Django', 'Spring']} 
-        />
-      </View>
-      <FlatList
-        data={playListList}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.list__item}
-            onPress={() => navigateToPlayListContent(item)}>
-            <View style={styles.list__content}>
-              <Text style={styles.list__title}>{item.title}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+      <PlaylistSearch setSearchText={setSearchText} />
+      <PlaylistList
+        searchText={searchText}
+        navigateToPlayListContent={navigateToPlayListContent}
       />
       
       <FAB onPress={() => setIsModalVisible(true)} />
@@ -111,9 +91,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.WHITE,
+    paddingHorizontal: spacing.M16,
   },
   header: {
-    paddingHorizontal: spacing.M20,
     backgroundColor: colors.WHITE,
   },
   header__title: {
@@ -125,28 +105,6 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
     ...getFontStyle('body', 'medium', 'regular'),
   }as TextStyle ,
-  search: {
-    paddingHorizontal: spacing.M20,
-    width: '100%',
-    alignItems: 'center',
-  },
-  list: {
-    paddingHorizontal: spacing.M20,
-  },
-  list__item: {
-    paddingVertical: spacing.M16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.GRAY,
-  },
-  list__content: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  list__title: {
-    color: colors.BLACK,
-    ...getFontStyle('body', 'medium', 'bold'),
-  } as TextStyle,
   modal: {
     backgroundColor: colors.WHITE,
   },
