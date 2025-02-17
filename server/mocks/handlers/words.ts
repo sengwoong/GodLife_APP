@@ -30,11 +30,9 @@ export const wordHandlers = [
 
   http.get(`${BASE_URL}/words/voca/:vocaId`, ({ params, request }) => {
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '0', 10);
-    const size = 10;
     const index = parseInt(url.searchParams.get('index') || '-1', 10);
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
 
-    // Mock data: Generate 1000 words for the given vocaId
     const allWords = Array.from({ length: 1000 }, (_, i) => ({
       id: i + 1,
       word: `Word ${i + 1}`,
@@ -42,8 +40,18 @@ export const wordHandlers = [
       vocaId: Number(params.vocaId)
     }));
 
+    const filteredWords = allWords.filter(word => 
+      word.word.toLowerCase().includes(search)
+    );
+
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = 10;
+    const start = page * size;
+    const end = start + size;
+
+    const paginatedWords = filteredWords.slice(start, end);
+
     if (index >= 0) {
-      // Return a specific word if index is provided
       return HttpResponse.json({
         content: [allWords[index]],
         totalPages: 1,
@@ -53,15 +61,10 @@ export const wordHandlers = [
       });
     }
 
-    // Paginate the results
-    const start = page * size;
-    const end = start + size;
-    const paginatedWords = allWords.slice(start, end);
-
     return HttpResponse.json({
       content: paginatedWords,
-      totalPages: Math.ceil(allWords.length / size),
-      totalElements: allWords.length,
+      totalPages: Math.ceil(filteredWords.length / size),
+      totalElements: filteredWords.length,
       size,
       number: page
     });
