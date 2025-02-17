@@ -32,6 +32,7 @@ export const wordHandlers = [
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = 10;
+    const index = parseInt(url.searchParams.get('index') || '-1', 10);
 
     // Mock data: Generate 1000 words for the given vocaId
     const allWords = Array.from({ length: 1000 }, (_, i) => ({
@@ -40,6 +41,17 @@ export const wordHandlers = [
       meaning: `Meaning ${i + 1}`,
       vocaId: Number(params.vocaId)
     }));
+
+    if (index >= 0) {
+      // Return a specific word if index is provided
+      return HttpResponse.json({
+        content: [allWords[index]],
+        totalPages: 1,
+        totalElements: 1,
+        size: 1,
+        number: 0
+      });
+    }
 
     // Paginate the results
     const start = page * size;

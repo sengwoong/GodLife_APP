@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, SafeAreaView, TextStyle, Text } from 'react-native';
-import { CompositeNavigationProp, useNavigation, useRoute } from '@react-navigation/native';
+import { CompositeNavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { spacing, VocaNavigations } from '../../constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -20,13 +20,15 @@ type Navigation = CompositeNavigationProp<
 
 function VocaContentScreen() {
   const navigation = useNavigation<Navigation>();
+  const route = useRoute<RouteProp<VocaStackParamList, 'VocaContent'>>();
+  const { vocaIndex } = route.params || {};
  
   const navigateToVocaUpdateWord = (wordIndex: number) => {
-    navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { type: '단어', wordIndex });
+    navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex, wordIndex });
   };
 
   const navigateToVocaAddWord = () => {
-    navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { type: '단어', wordIndex: undefined });
+    navigation.navigate(VocaNavigations.VOCACONTENTEDIT, {vocaIndex, wordIndex: undefined });
   };
 
   return (

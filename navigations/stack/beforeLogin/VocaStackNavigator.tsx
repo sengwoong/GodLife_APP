@@ -10,7 +10,7 @@ import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
 export type VocaStackParamList = {
   [VocaNavigations.VOCAMAIN]: undefined;
   [VocaNavigations.VOCACONTENT]: {vocaIndex: number };
-  [VocaNavigations.VOCACONTENTEDIT]: {type:'단어장'|'단어' , wordIndex: number |  undefined};
+  [VocaNavigations.VOCACONTENTEDIT]: { vocaIndex: number , wordIndex: number |  undefined};
 };
 
 const Stack = createStackNavigator<VocaStackParamList>();
