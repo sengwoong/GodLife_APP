@@ -55,11 +55,12 @@ export const vocaHandlers = [
   }),
 
   http.post(`${BASE_URL}/vocas/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as VocaRequest
+    const body = await request.json() as VocaRequest;
     return HttpResponse.json({
-      id: Date.now(),
-      ...body,
-      userId: params.userId
-    })
+      id: Date.now(), 
+      vocaTitle: body.vocaTitle,
+      description: body.description || '', 
+      userId: params.userId,
+    });
   })
 ] 

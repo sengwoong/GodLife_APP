@@ -6,15 +6,14 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
 import { colors, getFontStyle, spacing, VocaNavigations } from '../../constants';
-import SearchBar from '../../components/searchbar/SearchBar';
 import FAB from '../../components/common/FAB';
 import { CompoundOption } from '../../components/Modal';
 import Margin from '../../components/division/Margin';
-import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
-import { useSearchStore } from '../../store/useSearchStore';
 import VocaList from '../../components/voca/VocaList'; 
 import VocaSearch from '../../components/voca/VocaSearch';
 import useAuthStore from '../../store/useAuthStore';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { BASE_URL } from '../../server/common/types/constants';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
@@ -22,14 +21,7 @@ type Navigation = CompositeNavigationProp<
   DrawerNavigationProp<MainDrawerParamList>
 >;
 
-// 단어장 객체 타입 정의
-interface Voca {
-  id: number;
-  vocaTitle: string;
-  description: string;
-}
 
-// VocaScreen 컴포넌트
 const VocaScreen = () => {
   const navigation = useNavigation<Navigation>(); 
   const [isModalVisible, setIsModalVisible] = useState(false); 
@@ -37,16 +29,38 @@ const VocaScreen = () => {
 
   const userId = useAuthStore(state => state.user?.id);
 
-  // 특정 단어장으로 이동하는 함수
+  const queryClient = useQueryClient();
+
+  const { mutate: createVoca } = useMutation({
+    mutationFn: async (newVocaName: string) => {
+      const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vocaTitle: newVocaName }),
+      });
+      console.log(response);
+      if (!response.ok) {
+        throw new Error('Failed to create new voca');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vocas', userId]});
+      console.log('단어장 추가 성공');
+    },
+  });
+
   const navigateToVocaContent = (vocaIndex: number) => {
     navigation.navigate(VocaNavigations.VOCACONTENT, { vocaIndex });
   };
 
-  // 새로운 단어장을 추가하는 함수
   const handleAddVoca = () => {
-    if (!newVocaName.trim()) return; 
-    setIsModalVisible(false); 
-    setNewVocaName(''); 
+    if (!newVocaName.trim()) return;
+    createVoca(newVocaName); // Send request to create new voca
+    setIsModalVisible(false);
+    setNewVocaName('');
   };
 
   return (

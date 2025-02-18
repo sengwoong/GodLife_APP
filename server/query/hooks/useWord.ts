@@ -1,12 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
-interface Word {
-  id: number;
-  word: string;
-  meaning: string;
-  vocaId: number;
-}
 
 interface WordResponse {
   content: Word[];

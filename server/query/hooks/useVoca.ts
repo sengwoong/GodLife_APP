@@ -1,11 +1,7 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
-interface Voca {
-  id: number;
-  vocaTitle: string;
-  description: string;
-}
+
 
 interface VocaResponse {
   content: Voca[];
@@ -30,5 +26,23 @@ export function useInfiniteVoca(userId: string | number, searchText: string) {
       return nextPage < lastPage.totalPages ? nextPage : undefined;
     },
     initialPageParam: 0,
+  });
+}
+
+export function useCreateVoca() {
+  return useMutation({
+    mutationFn: async ({ userId, vocaTitle }: { userId: string | number, vocaTitle: string }) => {
+      const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vocaTitle }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create new voca');
+      }
+      return response.json();
+    },
   });
 } 
