@@ -35,7 +35,7 @@ function PlayListContentScreen() {
   };
 
   const handleAddMusic = () => {
-    navigation.navigate('PlayListEdit', {
+    navigation.navigate(PlayListNavigations.MUSICEDIT, {
       Index: playListIndex
     });
   };

@@ -28,7 +28,7 @@ const CalendarNavigations = {
 const PlayListNavigations = {
     PLAYLIST: 'PlayListMain',
     PLAYLISTCONTENT: 'PlayListContent',
-    PLAYLISTEDIT: 'PlayListEdit',
+    MUSICEDIT: 'MusicEdit',
     } as const;
     
 const MainNavigations = {

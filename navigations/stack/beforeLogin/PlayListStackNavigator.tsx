@@ -4,13 +4,13 @@ import {createStackNavigator} from '@react-navigation/stack';
 import { PlayListNavigations} from '../../../constants';
 import HomeHeaderLeft from '../HomeHeaderLeft';
 import PlayListContentScreen from '../../../screens/playlist/PlayListContentScreen';
-import PlayListEditScreen from '../../../screens/playlist/PlayListEditScreen';
+import MusicListEditScreen from '../../../screens/playlist/MusicEditScreen';
 import PlayListScreen from '../../../screens/playlist/PlayListScreen';
 
 export type PlayListStackParamList = {
   [PlayListNavigations.PLAYLIST]:undefined;
   [PlayListNavigations.PLAYLISTCONTENT]: {playListIndex: number };
-  [PlayListNavigations.PLAYLISTEDIT]:  {Index: number | undefined};
+  [PlayListNavigations.MUSICEDIT]:  {Index: number | undefined};
 }
 const Stack = createStackNavigator<PlayListStackParamList>();
 
@@ -47,8 +47,8 @@ function PlayListStackNavigator() {
         }}
       />
       <Stack.Screen
-        name={PlayListNavigations.PLAYLISTEDIT}
-        component={PlayListEditScreen}
+        name={PlayListNavigations.MUSICEDIT}
+        component={MusicListEditScreen}
         options={{
           headerShown: true,
           headerTitle: ' ',

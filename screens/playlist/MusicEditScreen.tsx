@@ -16,11 +16,11 @@ import Margin from '../../components/division/Margin';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import { Music } from '../../types/music';
 
-export default function PlayListEditScreen() {
+export default function MusicEditScreen() {
   const [title, setTitle] = useState('');
   const [URL, setURL] = useState('');
 
-  const route = useRoute<RouteProp<PlayListStackParamList, 'PlayListEdit'>>();
+  const route = useRoute<RouteProp<PlayListStackParamList, 'MusicEdit'>>();
   const { Index } = route.params || {};
 
   const typeNameMusic = '음악';
