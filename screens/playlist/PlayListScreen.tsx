@@ -5,7 +5,6 @@ import { colors, getFontStyle, PlayListNavigations, spacing } from '../../consta
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
-import SearchBar from '../../components/searchbar/SearchBar';
 import Margin from '../../components/division/Margin';
 import FAB from '../../components/common/FAB';
 import { CompoundOption } from '../../components/Modal';
@@ -20,7 +19,6 @@ type Navigation = CompositeNavigationProp<
 
 function PlayListScreen() {
   const navigation = useNavigation<Navigation>();
-  const [searchText, setSearchText] = useState<string>('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
 
@@ -43,9 +41,8 @@ function PlayListScreen() {
         <Text style={styles.header__subtitle}>플레이리스트를 선택하세요</Text>
       </View>
       <Margin size={'M12'} />
-      <PlaylistSearch setSearchText={setSearchText} />
+      <PlaylistSearch />
       <PlaylistList
-        searchText={searchText}
         navigateToPlayListContent={navigateToPlayListContent}
       />
       
