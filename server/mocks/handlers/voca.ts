@@ -2,20 +2,28 @@ import { http, HttpResponse } from 'msw'
 import { BASE_URL } from '../../common/types/constants'
 import { VocaRequest } from '../../common/types/serverType'
 
-interface Voca {
-  id: number;
-  vocaTitle: string;
-  description: string;
-}
+
 
 export const vocaHandlers = [
   http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
     const body = await request.json() as VocaRequest
+    console.log('vocaHandlers', body)
     return HttpResponse.json({
       id: params.vocaId,
       ...body,
       userId: params.userId
     })
+  }),
+  
+  http.get(`${BASE_URL}/vocas/voca/:vocaId`, ({ params }) => {
+    const vocaId = Number(params.vocaId);
+    // Mock data for single voca
+    return HttpResponse.json({
+      id: vocaId,
+      vocaTitle: `기본 단어장 ${vocaId}`,
+      languages: 'English',
+      description: `기본 설명 ${vocaId}`
+    });
   }),
 
   http.delete(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, () => {
@@ -27,10 +35,11 @@ export const vocaHandlers = [
     const search = url.searchParams.get('search')?.toLowerCase() || '';
     console.log('search', search)
     // Mock data
+    let languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
     const allVocas: Voca[] = Array.from({ length: 1000 }, (_, i) => ({
       id: i + 1,
       vocaTitle: `기본 단어장 ${i + 1}`,
-      description: `기본 설명 ${i + 1}`
+      languages: languages[i % languages.length]
     }));
 
     // Filter vocas based on search text
@@ -63,5 +72,14 @@ export const vocaHandlers = [
       userId: params.userId,
       languages: body.languages || ''
     });
-  })
+  }),
+
+  http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as VocaRequest;
+    return HttpResponse.json({
+      id: Number(params.vocaId),
+      ...body,
+      userId: params.userId
+    });
+  }),
 ] 

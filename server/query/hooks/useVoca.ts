@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
 
@@ -41,6 +41,46 @@ export function useCreateVoca() {
       });
       if (!response.ok) {
         throw new Error('Failed to create new voca');
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useVoca(vocaId: number) {
+  return useQuery({
+    queryKey: ['voca', vocaId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/vocas/voca/${vocaId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch vocabulary');
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useUpdateVoca() {
+  return useMutation({
+    mutationFn: async ({ 
+      vocaId, 
+      userId, 
+      data 
+    }: { 
+      vocaId: number;
+      userId: string | number;
+      data: { vocaTitle: string; languages: string; }
+    }) => {
+      const response = await fetch(`${BASE_URL}/vocas/voca/${vocaId}/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      console.log('response', response)
+      if (!response.ok) {
+        throw new Error('Failed to update voca');
       }
       return response.json();
     },
