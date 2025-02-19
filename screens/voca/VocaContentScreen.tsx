@@ -68,13 +68,11 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,
   search: {
-    paddingHorizontal: spacing.M20,
     width: '100%',
     alignItems: 'center',
   },
   content: {
     flex: 1,
-    paddingHorizontal: spacing.M20,
   },
 });
 
