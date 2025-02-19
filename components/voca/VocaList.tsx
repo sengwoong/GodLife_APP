@@ -13,20 +13,11 @@ interface Voca {
 interface VocaListProps {
   userId: number;
   navigateToVocaContent: (vocaIndex: number) => void;
+  onLongPress: (id: number, vocaTitle: string) => void;
 }
 
-const VocaItem = ({ item, onPress }: { item: Voca; onPress: (id: number) => void }) => (
-  <TouchableOpacity
-    style={styles.list__item}
-    onPress={() => onPress(item.id)}>
-    <View style={styles.list__content}>
-      <Text style={styles.list__title}>{item.vocaTitle}</Text>
-      <Text style={styles.list__count}>{item.description}</Text>
-    </View>
-  </TouchableOpacity>
-);
 
-const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent }) => {
+const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLongPress }) => {
   
   const searchText = useSearchStore(state => state.searchText);
   const {
@@ -51,7 +42,7 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent }) =>
     <>
       <FlatList
         data={data?.pages.flatMap(page => page.content) || []}
-        renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaContent} />}
+        renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaContent} onLongPress={onLongPress} />}
         keyExtractor={(item, index) => `${item.id}-${index}`}
         onEndReached={() => {
           if (hasNextPage) {
@@ -64,6 +55,19 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent }) =>
     </>
   );
 };
+
+const VocaItem = ({ item, onPress, onLongPress }: { item: Voca; onPress: (id: number) => void; onLongPress: (id: number, vocaTitle: string) => void }) => (
+  <TouchableOpacity
+    style={styles.list__item}
+    onPress={() => onPress(item.id)}
+    onLongPress={() => onLongPress(item.id, item.vocaTitle)}>
+    <View style={styles.list__content}>
+      <Text style={styles.list__title}>{item.vocaTitle}</Text>
+      <Text style={styles.list__count}>{item.description}</Text>
+    </View>
+  </TouchableOpacity>
+);
+
 
 const styles = StyleSheet.create({
   list__item: {

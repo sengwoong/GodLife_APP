@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput, ActivityIndicator } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput, ActivityIndicator, GestureResponderEvent } from 'react-native';
 import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -15,6 +15,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../server/common/types/constants';
 import SelectButton from '../../components/SelectButton';
+import CompoundContextMenu from '../../components/common/CompoundContextMenu';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
@@ -28,6 +29,12 @@ const VocaScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); 
   const [newVocaName, setNewVocaName] = useState(''); 
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const [contextMenu, setContextMenu] = useState({
+    isVisible: false,
+    selectedVocaId: null as number | null,
+    selectedVocaTitle: null as string | null,
+  });
+
   const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
   const userId = useAuthStore(state => state.user?.id);
 
@@ -65,6 +72,14 @@ const VocaScreen = () => {
     setNewVocaName('');
   };
 
+  const handleLongPress = (vocaId: number, vocaTitle: string) => {
+    setContextMenu({
+      isVisible: true,
+      selectedVocaId: vocaId,
+      selectedVocaTitle: vocaTitle,
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -82,9 +97,12 @@ const VocaScreen = () => {
       <VocaList
         userId={userId!}
         navigateToVocaContent={navigateToVocaContent}
+        onLongPress={handleLongPress}
       />
       
       <FAB onPress={() => setIsModalVisible(true)} /> 
+
+
 
       <CompoundOption
         isVisible={isModalVisible} 
@@ -123,6 +141,33 @@ const VocaScreen = () => {
                 추가
               </CompoundOption.Button>
             </View>
+          </CompoundOption.Container>
+        </CompoundOption.Background>
+      </CompoundOption>
+
+
+
+      <CompoundOption
+        isVisible={contextMenu.isVisible}
+        hideOption={() => setContextMenu(prev => ({ ...prev, isVisible: false }))}
+      >
+        <CompoundOption.Background>
+          <CompoundOption.Container>
+            <CompoundOption.Title>{contextMenu.selectedVocaTitle}번의 단어장 수정하기 </CompoundOption.Title>
+            <CompoundOption.Button
+              onPress={() => {
+                console.log('수정:', contextMenu.selectedVocaId);
+              }}>
+              수정하기
+            </CompoundOption.Button>
+            <CompoundOption.Divider />
+            <CompoundOption.Button
+              isDanger
+              onPress={() => {
+                console.log('삭제:', contextMenu.selectedVocaId);
+              }}>
+              삭제하기
+            </CompoundOption.Button>
           </CompoundOption.Container>
         </CompoundOption.Background>
       </CompoundOption>
