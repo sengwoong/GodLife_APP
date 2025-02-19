@@ -16,16 +16,16 @@ import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import { useWord, useCreateWord, useUpdateWord } from '../../server/query/hooks/useWord';
 import { useQueryClient } from '@tanstack/react-query';
+import useAuthStore from '../../store/useAuthStore';
 
 export default function VocaEditScreen() {
   const route = useRoute<RouteProp<VocaStackParamList, 'VocaContentEdit'>>();
   const { vocaIndex, wordIndex } = route.params || {};
-
+  const userId = useAuthStore(state => state.user?.id);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
   const { data: wordData, isLoading } = wordIndex !== undefined ? useWord(vocaIndex, wordIndex) : { data: null, isLoading: false };
-
 
   const navigation = useNavigation();
   const createWordMutation = useCreateWord();
@@ -42,13 +42,18 @@ export default function VocaEditScreen() {
   const handleSubmit = async () => {
     try {
       if (wordIndex !== undefined && wordData) {
-        // 단어 수정
+
+        if (!userId) {
+          throw new Error('User ID is not available');
+        }
+
         await updateWordMutation.mutateAsync({
           wordId: wordData.id,
           data: {
             word: title,
             meaning: description,
           },
+          userId: userId,
         });
 
         queryClient.invalidateQueries({ 

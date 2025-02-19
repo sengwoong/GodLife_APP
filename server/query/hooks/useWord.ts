@@ -63,8 +63,8 @@ export function useCreateWord() {
 
 export function useUpdateWord() {
   return useMutation({
-    mutationFn: async ({ wordId, data }: { wordId: number; data: { word: string; meaning: string } }) => {
-      const response = await fetch(`${BASE_URL}/words/word/${wordId}`, {
+    mutationFn: async ({ wordId, data, userId }: { wordId: number; data: { word: string; meaning: string }; userId: number }) => {
+      const response = await fetch(`${BASE_URL}/words/word/${wordId}/user/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -78,3 +78,5 @@ export function useUpdateWord() {
     },
   });
 }
+
+
