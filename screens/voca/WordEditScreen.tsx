@@ -19,7 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/useAuthStore';
 
 export default function VocaEditScreen() {
-  const route = useRoute<RouteProp<VocaStackParamList, 'VocaContentEdit'>>();
+  const route = useRoute<RouteProp<VocaStackParamList, 'WordContentEdit'>>();
   const { vocaIndex, wordIndex } = route.params || {};
   const userId = useAuthStore(state => state.user?.id);
   const [title, setTitle] = useState('');

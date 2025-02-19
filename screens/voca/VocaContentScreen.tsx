@@ -24,11 +24,11 @@ function VocaContentScreen() {
   const { vocaIndex } = route.params || {};
  
   const navigateToVocaUpdateWord = (wordIndex: number) => {
-    navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex, wordIndex });
+    navigation.navigate(VocaNavigations.WORDCONTENTEDIT, { vocaIndex, wordIndex });
   };
 
   const navigateToVocaAddWord = () => {
-    navigation.navigate(VocaNavigations.VOCACONTENTEDIT, {vocaIndex, wordIndex: undefined });
+    navigation.navigate(VocaNavigations.WORDCONTENTEDIT, {vocaIndex, wordIndex: undefined });
   };
 
   return (

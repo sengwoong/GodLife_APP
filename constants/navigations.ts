@@ -16,7 +16,7 @@ const drawerNavigations = {
 const VocaNavigations = {
     VOCAMAIN: 'VocaMainMain',
     VOCACONTENT: 'VocaContent',
-    VOCACONTENTEDIT: 'VocaContentEdit',
+    WORDCONTENTEDIT: 'WordContentEdit',
     } as const;
   
 const CalendarNavigations = {

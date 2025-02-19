@@ -4,13 +4,13 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {VocaNavigations} from '../../../constants';
 import VocaScreen from '../../../screens/voca/VocaScreen';
 import HomeHeaderLeft from '../HomeHeaderLeft';
-import VocaContentScreen from '../../../screens/voca/VocaContentScreen';
+import WordContentScreen from '../../../screens/voca/VocaContentScreen';
 import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
 
 export type VocaStackParamList = {
   [VocaNavigations.VOCAMAIN]: undefined;
   [VocaNavigations.VOCACONTENT]: {vocaIndex: number };
-  [VocaNavigations.VOCACONTENTEDIT]: { vocaIndex: number , wordIndex: number |  undefined};
+  [VocaNavigations.WORDCONTENTEDIT]: { vocaIndex: number , wordIndex: number |  undefined};
 };
 
 const Stack = createStackNavigator<VocaStackParamList>();
@@ -34,21 +34,21 @@ function VocaStackNavigator() {
       <Stack.Screen
         name={VocaNavigations.VOCAMAIN}
         component={VocaScreen}
-        options={(navigation) => ({
+        options={() => ({
           headerTitle: '보카',
           headerLeft: () => HomeHeaderLeft(),
         })}
       />
       <Stack.Screen
         name={VocaNavigations.VOCACONTENT}
-        component={VocaContentScreen}
+        component={WordContentScreen}
         options={{
           headerShown: true,
           headerTitle: ' ',
         }}
       />
       <Stack.Screen
-        name={VocaNavigations.VOCACONTENTEDIT}
+        name={VocaNavigations.WORDCONTENTEDIT}
         component={VocaEditScreen}
         options={{
           headerShown: true,
