@@ -68,7 +68,7 @@ export default function VocaEditScreen() {
             multiline
           />
 
-        <Margin size={'M4'} />
+        <Margin size={'M8'} />
         
         <SelectButton
           options={languages}
@@ -76,7 +76,7 @@ export default function VocaEditScreen() {
           onSelect={setSelectedLanguage}
           disabled={false} 
         />
-        <Margin size={'M12'} />
+        <Margin size={'M8'} />
         
         <TouchableOpacity 
           style={styles.button} 
