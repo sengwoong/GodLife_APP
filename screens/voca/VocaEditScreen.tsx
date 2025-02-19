@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
   } as TextStyle,
   form__input: {
-    height: 50,
+    padding: spacing.M16,
     borderColor: colors.GRAY,
     borderWidth: 1,
     borderRadius: 5,
