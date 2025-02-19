@@ -31,13 +31,13 @@ export function useInfiniteVoca(userId: string | number, searchText: string) {
 
 export function useCreateVoca() {
   return useMutation({
-    mutationFn: async ({ userId, vocaTitle }: { userId: string | number, vocaTitle: string }) => {
+    mutationFn: async ({ userId, vocaTitle, languages }: { userId: string | number, vocaTitle: string, languages: string }) => {
       const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ vocaTitle }),
+        body: JSON.stringify({ vocaTitle, languages }),
       });
       if (!response.ok) {
         throw new Error('Failed to create new voca');

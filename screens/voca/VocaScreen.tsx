@@ -14,6 +14,7 @@ import VocaSearch from '../../components/voca/VocaSearch';
 import useAuthStore from '../../store/useAuthStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../server/common/types/constants';
+import SelectButton from '../../components/SelectButton';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
@@ -26,7 +27,8 @@ const VocaScreen = () => {
   const navigation = useNavigation<Navigation>(); 
   const [isModalVisible, setIsModalVisible] = useState(false); 
   const [newVocaName, setNewVocaName] = useState(''); 
-
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
   const userId = useAuthStore(state => state.user?.id);
 
   const queryClient = useQueryClient();
@@ -38,7 +40,7 @@ const VocaScreen = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ vocaTitle: newVocaName }),
+        body: JSON.stringify({ vocaTitle: newVocaName, languages: selectedLanguage }),
       });
       console.log(response);
       if (!response.ok) {
@@ -58,7 +60,7 @@ const VocaScreen = () => {
 
   const handleAddVoca = () => {
     if (!newVocaName.trim()) return;
-    createVoca(newVocaName); // Send request to create new voca
+    createVoca(newVocaName); 
     setIsModalVisible(false);
     setNewVocaName('');
   };
@@ -101,6 +103,14 @@ const VocaScreen = () => {
               />
             </View>
             <Margin size={'M12'} />
+            <View style={styles.modal__input}>
+              <SelectButton
+                options={languages}
+                selectedOption={selectedLanguage}
+                onSelect={setSelectedLanguage}
+                disabled={false} 
+              />
+            </View>
             <CompoundOption.Divider />
             
             <View style={styles.modal__buttons}>

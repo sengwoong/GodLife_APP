@@ -12,6 +12,7 @@ export interface WordRequest {
 export interface VocaRequest {
   vocaTitle: string
   description: string
+  languages: string
 }
 
 export interface UserRequest {

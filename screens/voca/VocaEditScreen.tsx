@@ -1,4 +1,4 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -14,8 +14,8 @@ import {
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
-import SelectButton from '../../components/SelectButton';
-import { useWord } from '../../server/query/hooks/useWord';
+import { useWord, useCreateWord, useUpdateWord } from '../../server/query/hooks/useWord';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function VocaEditScreen() {
   const route = useRoute<RouteProp<VocaStackParamList, 'VocaContentEdit'>>();
@@ -23,11 +23,14 @@ export default function VocaEditScreen() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
-
-  const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
 
   const { data: wordData, isLoading } = wordIndex !== undefined ? useWord(vocaIndex, wordIndex) : { data: null, isLoading: false };
+
+
+  const navigation = useNavigation();
+  const createWordMutation = useCreateWord();
+  const updateWordMutation = useUpdateWord();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (wordData) {
@@ -36,11 +39,42 @@ export default function VocaEditScreen() {
     }
   }, [wordData]);
 
-  const handleSubmit = () => {
-    console.log('Word:', title);
-    console.log('Description:', description);
-    console.log('Language:', selectedLanguage);
+  const handleSubmit = async () => {
+    try {
+      if (wordIndex !== undefined && wordData) {
+        // 단어 수정
+        await updateWordMutation.mutateAsync({
+          wordId: wordData.id,
+          data: {
+            word: title,
+            meaning: description,
+          },
+        });
 
+        queryClient.invalidateQueries({ 
+          queryKey: ['words', vocaIndex]
+        });
+
+        queryClient.invalidateQueries({ 
+          queryKey: ['word', vocaIndex, wordIndex]
+        });
+
+      } else {
+
+        await createWordMutation.mutateAsync({
+          word: title,
+          meaning: description,
+          vocaId: vocaIndex,
+        });
+
+        queryClient.invalidateQueries({ 
+          queryKey: ['words', vocaIndex]
+        });
+      }
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving word:', error);
+    }
   };
 
   return (
@@ -69,15 +103,7 @@ export default function VocaEditScreen() {
           />
 
         <Margin size={'M8'} />
-        
-        <SelectButton
-          options={languages}
-          selectedOption={selectedLanguage}
-          onSelect={setSelectedLanguage}
-          disabled={false} 
-        />
-        <Margin size={'M8'} />
-        
+  
         <TouchableOpacity 
           style={styles.button} 
           onPress={handleSubmit}

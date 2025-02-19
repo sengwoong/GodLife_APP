@@ -61,6 +61,7 @@ export const vocaHandlers = [
       vocaTitle: body.vocaTitle,
       description: body.description || '', 
       userId: params.userId,
+      languages: body.languages || ''
     });
   })
 ] 

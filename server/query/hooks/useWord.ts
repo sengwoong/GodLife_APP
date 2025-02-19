@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
 
@@ -40,5 +40,41 @@ export function useWord(vocaIndex: number, wordIndex: number) {
       return data.content[0];
     },
     enabled: wordIndex !== undefined,
+  });
+}
+
+export function useCreateWord() {
+  return useMutation({
+    mutationFn: async (data: { word: string; meaning: string; vocaId: number }) => {
+      const response = await fetch(`${BASE_URL}/words`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create word');
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useUpdateWord() {
+  return useMutation({
+    mutationFn: async ({ wordId, data }: { wordId: number; data: { word: string; meaning: string } }) => {
+      const response = await fetch(`${BASE_URL}/words/word/${wordId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update word');
+      }
+      return response.json();
+    },
   });
 }
