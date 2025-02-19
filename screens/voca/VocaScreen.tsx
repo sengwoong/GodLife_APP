@@ -156,7 +156,7 @@ const VocaScreen = () => {
             <CompoundOption.Title>{contextMenu.selectedVocaTitle}번의 단어장 수정하기 </CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
-                console.log('수정:', contextMenu.selectedVocaId);
+                navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex: contextMenu.selectedVocaId! });
               }}>
               수정하기
             </CompoundOption.Button>
