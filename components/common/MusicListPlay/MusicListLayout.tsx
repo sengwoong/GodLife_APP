@@ -38,13 +38,13 @@ function PlaylistLayout({
   const topButtons = useMemo(() => (
     <View style={styles.topButtons}>
       <View style={styles.leftButtons}>
-        <TouchableOpacity style={styles.playButton} onPress={onPlayAll}>
+        <TouchableOpacity style={styles.optionButton} onPress={onPlayAll}>
           <Icon name="playcircleo" size={16} color={colors.WHITE} />
-          <Text style={styles.playButtonText}>전체 재생</Text>
+          <Text style={styles.optionButtonText}>전체 재생</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.shuffleButton} onPress={onShuffle}>
+        <TouchableOpacity style={styles.optionButton} onPress={onShuffle}>
           <Icon name="retweet" size={16} color={colors.WHITE} />
-          <Text style={styles.shuffleButtonText}>셔플</Text>
+          <Text style={styles.optionButtonText}>셔플</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
@@ -53,24 +53,22 @@ function PlaylistLayout({
     </View>
   ), [onPlayAll, onShuffle, onMenuPress]);
 
-  console.log('musicList', musicList)
-  console.log('musicList', musicList)
-  console.log('musicList', musicList)
   const header = useMemo(() => (
     <View style={styles.header}>
-      <Margin size={'M16'} />
       <Text style={styles.header__title}>{title}</Text>
       {subtitle && (
         <Text style={styles.header__subtitle}>{subtitle}</Text>
       )}
-      <Margin size={'M12'} />
     </View>
   ), [title, subtitle]);
 
   return (
     <SafeAreaView style={styles.container}>
+      <Margin size={'M12'} />
       {topButtons}
+      <Margin size={'M4'} />
       <SearchBar initialSuggestions={musicList?.map(item => item.musicTitle)} />
+      <Margin size={'M4'} />
       {header}
       <Margin size={'M4'} />
       <PlaylistItemList musicList={musicList} onItemPress={onItemPress} />
@@ -82,13 +80,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.WHITE,
+    paddingHorizontal: spacing.M16,
   },
   topButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.M16,
-    paddingVertical: spacing.M12,
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
   },
@@ -96,7 +93,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.M12,
   },
-  playButton: {
+  optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.M4,
@@ -105,20 +102,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BLACK,
     borderRadius: 8,
   },
-  playButtonText: {
-    color: colors.WHITE,
-    ...getFontStyle('body', 'small', 'medium'),
-  } as TextStyle,
-  shuffleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.M4,
-    paddingVertical: spacing.M8,
-    paddingHorizontal: spacing.M16,
-    backgroundColor: colors.BLACK,
-    borderRadius: 8,
-  },
-  shuffleButtonText: {
+  optionButtonText: {
     color: colors.WHITE,
     ...getFontStyle('body', 'small', 'medium'),
   } as TextStyle,

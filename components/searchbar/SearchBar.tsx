@@ -24,9 +24,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   useEffect(() => {
     if (initialSuggestions) {
-      console.log('SearchBar')
-      console.log('SearchBar')
-      console.log('initialSuggestions', initialSuggestions)
       setSuggestions(initialSuggestions);
     }
   }, [initialSuggestions]);
