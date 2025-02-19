@@ -39,7 +39,8 @@ export const vocaHandlers = [
     const allVocas: Voca[] = Array.from({ length: 1000 }, (_, i) => ({
       id: i + 1,
       vocaTitle: `기본 단어장 ${i + 1}`,
-      languages: languages[i % languages.length]
+      languages: languages[i % languages.length],
+      description: `기본 설명 ${i + 1}`
     }));
 
     // Filter vocas based on search text

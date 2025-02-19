@@ -4,11 +4,7 @@ import { colors, getFontStyle, spacing } from '../../constants';
 import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
 import { useSearchStore } from '../../store/useSearchStore';
 
-interface Voca {
-  id: number;
-  vocaTitle: string;
-  description: string;
-}
+
 
 interface VocaListProps {
   userId: number;
@@ -63,7 +59,7 @@ const VocaItem = ({ item, onPress, onLongPress }: { item: Voca; onPress: (id: nu
     onLongPress={() => onLongPress(item.id, item.vocaTitle)}>
     <View style={styles.list__content}>
       <Text style={styles.list__title}>{item.vocaTitle}</Text>
-      <Text style={styles.list__count}>{item.description}</Text>
+      <Text style={styles.list__count}>{item.languages}</Text>
     </View>
   </TouchableOpacity>
 );
