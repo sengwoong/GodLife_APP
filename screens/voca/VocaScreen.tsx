@@ -87,7 +87,7 @@ const VocaScreen = () => {
       <CompoundOption
         isVisible={isModalVisible} 
         hideOption={() => setIsModalVisible(false)}
-        animationType="slide">
+      >
         <CompoundOption.Background>
           <CompoundOption.Container style={styles.modal}>
             <CompoundOption.Title>새 단어장 만들기</CompoundOption.Title>
