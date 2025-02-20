@@ -10,16 +10,10 @@ import HomeHeaderLeft from '../HomeHeaderLeft';
 export type PostStackParamList = {
   [PostNavigations.POST]: undefined;
   [PostNavigations.POSTDETAIL]: {
-    post: {
-      id: string;
-      userName: string;
-      profileImage: string;
-      postContent: string;
-      postImage: string;
-    };
+    postId: number;
   };
   [PostNavigations.POSTAVATAR]: {
-    userName: string;
+    userId: number;
   };
 };
 

@@ -19,15 +19,16 @@ const generateMockPosts = (category: string, count: number) => {
 };
 
 export const postHandlers = [
-// type 은 shop like music allpost 중 하나
-  http.get(`${BASE_URL}/posts/category/:category`, ({ request }) => {
+  http.get(`${BASE_URL}/posts/category/:category`, ({ request, params }) => {
     const url = new URL(request.url);
-    const category = url.searchParams.get('category') || 'post';
+    const { category } = params;
     const search = url.searchParams.get('search')?.toLowerCase() || '';
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = 10;
 
-    const allPosts = generateMockPosts(category, 100);
+    console.log("Received category:", category);
+
+    const allPosts = generateMockPosts(category as string, 100);
     
     const filteredPosts = allPosts.filter(post => 
       post.postContent.toLowerCase().includes(search) ||
@@ -47,8 +48,6 @@ export const postHandlers = [
     });
   }),
 
-
-
   http.post(`${BASE_URL}/posts/:postId/like/user/:userId`, async ({ params, request }) => {
     const { postId, userId } = params;
     return HttpResponse.json({
@@ -65,7 +64,6 @@ export const postHandlers = [
       shop: true,
     });
   }),
-
 
   http.post(`${BASE_URL}/posts/:postId/music`, async ({ params, request }) => {
     const { postId } = params;
@@ -110,7 +108,6 @@ export const postHandlers = [
     });
   }),
 
-  //댓글수정
   http.put(`${BASE_URL}/posts/:postId/comment/:commentId/user/:userId`, async ({ params, request }) => {
     const { postId, commentId, userId } = params;
     const body = await request.json() as comment;
@@ -119,7 +116,6 @@ export const postHandlers = [
     });
   }),
 
-  // 게시글수정
   http.put(`${BASE_URL}/posts/:postId/user/:userId`, async ({ params, request }) => {
     const { postId, userId } = params;
     const body = await request.json() as Post;
@@ -128,7 +124,6 @@ export const postHandlers = [
     });
   }), 
 
-  // todo 라이크 쇼핑 뮤직 ㅠbollen flse로 수정정 
   http.put(`${BASE_URL}/posts/:postId/unlike/user/:userId`, async ({ params, request }) => {
     const { postId, userId } = params;
     const body = await request.json() as Post;

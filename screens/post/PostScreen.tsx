@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { colors, getFontStyle, spacing } from '../../constants';
@@ -7,92 +7,21 @@ import CustomButton from '../../components/CustomButton';
 import PlaylistLayout from '../../components/common/MusicListPlay/MusicListLayout';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import Margin from '../../components/division/Margin';
+import { usePost } from '../../server/query/hooks/usePost';
+import { Post } from '../../types/post';
+import SearchBar from '../../components/searchbar/SearchBar';
+import PostContentSearch from '../../components/post/PostContentSearch';
+
 type PostScreenNavigationProp = StackNavigationProp<PostStackParamList>;
-
-interface Post {
-  id: string;
-  userName: string;
-  profileImage: string;
-  postContent: string;
-  postImage: string;
-  likes: number;
-  comments: number;
-}
-
-interface PlaylistItem {
-  id: number;
-  title: string;
-  artist: string;
-  color: string;
-}
-
-const data: Post[] = [
-  {
-    id: '1',
-    userName: '홍길동',
-    profileImage: 'https://placekitten.com/100/100', // 예시 이미지 URL
-    postContent: '오늘은 좋은 날이에요! 😊',
-    postImage: 'https://placekitten.com/600/400', // 예시 게시물 이미지 URL
-    likes: 15,
-    comments: 5
-  },
-  {
-    id: '2',
-    userName: '김철수',
-    profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 포스트 디자인 테스트중!',
-    postImage: 'https://placekitten.com/600/401',
-    likes: 10,
-    comments: 3
-  },
-  {
-    id: '3',
-    userName: '김철수',
-    profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 포스트 디자인 테스트중!',
-    postImage: 'https://placekitten.com/600/401',
-    likes: 8,
-    comments: 2
-  },
-  {
-    id: '4',
-    userName: '김철수',
-    profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 포스트 디자인 테스트중!',
-    postImage: 'https://placekitten.com/600/401',
-    likes: 12,
-    comments: 4
-  },
-  {
-    id: '5',
-    userName: '김철수',
-    profileImage: 'https://placekitten.com/101/101',
-    postContent: 'React Native 포스트 디자인 테스트중!',
-    postImage: 'https://placekitten.com/600/401',
-    likes: 10,
-    comments: 3
-  },
-];
-
-const songList: PlaylistItem[] = [
-  {
-    id: 1,
-    title: '노래 제목 1',
-    artist: '아티스트 1',
-    color: '#FFFFFF',
-  },
-  {
-    id: 2,
-    title: '노래 제목 2',
-    artist: '아티스트 2',
-    color: '#FFFFFF',
-  },
-];
 
 export const PostScreen = () => {
   const navigation = useNavigation<PostScreenNavigationProp>();
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [activeCategory, setActiveCategory] = useState('post');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(0);
+  
+  const { data: postsData, isLoading } = usePost(activeCategory, searchQuery, page);
 
   const CategoryButtons = [
     { label: 'post', id: 'post' },
@@ -102,16 +31,16 @@ export const PostScreen = () => {
   ];
 
   const handlePostPress = (post: Post) => {
-    navigation.navigate('PostDetail', { post });
+    navigation.navigate('PostDetail', { postId: post.id });
   };
 
-  const toggleLike = (postId: string) => {
+  const toggleLike = (postId: number) => {
     setLikedPosts(prev => {
       const newLikedPosts = new Set(prev);
-      if (newLikedPosts.has(postId)) {
-        newLikedPosts.delete(postId);
+      if (newLikedPosts.has(postId.toString())) {
+        newLikedPosts.delete(postId.toString());
       } else {
-        newLikedPosts.add(postId);
+        newLikedPosts.add(postId.toString());
       }
       return newLikedPosts;
     });
@@ -130,10 +59,7 @@ export const PostScreen = () => {
   };
 
   const handleItemPress = (id: number) => {
-    const selectedSong = songList.find(song => song.id === id);
-    if (selectedSong) {
-      console.log('Selected song:', selectedSong.title);
-    }
+    console.log('Selected song:', id);
   };
 
   const renderPost = ({ item }: ListRenderItemInfo<Post>) => (
@@ -151,11 +77,13 @@ export const PostScreen = () => {
             onPress={() => toggleLike(item.id)}
           >
             <Text style={styles.actionButtonText}>
-              {likedPosts.has(item.id) ? '❤️' : '🤍'} {item.likes}
+              {likedPosts.has(item.id.toString()) ? '❤️' : '🤍'} {item.likes}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>💬 {item.comments}</Text>
+            <Text style={styles.actionButtonText}>
+              💬 {item.comments?.length || 0}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -164,6 +92,7 @@ export const PostScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.postHeader}>
       <View style={styles.nav}>
         {CategoryButtons.map((button) => (
           <CustomButton
@@ -175,42 +104,69 @@ export const PostScreen = () => {
           />
         ))}
       </View>
-        <Margin size={'M12'} />
+        
+      <Margin size={'M12'} />
+      <PostContentSearch category={activeCategory} />
+      </View>
+      <Margin size={'M8'} />
       {activeCategory === 'post' && (
         <FlatList
-          data={data}
+          data={postsData?.content || []}
           renderItem={renderPost}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.postContainer}
+          onEndReached={() => {
+            if (postsData && page < postsData.totalPages - 1) {
+              setPage(prev => prev + 1);
+            }
+          }}
+          onEndReachedThreshold={0.5}
         />
       )}
       
       {activeCategory === 'shop' && (
-      <FlatList
-          data={data}
+        <FlatList
+          data={postsData?.content || []}
           renderItem={renderPost}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.postContainer}
+          onEndReached={() => {
+            if (postsData && page < postsData.totalPages - 1) {
+              setPage(prev => prev + 1);
+            }
+          }}
+          onEndReachedThreshold={0.5}
         />
       )}
 
       {activeCategory === 'music' && (
-       <PlaylistLayout
-       title="플레이리스트 제목"
-       showTabs={false}
-       onPlayAll={handlePlayAll}
-       onShuffle={handleShuffle}
-       onMenuPress={handleMenu}
-     />
+           <FlatList
+           data={postsData?.content || []}
+           renderItem={renderPost}
+           keyExtractor={item => item.id.toString()}
+           contentContainerStyle={styles.postContainer}
+           onEndReached={() => {
+             if (postsData && page < postsData.totalPages - 1) {
+               setPage(prev => prev + 1);
+             }
+           }}
+           onEndReachedThreshold={0.5}
+         />
       )}
 
       {activeCategory === 'like' && (
-      <FlatList
-        data={data}
-        renderItem={renderPost}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.postContainer}
-      />
+        <FlatList
+          data={postsData?.content || []}
+          renderItem={renderPost}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={styles.postContainer}
+          onEndReached={() => {
+            if (postsData && page < postsData.totalPages - 1) {
+              setPage(prev => prev + 1);
+            }
+          }}
+          onEndReachedThreshold={0.5}
+        />
       )}
     </View>
   );
@@ -229,9 +185,7 @@ const styles = StyleSheet.create({
     borderColor: colors.GRAY,
   },
   postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.M12,
+    paddingHorizontal: spacing.M16,
   },
   profileImage: {
     width: 40,
@@ -292,6 +246,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.M4,
     paddingHorizontal: spacing.M16,
     minWidth: 80,
+  },
+  searchInput: {
+    height: 40,
+    borderColor: colors.GRAY,
+    borderWidth: 1,
+    borderRadius: spacing.M8,
+    paddingHorizontal: spacing.M12,
+    marginHorizontal: spacing.M16,
   },
 });
 
