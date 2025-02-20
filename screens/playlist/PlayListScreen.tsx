@@ -21,6 +21,11 @@ function PlayListScreen() {
   const navigation = useNavigation<Navigation>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
+  const [contextMenu, setContextMenu] = useState({
+    isVisible: false,
+    selectedPlaylistId: null as number | null,
+    selectedPlaylistTitle: null as string | null,
+  });
 
   const navigateToPlayListContent = (playlistId: number) => {
     navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
@@ -31,6 +36,14 @@ function PlayListScreen() {
   const handleAddPlaylist = () => {
     setIsModalVisible(false);
     setNewPlaylistName('');
+  };
+
+  const handleLongPress = (playlistId: number, playlistTitle: string) => {
+    setContextMenu({
+      isVisible: true,
+      selectedPlaylistId: playlistId,
+      selectedPlaylistTitle: playlistTitle,
+    });
   };
 
   return (
@@ -44,6 +57,7 @@ function PlayListScreen() {
       <PlaylistSearch />
       <PlaylistList
         navigateToPlayListContent={navigateToPlayListContent}
+        onLongPress={handleLongPress}
       />
       
       <FAB onPress={() => setIsModalVisible(true)} />
@@ -77,6 +91,33 @@ function PlayListScreen() {
                 추가
               </CompoundOption.Button>
             </View>
+          </CompoundOption.Container>
+        </CompoundOption.Background>
+      </CompoundOption>
+
+      <CompoundOption
+        isVisible={contextMenu.isVisible}
+        hideOption={() => setContextMenu(prev => ({ ...prev, isVisible: false }))}
+      >
+        <CompoundOption.Background>
+          <CompoundOption.Container>
+            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 수정하기</CompoundOption.Title>
+            <CompoundOption.Button
+              onPress={() => {
+                navigation.navigate(PlayListNavigations.MUSICEDIT, { playListIndex: contextMenu.selectedPlaylistId!, musicIndex: undefined });
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
+              }}>
+              수정하기
+            </CompoundOption.Button>
+            <CompoundOption.Divider />
+            <CompoundOption.Button
+              isDanger
+              onPress={() => {
+                console.log('삭제:', contextMenu.selectedPlaylistId);
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
+              }}>
+              삭제하기
+            </CompoundOption.Button>
           </CompoundOption.Container>
         </CompoundOption.Background>
       </CompoundOption>

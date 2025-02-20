@@ -9,19 +9,33 @@ import { Playlist } from '../../types/playlist';
 
 interface PlaylistListProps {
   navigateToPlayListContent: (playlistId: number) => void;
+  onLongPress: (playlistId: number, playlistTitle: string) => void;
 }
 
-const PlaylistItem = ({ item, onPress }: { item: Playlist; onPress: (id: number) => void }) => (
+const PlaylistItem = ({ 
+  item, 
+  onPress,
+  onLongPress 
+}: { 
+  item: Playlist; 
+  onPress: (id: number) => void;
+  onLongPress: (id: number, title: string) => void;
+}) => (
   <TouchableOpacity
     style={styles.list__item}
-    onPress={() => onPress(item.id)}>
+    onPress={() => onPress(item.id)}
+    onLongPress={() => onLongPress(item.id, item.playlistTitle)}
+  >
     <View style={styles.list__content}>
       <Text style={styles.list__title}>{item.playlistTitle}</Text>
     </View>
   </TouchableOpacity>
 );
 
-const PlaylistList: React.FC<PlaylistListProps> = ({  navigateToPlayListContent }) => {
+const PlaylistList: React.FC<PlaylistListProps> = ({ 
+  navigateToPlayListContent,
+  onLongPress
+}) => {
 
   const searchText = useSearchStore(state => state.searchText);
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfinitePlayList(searchText);
@@ -37,7 +51,13 @@ const PlaylistList: React.FC<PlaylistListProps> = ({  navigateToPlayListContent 
   return (
     <FlatList
       data={data?.pages.flatMap(page => page.content) || []}
-      renderItem={({ item }) => <PlaylistItem item={item} onPress={navigateToPlayListContent} />}
+      renderItem={({ item }) => (
+        <PlaylistItem 
+          item={item} 
+          onPress={navigateToPlayListContent}
+          onLongPress={onLongPress}
+        />
+      )}
       keyExtractor={(item) => item.id.toString()}
       onEndReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
