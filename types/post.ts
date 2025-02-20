@@ -1,31 +1,41 @@
-export interface Post {
+export interface Comment {
   id: number;
-  userId: number;
+  content: string;
   userName: string;
-  profileImage: string;
-  postContent: string;
-  postImage: string;
-  likes: number;
-  comments: comment[];
-  shop: boolean;
-  music: boolean;
-  category: 'post' | 'shop' | 'music' | 'like';
   createdAt: string;
 }
 
-export interface comment {
+export interface PostItem {
   id: number;
-  postId: number;
-  userId: number;
-  userName: string;
-  comment: string;
+  title: string;
+  content: string;
 }
 
+export interface BasePost {
+  id: number;
+  userId: number;
+  userName: string;
+  title: string;
+  postImage: string;
+  likes: number;
+  price: number;
+  createdAt: string;
+  sale: boolean;
+  type: 'music' | 'normal' | 'voca';
+  postContent: string;
+  comments?: Comment[];
+}
 
-export interface PostResponse {
-  content: Post[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
-} 
+export interface MusicPost extends BasePost {
+  type: 'music';
+  items: PostItem[];
+}
+
+export interface VocaPost extends BasePost {
+  type: 'voca';
+  items: PostItem[];
+}
+
+export interface Post extends BasePost {
+  type: 'normal';
+}

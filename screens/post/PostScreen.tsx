@@ -4,12 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { colors, getFontStyle, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
-import PlaylistLayout from '../../components/common/MusicListPlay/MusicListLayout';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import Margin from '../../components/division/Margin';
 import { usePost } from '../../server/query/hooks/usePost';
 import { Post } from '../../types/post';
-import SearchBar from '../../components/searchbar/SearchBar';
 import PostContentSearch from '../../components/post/PostContentSearch';
 
 type PostScreenNavigationProp = StackNavigationProp<PostStackParamList>;
@@ -66,7 +64,7 @@ export const PostScreen = () => {
     <TouchableOpacity activeOpacity={1} onPress={() => handlePostPress(item)}>
       <View style={styles.postContainer}>
         <View style={styles.postHeader}>
-          <Image source={{ uri: item.profileImage }} style={styles.profileImage} />
+          <Image source={{ uri: item.postImage }} style={styles.profileImage} />
           <Text style={styles.username}>{item.userName}</Text>
         </View>
         <Text style={styles.postContent}>{item.postContent}</Text>

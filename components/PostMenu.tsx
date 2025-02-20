@@ -8,7 +8,8 @@ interface PostMenuProps {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   color: 'BLACK' | 'WHITE';
-}
+  onPress?: () => void;
+} 
 
 const PostMenu: React.FC<PostMenuProps> = ({
   label,
