@@ -29,6 +29,7 @@ const PlayListNavigations = {
     PLAYLIST: 'PlayListMain',
     PLAYLISTCONTENT: 'PlayListContent',
     MUSICEDIT: 'MusicEdit',
+    PLAYLISTEDIT: 'PlaylistEdit',
     } as const;
     
 const MainNavigations = {

@@ -11,6 +11,8 @@ import { CompoundOption } from '../../components/Modal';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import PlaylistSearch from '../../components/playlist/PlaylistSearch';
 import PlaylistList from '../../components/playlist/PlaylistList';
+import { useCreatePlayList, useDeletePlayList } from '../../server/query/hooks/usePlayList';
+import useAuthStore from '../../store/useAuthStore';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<PlayListStackParamList>,
@@ -27,15 +29,31 @@ function PlayListScreen() {
     selectedPlaylistTitle: null as string | null,
   });
 
+  const { mutate: deletePlayList } = useDeletePlayList();
+  const { mutate: createPlayList } = useCreatePlayList();
+
   const navigateToPlayListContent = (playlistId: number) => {
     navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
       playListIndex: playlistId,
     });
   };
 
+  // const userId = useAuthStore(state => state.user?.id);
+  const userId = 1;
+
+  if (!userId) {
+    throw new Error('User ID is undefined');
+  }
   const handleAddPlaylist = () => {
     setIsModalVisible(false);
-    setNewPlaylistName('');
+    // 리엑트쿼리 플레이리스트 추가 요청 
+    createPlayList({
+      playlistData: {
+        playlistTitle: newPlaylistName,
+        imageUrl: '',
+      },
+      userId: userId,
+    });
   };
 
   const handleLongPress = (playlistId: number, playlistTitle: string) => {
@@ -104,7 +122,7 @@ function PlayListScreen() {
             <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 수정하기</CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
-                navigation.navigate(PlayListNavigations.MUSICEDIT, { playListIndex: contextMenu.selectedPlaylistId!, musicIndex: undefined });
+                navigation.navigate(PlayListNavigations.PLAYLISTEDIT, { playListIndex: contextMenu.selectedPlaylistId! });
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
               수정하기
@@ -113,7 +131,9 @@ function PlayListScreen() {
             <CompoundOption.Button
               isDanger
               onPress={() => {
-                console.log('삭제:', contextMenu.selectedPlaylistId);
+                if (contextMenu.selectedPlaylistId) {
+                  deletePlayList(contextMenu.selectedPlaylistId);
+                }
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
               삭제하기

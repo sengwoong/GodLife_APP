@@ -25,7 +25,12 @@ export const playlistHandlers = [
     })
   }),
 
-
+  http.get(`${BASE_URL}/playlists/:playListIndex`, ({ params }) => {
+    return HttpResponse.json({
+      id: params.playListIndex,
+      playlistTitle: `Playlist ${params.playListIndex}`
+    })
+  }),
 
   http.get(`${BASE_URL}/playlists`, ({ request }) => {
     const url = new URL(request.url)
@@ -42,9 +47,6 @@ export const playlistHandlers = [
     const filteredPlaylists = allPlaylists.filter(playlist =>
       playlist.playlistTitle.toLowerCase().includes(search)
     );
-    console.log('filteredPlaylists', filteredPlaylists)
-    console.log('allPlaylists', allPlaylists)
-    console.log('search', search)
 
     const start = page * size;
     const end = start + size;
@@ -57,5 +59,15 @@ export const playlistHandlers = [
       size,
       number: page
     });
-  })
+  }),
+
+  http.put(`${BASE_URL}/playlists/:playlistId`, async ({ params, request }) => {
+    const { playlistId } = params;
+    const body = await request.json() as PlaylistRequest;
+    
+    return HttpResponse.json({
+      id: Number(playlistId),
+      ...body,
+    });
+  }),
 ] 
