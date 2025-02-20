@@ -15,7 +15,6 @@ import useAuthStore from '../../store/useAuthStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../server/common/types/constants';
 import SelectButton from '../../components/SelectButton';
-import CompoundContextMenu from '../../components/common/CompoundContextMenu';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
