@@ -197,12 +197,10 @@ export const PostScreen = () => {
       {activeCategory === 'music' && (
        <PlaylistLayout
        title="플레이리스트 제목"
-       data={songList}
        showTabs={false}
        onPlayAll={handlePlayAll}
        onShuffle={handleShuffle}
        onMenuPress={handleMenu}
-       onItemPress={handleItemPress}
      />
       )}
 

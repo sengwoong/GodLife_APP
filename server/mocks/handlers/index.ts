@@ -6,6 +6,7 @@ import { scheduleHandlers } from './schedules'
 import { playlistHandlers } from './playlists'
 import { alarmHandlers } from './alarms'
 import { musicHandlers } from './musics'
+import { postHandlers } from './posts'
 
 
 export const handlers = [
@@ -16,5 +17,6 @@ export const handlers = [
   ...scheduleHandlers,
   ...playlistHandlers,
   ...musicHandlers,
-  ...alarmHandlers
+  ...alarmHandlers,
+  ...postHandlers
 ] 

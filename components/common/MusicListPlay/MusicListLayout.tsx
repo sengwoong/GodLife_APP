@@ -7,13 +7,6 @@ import PlaylistItemList from './MusiclistItemList';
 import { Music } from '../../../types/music';
 import SearchBar from '../../searchbar/SearchBar';
 
-interface PlaylistItem {
-  id: number;
-  title: string;
-  artist: string;
-  color: string;
-}
-
 interface PlaylistLayoutProps {
   title: string;
   subtitle?: string;
