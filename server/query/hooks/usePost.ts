@@ -78,3 +78,27 @@ export const useSinglePost = (postId: string) => {
     },
   });
 };
+
+  
+  export interface UserPostsParams {
+    userId: string | number;
+    page?: number;
+    size?: number;
+    search?: string;
+  }
+  
+
+export const useUserPosts = ({ userId, page = 0, size = 10}: UserPostsParams) => {
+  return useQuery<PostResponse>({
+    queryKey: ['userPosts', userId, page, size],
+    queryFn: async () => {
+      const response = await fetch(
+        `${BASE_URL}/posts/user/${userId}?page=${page}&size=${size}`
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+  });
+};

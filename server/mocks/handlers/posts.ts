@@ -9,13 +9,14 @@ const generateMockPosts = (category: string, count: number) => {
     userId: Math.floor(Math.random() * 10) + 1,
     userName: `User ${i + 1}`,
     profileImage: `https://placekitten.com/100/${100 + i}`,
+    title: `Post Title ${i + 1}`,
     postContent: `This is a ${category} post content ${i + 1}`,
     postImage: `https://placekitten.com/600/${400 + i}`,
     likes: Math.floor(Math.random() * 100),
     comments: Math.floor(Math.random() * 20),
     category,
-    createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-  }));
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+  })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 };
 
 const generateSinglePost = (postId: string, type: 'music' | 'normal' | 'voca', sale: boolean) => {
@@ -73,11 +74,11 @@ export const postHandlers = [
     const { category } = params;
     const search = url.searchParams.get('search')?.toLowerCase() || '';
     const page = parseInt(url.searchParams.get('page') || '0', 10);
-    const size = 10;
+    const size = 3;
 
     console.log("Received category:", category);
 
-    const allPosts = generateMockPosts(category as string, 100);
+    const allPosts = generateMockPosts(category as string, 10);
     
     const filteredPosts = allPosts.filter(post => 
       post.postContent.toLowerCase().includes(search) ||
@@ -236,6 +237,39 @@ export const postHandlers = [
     }
 
     return HttpResponse.json(post);
+  }),
+
+  http.get(`${BASE_URL}/posts/user/:userId`, ({ params, request }) => {
+    const url = new URL(request.url);
+    const { userId } = params;
+
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
+
+    const allPosts = Array.from({ length: 100 }, (_, i) => ({
+      id: i + 1,
+      userId: Number(userId),
+      userName: `User ${userId}`,
+      title: `Post Title ${i + 1}`,
+      postContent: `This is a post content ${i + 1}`,
+      postImage: `https://placekitten.com/600/${400 + i}`,
+      likes: Math.floor(Math.random() * 100),
+      comments: Math.floor(Math.random() * 20),
+      category: 'post',
+      createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    const start = page * size;
+    const end = start + size;
+    const paginatedPosts = allPosts.slice(start, end);
+
+    return HttpResponse.json({
+      content: paginatedPosts,
+      totalPages: Math.ceil(allPosts.length / size),
+      totalElements: allPosts.length,
+      size,
+      number: page,
+    });
   }),
 ]; 
 

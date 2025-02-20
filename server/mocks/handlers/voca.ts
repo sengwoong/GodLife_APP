@@ -30,27 +30,26 @@ export const vocaHandlers = [
     return new HttpResponse(null, { status: 200 })
   }),
 
-  http.get(`${BASE_URL}/vocas/user/:userId`, ({ request }) => {
-    const url = new URL(request.url)
+  http.get(`${BASE_URL}/vocas/user/:userId`, ({ params, request }) => {
+    const { userId } = params;
+    const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
-    console.log('search', search)
-    // Mock data
-    let languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
-    const allVocas: Voca[] = Array.from({ length: 1000 }, (_, i) => ({
-      id: i + 1,
-      vocaTitle: `기본 단어장 ${i + 1}`,
-      languages: languages[i % languages.length],
-      description: `기본 설명 ${i + 1}`
-    }));
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
 
-    // Filter vocas based on search text
-    const filteredVocas = allVocas.filter(voca => 
+    const userVocas = Array.from({ length: 100 }, (_, i) => ({
+      id: i + 1,
+      vocaTitle: `단어장 ${i + 1}`,
+      languages: ['English', '日本語', 'Tiếng Việt'][i % 3],
+      userId: Number(userId),
+      description: `설명 ${i + 1}`,
+      createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const filteredVocas = userVocas.filter(voca => 
       voca.vocaTitle.toLowerCase().includes(search)
     );
 
-    // Paginate the filtered results
-    const page = parseInt(url.searchParams.get('page') || '0', 10);
-    const size = 10;
     const start = page * size;
     const end = start + size;
     const paginatedVocas = filteredVocas.slice(start, end);
@@ -61,7 +60,7 @@ export const vocaHandlers = [
       totalElements: filteredVocas.length,
       size,
       number: page
-    })
+    });
   }),
 
   http.post(`${BASE_URL}/vocas/user/:userId`, async ({ params, request }) => {

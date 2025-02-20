@@ -85,7 +85,7 @@ export function useUpdatePlayList() {
 export function useCreatePlayList() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({playlistData, userId}: {playlistData: Omit<Playlist, 'id'>, userId: number}) => {
+    mutationFn: async ({playlistData, userId}: {playlistData: Omit<Playlist, 'id' | 'createdAt'>, userId: number}) => {
       const response = await fetch(`${BASE_URL}/playlists/user/${userId}`, {
         method: 'POST',
         headers: {
@@ -111,4 +111,25 @@ export function usePlayList(playListIndex: number) {
     queryFn: () => fetch(`${BASE_URL}/playlists/${playListIndex}`).then(res => res.json()),
   });
 }
+
+export interface UserPlaylistParams {
+  userId: string | number;
+  page?: number;
+  size?: number;
+}
+
+//페이지네이션으로 변경경
+export function useUserPlaylist({ userId, page = 0, size = 10 }: UserPlaylistParams) {
+  return useQuery<PlaylistResponse>({
+    queryKey: ['userPlaylist', userId, page, size],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/playlists/user/${userId}?page=${page}&size=${size}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+  });
+}
+
 

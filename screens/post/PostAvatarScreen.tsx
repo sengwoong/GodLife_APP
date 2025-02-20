@@ -13,34 +13,83 @@ import CustomButton from '../../components/CustomButton';
 import ItemCard from '../../components/ItemCard';
 import Pagination from '../../components/Pagination';
 import Avatar from '../../components/common/Avatar';
-
-const MOCK_USER = {
-  id: '1',
-  username: '영어마스터',
-  avatar: 'https://via.placeholder.com/150/92c952',
-  level: '고급',
-  followers: 245,
-  following: 123,
-  posts: 15,
-  description: '매일 영어 공부중! 🌟\n함께 공부해요~',
-};
+import { useUser, useUserAllPosts } from '../../server/query/hooks/useUser';
+import { useUserVocas } from '../../server/query/hooks/useVoca';
+import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
+import { useUserPosts } from '../../server/query/hooks/usePost';
 
 const CATEGORY_BUTTONS = [
   { label: '전체보기', id: 'all' },
   { label: '단어장', id: 'vocabulary' },
   { label: '재생목록', id: 'playlist' },
-  { label: '일정표', id: 'schedule' },
+  { label: '포스트', id: 'post' },
 ];
 
 export const PostAvatarScreen = () => {
   const [activeCategory, setActiveCategory] = useState('전체보기');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; 
-  const totalItems = 24;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 10;
+
+  const { data: userData } = useUser('1');
+  const { data: userAllPosts } = useUserAllPosts('1', currentPage, pageSize);
+  const {data: userVocas} = useUserVocas({userId: '1', page: currentPage, size: pageSize});
+  const {data: userPlaylists} = useUserPlaylist({userId: '1', page: currentPage, size: pageSize});
+  const {data: userPosts} = useUserPosts({userId: '1', page: currentPage, size: pageSize});
+
+  const renderItems = () => {
+    switch (activeCategory) {
+      case '전체보기':
+        if (!userAllPosts?.allItems) {
+          return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>데이터가 없습니다.</Text></View>;
+        }
+        return userAllPosts.allItems.map((item, index) => (
+          <ItemCard 
+            key={`all-${index}`}
+            item={item}
+            type={'all'}
+          />
+        ));
+      
+      case '단어장':
+        if (!userVocas?.content) return null;
+        return userVocas.content.map((voca, index) => (
+          <ItemCard key={`voca-${index}`} item={voca} type="voca" />
+        ));
+      
+      case '재생목록':
+        if (!userPlaylists?.content) return null;
+        return userPlaylists.content.map((playlist, index) => (
+          <ItemCard key={`playlist-${index}`} item={playlist} type="playlist" />
+        ));
+      
+      case '포스트':
+        if (!userPosts?.content) return null;
+        return userPosts.content.map((post, index) => (
+          <ItemCard key={`post-${index}`} item={post} type="post" />
+        ));
+      
+      default:
+        return null;
+    }
+  };
+
+  const getCurrentTotalPages = () => {
+    switch (activeCategory) {
+      case '전체보기':
+        return userAllPosts?.totalPages || 0;
+      case '단어장':
+        return userVocas?.totalPages || 0;
+      case '재생목록':
+        return userPlaylists?.totalPages || 0;
+      case '포스트':
+        return userPosts?.totalPages || 0;
+      default:
+        return 0;
+    }
+  };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setCurrentPage(page - 1);
   };
 
   return (
@@ -48,31 +97,31 @@ export const PostAvatarScreen = () => {
       <ScrollView>
         <View style={styles.profile}>
           <Avatar
-            uri={MOCK_USER.avatar}
+            uri={userData?.profileImage || 'https://via.placeholder.com/150/92c952'}
             size={80}
             showBadge={true}
-            username={MOCK_USER.username}
+            username={userData?.nickName || '사용자'}
           />
           <View style={styles.profile__stats}>
             <View style={styles.profile__stat}>
-              <Text style={styles.profile__statNumber}>{MOCK_USER.posts}</Text>
+              <Text style={styles.profile__statNumber}>{userAllPosts?.posts.length || 0}</Text>
               <Text style={styles.profile__statLabel}>게시물</Text>
             </View>
             <View style={styles.profile__stat}>
-              <Text style={styles.profile__statNumber}>{MOCK_USER.followers}</Text>
+              <Text style={styles.profile__statNumber}>{userData?.followers || 0}</Text>
               <Text style={styles.profile__statLabel}>팔로워</Text>
             </View>
             <View style={styles.profile__stat}>
-              <Text style={styles.profile__statNumber}>{MOCK_USER.following}</Text>
+              <Text style={styles.profile__statNumber}>{userData?.following || 0}</Text>
               <Text style={styles.profile__statLabel}>팔로잉</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.profile__info}>
-          <Text style={styles.profile__username}>{MOCK_USER.username}</Text>
-          <Text style={styles.profile__level}>Level: {MOCK_USER.level}</Text>
-          <Text style={styles.profile__description}>{MOCK_USER.description}</Text>
+          <Text style={styles.profile__username}>{userData?.nickName || '사용자'}</Text>
+          <Text style={styles.profile__level}>Level: {userData?.level || ''}</Text>
+          <Text style={styles.profile__description}>{userData?.bio || ''}</Text>
         </View>
 
         <View style={styles.actions}>
@@ -90,7 +139,10 @@ export const PostAvatarScreen = () => {
               key={button.id}
               label={button.label}
               color={activeCategory === button.label ? 'BLACK' : 'WHITE'}
-              onPress={() => setActiveCategory(button.label)}
+              onPress={() => {
+                setActiveCategory(button.label);
+                setCurrentPage(0);
+              }}
             />
           ))}
         </View>
@@ -102,15 +154,12 @@ export const PostAvatarScreen = () => {
           
           <View style={styles.content__list}>
             <View style={styles.content__grid}>
-              <ItemCard />
-              <ItemCard />
-              <ItemCard />
-              <ItemCard />
+              {renderItems()}
             </View>
 
             <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
+              currentPage={currentPage + 1}
+              totalPages={getCurrentTotalPages()}
               onPageChange={handlePageChange}
               textColor={'BLACK'}
             />
@@ -221,7 +270,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: spacing.M16,
+    paddingHorizontal: spacing.M16,
+    gap: spacing.M8,
   },
   content__list: {
     marginTop: spacing.M16,

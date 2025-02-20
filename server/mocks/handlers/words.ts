@@ -68,5 +68,6 @@ export const wordHandlers = [
       size,
       number: page
     });
-  })
+  }),
+
 ] 

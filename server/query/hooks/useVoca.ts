@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
-
-
+import { Voca } from '../../../types/voca';
 
 interface VocaResponse {
   content: Voca[];
@@ -85,4 +84,26 @@ export function useUpdateVoca() {
       return response.json();
     },
   });
-} 
+}
+
+export interface UserVocaParams {
+  userId: string | number;
+  page?: number;
+  size?: number;
+  search?: string;
+}
+
+export const useUserVocas = ({ userId, page = 0, size = 10 }: UserVocaParams) => {
+  return useQuery<VocaResponse>({
+    queryKey: ['userVocas', userId, page, size],
+    queryFn: async () => {
+      const response = await fetch(
+        `${BASE_URL}/vocas/user/${userId}?page=${page}&size=${size}`
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+  });
+}; 

@@ -37,9 +37,9 @@ export const playlistHandlers = [
     const search = url.searchParams.get('search')?.toLowerCase() || '';
  
     const page = parseInt(url.searchParams.get('page') || '0', 10);
-    const size = 10;
+    const size = 3;
 
-    const allPlaylists = Array.from({ length: 100 }, (_, i) => ({
+    const allPlaylists = Array.from({ length: 10 }, (_, i) => ({
       id: i + 1,
       playlistTitle: `Playlist ${i + 1}`
     }));
@@ -68,6 +68,30 @@ export const playlistHandlers = [
     return HttpResponse.json({
       id: Number(playlistId),
       ...body,
+    });
+  }),
+
+  http.get(`${BASE_URL}/playlists/user/:userId`, ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
+
+    const allPlaylists = Array.from({ length: 100 }, (_, i) => ({
+      id: i + 1,
+      playlistTitle: `Playlist ${i + 1}`,
+      createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const start = page * size;
+    const end = start + size;
+    const paginatedPlaylists = allPlaylists.slice(start, end);
+
+    return HttpResponse.json({
+      content: paginatedPlaylists,
+      totalPages: Math.ceil(allPlaylists.length / size),
+      totalElements: allPlaylists.length,
+      size,
+      number: page
     });
   }),
 ] 
