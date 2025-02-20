@@ -36,7 +36,8 @@ function PlayListContentScreen() {
 
   const handleAddMusic = () => {
     navigation.navigate(PlayListNavigations.MUSICEDIT, {
-      Index: playListIndex
+      playListIndex: playListIndex,
+      musicIndex: undefined
     });
   };
 
@@ -51,6 +52,16 @@ function PlayListContentScreen() {
     }))
   ) || undefined;
 
+  const handleMusicItemPress = (id: string) => {
+    const selectedMusic = musicList?.find(music => music.id === id);
+    if (selectedMusic) {
+      navigation.navigate(PlayListNavigations.MUSICEDIT, {
+        playListIndex: playListIndex,
+        musicIndex: parseInt(selectedMusic.id)
+      });
+    }
+  };
+
   return (  
     <>
       <PlayListLayout
@@ -59,7 +70,7 @@ function PlayListContentScreen() {
         onShuffle={handleShuffle}
         onMenuPress={handleMenu}
         musicList={musicList}
-        onItemPress={(id) => console.log(`Item pressed: ${id}`)}
+        onItemPress={handleMusicItemPress}
       />
       <FAB onPress={handleAddMusic} />
     </>

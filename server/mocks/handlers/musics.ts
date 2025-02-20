@@ -3,7 +3,7 @@ import { BASE_URL } from '../../common/types/constants'
 import { MusicRequest } from '../../common/types/serverType'
 
 export const musicHandlers = [
-  http.put(`${BASE_URL}/musics/music/:musicId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/musics/playlist/:playlistId/music/:musicId/user/:userId`, async ({ params, request }) => {
     const body = await request.json() as MusicRequest
     return HttpResponse.json({
       id: params.musicId,
@@ -12,11 +12,11 @@ export const musicHandlers = [
     })
   }),
 
-  http.delete(`${BASE_URL}/musics/music/:musicId/user/:userId`, () => {
+  http.delete(`${BASE_URL}/musics/playlist/:playlistId/music/:musicId/user/:userId`, () => {
     return new HttpResponse(null, { status: 200 })
   }),
 
-  http.post(`${BASE_URL}/musics`, async ({ request }) => {
+  http.post(`${BASE_URL}/musics/playlist/:playlistId`, async ({ request }) => {
     const body = await request.json() as MusicRequest
     return HttpResponse.json({
       id: Date.now(),
@@ -24,7 +24,7 @@ export const musicHandlers = [
     })
   }),
 
-  http.get(`${BASE_URL}/musics/album/:albumId`, ({ params, request }) => {
+  http.get(`${BASE_URL}/musics/playlist/:playlistId`, ({ params, request }) => {
     const url = new URL(request.url);
     const index = parseInt(url.searchParams.get('index') || '-1', 10);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
@@ -32,7 +32,7 @@ export const musicHandlers = [
     const allMusics = Array.from({ length: 1000 }, (_, i) => ({
       id: (i + 1).toString(),
       musicTitle: `Music ${i + 1}`,
-      musicUrl: `https://example.com/music${i + 1}.mp3` ,
+      musicUrl: `https://example.com/music${i + 1}.com` ,
       color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
       imageUrl: `https://example.com/image${i + 1}.jpg`
     }));
@@ -65,5 +65,17 @@ export const musicHandlers = [
       size,
       number: page
     });
-  })
+  }),
+
+  http.get(`${BASE_URL}/musics/:musicId`, ({ params }) => {
+    const { musicId } = params;
+    return HttpResponse.json({
+      id: musicId,
+      musicTitle: `Music ${musicId}`,
+      musicUrl: `https://example.com/music${musicId}.com`,
+      color: '#000000',
+      imageUrl: `https://example.com/image${musicId}.jpg`
+    });
+  }),
+
 ] 

@@ -24,7 +24,7 @@ const MusicPlayer = ({ musicData }: MusicPlayerProps) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.albumArt}>
+      <View style={styles.playlistArt}>
         <View style={styles.dot} />
       </View>
       
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  albumArt: {
+  playlistArt: {
     width: 130,
     height: 130,
     backgroundColor: colors.WHITE,
