@@ -27,6 +27,10 @@ interface UserPostsResponse {
   size: number;
 }
 
+interface BestUserResponse {
+  users: UserResponse[];
+}
+
 export const useUser = (userId: string) => {
   return useQuery<UserResponse>({
     queryKey: ['user', userId],
@@ -47,6 +51,19 @@ export const useUserAllPosts = (userId: string, page: number, pageSize: number) 
       const response = await fetch(`${BASE_URL}/users/user/${userId}/posts?page=${page}&size=${pageSize}`);
       if (!response.ok) {
         throw new Error('Failed to fetch user posts');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useBestUsers = () => {
+  return useQuery<BestUserResponse>({
+    queryKey: ['bestUsers'],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/users/best`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch best users');
       }
       return response.json();
     },

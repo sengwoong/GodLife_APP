@@ -8,10 +8,10 @@ const generateMockPosts = (category: string, count: number) => {
     id: i + 1,
     userId: Math.floor(Math.random() * 10) + 1,
     userName: `User ${i + 1}`,
-    profileImage: `https://placekitten.com/100/${100 + i}`,
+    profileImage: `https://i.pravatar.cc/150?img=${i + 1}`,
     title: `Post Title ${i + 1}`,
     postContent: `This is a ${category} post content ${i + 1}`,
-    postImage: `https://placekitten.com/600/${400 + i}`,
+    postImage: `https://picsum.photos/seed/${i + 1}/600/400`,
     likes: Math.floor(Math.random() * 100),
     comments: Math.floor(Math.random() * 20),
     category,
@@ -269,6 +269,17 @@ export const postHandlers = [
       totalElements: allPosts.length,
       size,
       number: page,
+    });
+  }),
+
+  // 베스트 포스트 핸들러 수정
+  http.get(`${BASE_URL}/posts/best`, () => {
+    const bestPosts = generateMockPosts('post', 10);
+    console.log("postsApi");
+    console.log("bestPosts", bestPosts);
+    // 무조건 10개의 포스트를 반환
+    return HttpResponse.json({
+      bestPosts
     });
   }),
 ]; 

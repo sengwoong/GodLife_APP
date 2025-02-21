@@ -11,6 +11,10 @@ interface PostResponse {
   last: boolean;
 }
 
+interface BestPostsResponse {
+  posts: Post[];
+}
+
 export const usePost = (category: string, search: string = '', page: number = 0) => {
   return useQuery<PostResponse>({
     queryKey: ['posts', category, search, page],
@@ -95,6 +99,19 @@ export const useUserPosts = ({ userId, page = 0, size = 10}: UserPostsParams) =>
       const response = await fetch(
         `${BASE_URL}/posts/user/${userId}?page=${page}&size=${size}`
       );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useBestPosts = () => {
+  return useQuery<BestPostsResponse>({
+    queryKey: ['bestPosts'],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/posts/best`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

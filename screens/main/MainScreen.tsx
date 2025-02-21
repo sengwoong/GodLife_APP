@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, ScrollView, Image, TextStyle } from 'react-native';
+import { SafeAreaView, Text, View, StyleSheet, ScrollView, Image, TextStyle, ImageStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import LinearGradient from 'react-native-linear-gradient';
 import ItemCard from '../../components/ItemCard';
@@ -12,6 +12,8 @@ import Margin from '../../components/division/Margin';
 import CardSlider from '../../components/mainscreen/CardSlider';
 import { Music } from '../../types';
 import SquareItemCard from '../../components/SquareItemCard';
+import { useBestPosts } from '../../server/query/hooks/usePost';
+import { useBestUsers } from '../../server/query/hooks/useUser';
 
 const GRADIENT_SIZE = 54;
 const AVATAR_SIZE = 50;
@@ -29,11 +31,18 @@ function MainScreen() {
     { label: '일정표', id: 'schedule' },
   ];
 
-  const popularAvatars = [
-    { id: 1, image: 'https://example.com/avatar1.png', name: 'Avatar 1', flower: 23 },
-    { id: 2, image: 'https://example.com/avatar2.png', name: 'Avatar 2', flower: 33 },
-    { id: 3, image: 'https://example.com/avatar3.png', name: 'Avatar 3', flower: 53 },
-  ];
+  const { data: bestPosts, isLoading: isLoadingBestPosts } = useBestPosts();
+
+  const { data: bestUsers, isLoading: isLoadingBestUsers } = useBestUsers();
+
+  console.log("bestPosts", bestPosts);
+
+  const popularAvatars = bestUsers?.users.slice(0, 3).map(user => ({
+    id: user.id,
+    image: user.profileImage,
+    name: user.nickName,
+    flower: user.level
+  })) || [];
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -89,9 +98,43 @@ function MainScreen() {
           <Margin size={'M8'} />
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <Image source={{ uri: 'https://example.com/product1.png' }} style={styles.product__image} />
-            <Image source={{ uri: 'https://example.com/product2.png' }} style={styles.product__image} />
-            <Image source={{ uri: 'https://example.com/product3.png' }} style={styles.product__image} />
+            {!isLoadingBestPosts && bestPosts?.posts && (
+              <>
+                {bestPosts.posts.map((post, index) => (
+                  <View key={index} style={styles.product__container}>
+                    <Image 
+                      source={{ uri: post.postImage }} 
+                      style={styles.product__image as ImageStyle} 
+                    />
+                    <View style={styles.product__info}>
+                      <Text style={styles.product__category}>{post.userName}</Text>
+                      <Text 
+                        style={styles.product__description} 
+                        numberOfLines={2} 
+                        ellipsizeMode="clip" 
+                      >
+                        {post.title}
+                      </Text>
+                      <View style={styles.product__priceContainer}>
+                        {post.sale && (
+                          <Text style={styles.product__price}>
+                            {post.price} 포인트
+                          </Text>
+                        )}
+                      </View>
+                      <View style={styles.product__ratingContainer}>
+                        <Text style={styles.product__tag}>#{post.type}</Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </>
+            )}
+            {isLoadingBestPosts && (
+              <View style={[styles.product__image, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: colors.BLACK }}>로딩중...</Text>
+              </View>
+            )}
           </ScrollView>
         </View>
 
@@ -117,7 +160,21 @@ function MainScreen() {
         <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={styles.section}>
           <Text style={styles.section__title}>추천 상품</Text>
           <View style={styles.section__content}>
-
+            {!isLoadingBestPosts && bestPosts?.posts && (
+              <>
+                {/* {bestPosts.posts.map((post) => (
+                  <SquareItemCard
+                    key={post.id}
+                    item={post}
+                  />
+                ))} */}
+              </>
+            )}
+            {isLoadingBestPosts && (
+              <Text style={[styles.section__title, { color: colors.WHITE }]}>
+                로딩중...
+              </Text>
+            )}
           </View>
 
           <Pagination
@@ -149,7 +206,7 @@ function MainScreen() {
                   <Text style={styles.ranking__scoreText}>{avatar.flower}</Text> 
                 </View>
                 <View>
-                  <Text style={styles.ranking__name}>{avatar.name}</Text> 
+                  <Text numberOfLines={1} ellipsizeMode="clip" style={styles.ranking__name}>{avatar.name}</Text> 
                 </View>
                 <CustomButton 
                   size='text_size' 
@@ -180,8 +237,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.BLACK,
   } as TextStyle,
-
-  // 플레이어 블록
   player: {
     flexDirection: 'row',
     backgroundColor: colors.BLACK,
@@ -191,6 +246,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   player__avatar: {
+    position: 'relative',
   },
   player__avatarImage: {
     backgroundColor: colors.BLACK,
@@ -224,17 +280,54 @@ const styles = StyleSheet.create({
     color: colors.WHITE,
   } as TextStyle,
 
-  // 상품 이미지
+  product__container: {
+    width: 164,
+    marginRight: spacing.M12,
+  },
   product__image: {
-    display: 'flex',
     width: 164,
     height: 262,
-    borderRadius: 15,
+    borderRadius: 8,
     backgroundColor: colors.GRAY,
-    marginRight: spacing.M4,
+  } as ImageStyle,
+  product__info: {
+    padding: spacing.M8,
   },
+  product__category: {
+    ...getFontStyle('title', 'small', 'bold'),
+    color: colors.BLACK,
+  } as TextStyle,
+  product__description: {
+    ...getFontStyle('body', 'mediumSmall', 'regular'),
+    color: colors.BLACK,
+    flexWrap: 'nowrap',
+    marginTop: 2,
+    
+  } as TextStyle,
+  product__priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  product__price: {
+    ...getFontStyle('body', 'small', 'bold'),
+    color: colors.BLACK,
+  } as TextStyle,
+  product__ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    justifyContent: 'space-between',
+  },
+  product__rating: {
+    ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
+  } as TextStyle,
+  product__tag: {
+    ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
+  } as TextStyle,
 
-  // 네비게이션
   nav: {
     width: "20%",
     flexDirection: "row",
@@ -243,7 +336,6 @@ const styles = StyleSheet.create({
     left: 160,
   },
 
-  // 섹션 블록
   section: {
     flex: 1,
     backgroundColor: colors.BLACK,
@@ -265,7 +357,6 @@ const styles = StyleSheet.create({
     height: 320,
   },
 
-  // 랭킹 블록
   ranking__title: {
     color: colors.WHITE,
     textAlign: "center",
@@ -277,6 +368,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   ranking__item: {
+    alignItems: 'center',
+    width: 90,
+    gap: 4,
   },
   ranking__avatar: {
     backgroundColor: colors.BLACK,
@@ -288,11 +382,13 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 90 / 2,
+    position: 'absolute',
+    zIndex: -1,
   },
   ranking__gradientPosition: {
     position: 'absolute',
     top: '50%',
-    left: '50%',
+    left: '47%',
     transform: [{ translateX: -90 / 2 }, { translateY: -90 / 2 }],
     zIndex: -1,
   },
@@ -301,17 +397,17 @@ const styles = StyleSheet.create({
     width: 30,
     height: 20,
     backgroundColor: colors.BLUE,
-    alignSelf: 'center',
-    top: -10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
   },
   ranking__scoreText: {
-    textAlign: "center",
-    ...getFontStyle("body", "large", "medium")
+    color: colors.BLACK,
+    ...getFontStyle("body", "small", "medium")
   } as TextStyle,
   ranking__name: {
-    textAlign: "center",
     color: colors.WHITE,
-    ...getFontStyle("body", "large", "medium")
+    ...getFontStyle("titleBody", "small", "bold"),
   } as TextStyle,
 
   footer: {
