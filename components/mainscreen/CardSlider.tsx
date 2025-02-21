@@ -134,26 +134,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BLACK,
     padding: spacing.M16,
     width: width,
-    height: 300,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
+    height: 335,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
     flexDirection: 'column',
     justifyContent: 'space-between',
-
+  },
+  gray:{
+    backgroundColor: colors.GRAY,
   },
   cardDescriptionContainer: {
     marginBottom: spacing.M8,
   },
   cardDescription: {
     ...getFontStyle('titleBody', 'large', 'regular'),
-    color: colors.LIGHT_GRAY,
+    color: colors.WHITE,
   } as TextStyle,
   cardContent: {
     flexGrow: 1,
   },
   cardTitle: {
     ...getFontStyle('display', 'small', 'bold'),
-    color: colors.GREEN,
+    color: colors.WHITE,
     marginBottom: spacing.M8,
   } as TextStyle,
   cardWordTitle: {
@@ -167,8 +169,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.M8,
   },
   cardIcon: {
-    ...getFontStyle('display', 'small', 'bold'),
+    ...getFontStyle('display', 'large', 'bold'),
     color: colors.GREEN,
+    padding: spacing.M8,
   } as TextStyle,
   pagination: {
     flexDirection: 'row',

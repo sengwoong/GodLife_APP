@@ -20,6 +20,7 @@ import { useUserPosts } from '../../server/query/hooks/usePost';
 import { Voca } from '../../types/voca';
 import { BasePost } from '../../types/post';
 import { Playlist } from '../../types/playlist';
+import SquareItemCard from '../../components/SquareItemCard';
 
 const CATEGORY_BUTTONS = [
   { label: '전체보기', id: 'all' },
@@ -82,10 +83,7 @@ export const PostAvatarScreen = () => {
         }
         return userAllPosts.allItems.map((item, index) => (
           <View key={`all-${index}`} style={styles.content__item}>
-            <ItemCard 
-              item={item}
-              type={'all'}
-            />
+            <SquareItemCard item={item} />
             <ItemInfo item={item} />
           </View>
         ));

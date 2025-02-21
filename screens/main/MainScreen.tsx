@@ -11,6 +11,7 @@ import Pagination from '../../components/Pagination';
 import Margin from '../../components/division/Margin';
 import CardSlider from '../../components/mainscreen/CardSlider';
 import { Music } from '../../types';
+import SquareItemCard from '../../components/SquareItemCard';
 
 const GRADIENT_SIZE = 54;
 const AVATAR_SIZE = 50;
@@ -19,20 +20,7 @@ const MUSIC_PLAYER_WIDTH = "80%";
 function MainScreen() {
   const [activeButton, setActiveButton] = useState('전체보기');
   
-  const musicData: Music[] = [
-    {
-      id: '1',
-      title: 'Blizzards',
-      description: 'Lorem ipsum dolor, sit amet consectetur adipisicing.',
-      audioUrl: 1,
-    },
-    {
-      id: '2',
-      title: 'Calm',
-      description: 'Lorem ipsum dolor, sit amet consectetur adipisicing.',
-      audioUrl: 2,
-    },
-  ];
+
 
   const CategoryButtons = [
     { label: '전체보기', id: 'all' },
@@ -56,16 +44,27 @@ function MainScreen() {
     setCurrentPage(page);
   };
 
+  const musicData: Music[] = [
+    {
+      id: '1',
+      musicTitle: 'Blizzards',
+      musicUrl: "https://example.com/com",
+      color: colors.BLUE,
+      imageUrl: 'https://example.com/avatar1.png',
+    }
+  ]  
+   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView >
       <ScrollView>
+
         <View>
-          <View style={styles.header__title}></View>
           <CardSlider musicData={musicData} calendarItems={[]}/>
         </View>
 
+        <Margin size={'M16'} />
+
         <View style={styles.content}>
-          <Margin size={'M16'} />
 
           <View style={styles.player}>
             <View style={styles.player__avatar}>
@@ -118,11 +117,7 @@ function MainScreen() {
         <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={styles.section}>
           <Text style={styles.section__title}>추천 상품</Text>
           <View style={styles.section__content}>
-            <ItemCard />
-            <ItemCard />
-            <ItemCard />
-            <ItemCard />
-            <ItemCard />
+
           </View>
 
           <Pagination
@@ -174,9 +169,6 @@ function MainScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   content: {
     paddingHorizontal: spacing.M16,
   },

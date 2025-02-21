@@ -30,8 +30,7 @@ const MusicPlayer = ({ musicData }: MusicPlayerProps) => {
       
       <View style={styles.contentContainer}>
         <View style={styles.musicInfo}>
-          <Text style={styles.songTitle}>{musicData[currentIndex].title}</Text>
-          <Text style={styles.description}>{musicData[currentIndex].description}</Text>
+          <Text style={styles.songTitle}>{musicData[currentIndex].musicTitle}</Text>
         </View>
         <Margin size={'M12'} />
         <View style={styles.controls}>
@@ -57,7 +56,7 @@ const MusicPlayer = ({ musicData }: MusicPlayerProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.BLACK,
+    backgroundColor: colors.LIGHT_BLACK,
     padding: 15,
     borderRadius: 10,
     height: 180,
@@ -105,10 +104,10 @@ const styles = StyleSheet.create({
 
   },
   playButton: {
-    width: 24,
-    height: 24,
+    width: 40,
+    height: 40,
     backgroundColor: colors.WHITE,
-    borderRadius: 12,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
