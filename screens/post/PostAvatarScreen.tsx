@@ -17,6 +17,9 @@ import { useUser, useUserAllPosts } from '../../server/query/hooks/useUser';
 import { useUserVocas } from '../../server/query/hooks/useVoca';
 import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
 import { useUserPosts } from '../../server/query/hooks/usePost';
+import { Voca } from '../../types/voca';
+import { BasePost } from '../../types/post';
+import { Playlist } from '../../types/playlist';
 
 const CATEGORY_BUTTONS = [
   { label: '전체보기', id: 'all' },
@@ -24,6 +27,41 @@ const CATEGORY_BUTTONS = [
   { label: '재생목록', id: 'playlist' },
   { label: '포스트', id: 'post' },
 ];
+
+const ItemInfo = ({ item }: { item: BasePost | Voca | Playlist }) => {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if ('vocaTitle' in item) {
+    return (
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle}>{item.vocaTitle}</Text>
+        <Text style={styles.itemSubText}>{item.languages}</Text>
+        <Text style={styles.itemDate}>{formatDate(item.createdAt)}</Text>
+      </View>
+    );
+  } else if ('playlistTitle' in item) {
+    return (
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle}>{item.playlistTitle}</Text>
+        <Text style={styles.itemDate}>{formatDate(item.createdAt)}</Text>
+      </View>
+    );
+  } else if ('title' in item) {
+    return (
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle}>{item.title}</Text>
+        <Text style={styles.itemDate}>{formatDate(item.createdAt)}</Text>
+      </View>
+    );
+  }
+  return null;
+};
 
 export const PostAvatarScreen = () => {
   const [activeCategory, setActiveCategory] = useState('전체보기');
@@ -43,29 +81,40 @@ export const PostAvatarScreen = () => {
           return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>데이터가 없습니다.</Text></View>;
         }
         return userAllPosts.allItems.map((item, index) => (
-          <ItemCard 
-            key={`all-${index}`}
-            item={item}
-            type={'all'}
-          />
+          <View key={`all-${index}`} style={styles.content__item}>
+            <ItemCard 
+              item={item}
+              type={'all'}
+            />
+            <ItemInfo item={item} />
+          </View>
         ));
       
       case '단어장':
         if (!userVocas?.content) return null;
         return userVocas.content.map((voca, index) => (
-          <ItemCard key={`voca-${index}`} item={voca} type="voca" />
+          <View key={`voca-${index}`} style={styles.content__item}>
+            <ItemCard item={voca} type="voca" />
+            <ItemInfo item={voca} />
+          </View>
         ));
       
       case '재생목록':
         if (!userPlaylists?.content) return null;
         return userPlaylists.content.map((playlist, index) => (
-          <ItemCard key={`playlist-${index}`} item={playlist} type="playlist" />
+          <View key={`playlist-${index}`} style={styles.content__item}>
+            <ItemCard item={playlist} type="playlist" />
+            <ItemInfo item={playlist} />
+          </View>
         ));
       
       case '포스트':
         if (!userPosts?.content) return null;
         return userPosts.content.map((post, index) => (
-          <ItemCard key={`post-${index}`} item={post} type="post" />
+          <View key={`post-${index}`} style={styles.content__item}>
+            <ItemCard item={post} type="post" />
+            <ItemInfo item={post} />
+          </View>
         ));
       
       default:
@@ -271,9 +320,30 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.M16,
-    gap: spacing.M8,
+    gap: spacing.M16,
   },
   content__list: {
     marginTop: spacing.M16,
   },
+  itemInfo: {
+    marginTop: spacing.M8,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.BLACK,
+    marginBottom: spacing.M4,
+  },
+  itemSubText: {
+    fontSize: 14,
+    color: colors.BLACK,
+    marginBottom: spacing.M4,
+  },
+  itemDate: {
+    fontSize: 12,
+    color: colors.BLACK,
+  },
+  content__item: {
+    marginBottom: spacing.M24,
+  }
 }); 
