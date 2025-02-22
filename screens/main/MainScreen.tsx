@@ -13,27 +13,32 @@ import CardSlider from '../../components/mainscreen/CardSlider';
 import { Music } from '../../types';
 import SquareItemCard from '../../components/SquareItemCard';
 import { useBestPosts } from '../../server/query/hooks/usePost';
-import { useBestUsers } from '../../server/query/hooks/useUser';
+import { useBestUsers, useUserRecommend } from '../../server/query/hooks/useUser';
+import { BasePost } from '../../types/post';
 
 const GRADIENT_SIZE = 54;
 const AVATAR_SIZE = 50;
 const MUSIC_PLAYER_WIDTH = "80%";
 
 function MainScreen() {
-  const [activeButton, setActiveButton] = useState('전체보기');
-  
-
-
   const CategoryButtons = [
-    { label: '전체보기', id: 'all' },
-    { label: '단어장', id: 'vocabulary' },
+    { label: '전체보기', id: 'post' },
+    { label: '단어장', id: 'voca' },
     { label: '재생목록', id: 'playlist' },
-    { label: '일정표', id: 'schedule' },
+    { label: '음악', id: 'music' },
   ];
+
+  const [activeButton, setActiveButton] = useState<{
+    label: string;
+    id: string;
+  }>(CategoryButtons[0]);
+
 
   const { data: bestPosts, isLoading: isLoadingBestPosts } = useBestPosts();
 
   const { data: bestUsers, isLoading: isLoadingBestUsers } = useBestUsers();
+
+  const { data: recommendContent, isLoading: isLoadingRecommend } = useUserRecommend(1, 10);
 
   console.log("bestPosts", bestPosts);
 
@@ -53,6 +58,12 @@ function MainScreen() {
     setCurrentPage(page);
   };
 
+  const handleCategoryChange = (label: string, id: string) => {
+    setActiveButton({ label, id });
+  };
+
+
+
   const musicData: Music[] = [
     {
       id: '1',
@@ -63,6 +74,23 @@ function MainScreen() {
     }
   ]  
    
+  const getContentByType = () => {
+    if (!recommendContent) return [];
+    
+    switch (activeButton.id) {
+      case 'post':
+        return recommendContent.posts;
+      case 'voca':
+        return recommendContent.vocas;
+      case 'playlist':
+        return recommendContent.playlists;
+      case 'music':
+        return recommendContent.musics;
+      default:
+        return recommendContent.allItems;
+    }
+  };
+
   return (
     <SafeAreaView >
       <ScrollView>
@@ -131,9 +159,18 @@ function MainScreen() {
               </>
             )}
             {isLoadingBestPosts && (
-              <View style={[styles.product__image, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: colors.BLACK }}>로딩중...</Text>
-              </View>
+              <>
+                {[...Array(5)].map((_, index) => (
+                  <View key={index} style={styles.product__container}>
+                    <View style={[styles.product__image, styles.skeleton]}/>
+                    <View style={styles.product__info}>
+                      <View style={[styles.skeleton, { width: '40%', height: 16, marginBottom: 8 }]} />
+                      <View style={[styles.skeleton, { width: '80%', height: 14, marginBottom: 4 }]} />
+                      <View style={[styles.skeleton, { width: '60%', height: 14 }]} />
+                    </View>
+                  </View>
+                ))}
+              </>
             )}
           </ScrollView>
         </View>
@@ -149,8 +186,8 @@ function MainScreen() {
             <CustomButton
               key={button.id}
               label={button.label}
-              color={activeButton === button.label ? 'BLACK' : 'WHITE'}
-              onPress={() => setActiveButton(button.label)}
+              color={activeButton.label === button.label ? 'BLACK' : 'WHITE'}
+              onPress={() => handleCategoryChange(button.label, button.id)}
             />
           ))}
         </View>
@@ -160,17 +197,23 @@ function MainScreen() {
         <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={styles.section}>
           <Text style={styles.section__title}>추천 상품</Text>
           <View style={styles.section__content}>
-            {!isLoadingBestPosts && bestPosts?.posts && (
+            {!isLoadingRecommend && recommendContent && (
               <>
-                {/* {bestPosts.posts.map((post) => (
+                {getContentByType().map((item) => (
                   <SquareItemCard
-                    key={post.id}
-                    item={post}
+                    key={item.id}
+                    item={item as BasePost}
+                    type={activeButton.id as 'post' | 'voca' | 'playlist' | 'music'}
                   />
-                ))} */}
+                ))}
+                {getContentByType().length === 0 && (
+                  <Text style={[styles.section__title, { color: colors.WHITE }]}>
+                    해당 카테고리의 항목이 없습니다
+                  </Text>
+                )}
               </>
             )}
-            {isLoadingBestPosts && (
+            {isLoadingRecommend && (
               <Text style={[styles.section__title, { color: colors.WHITE }]}>
                 로딩중...
               </Text>
@@ -352,6 +395,10 @@ const styles = StyleSheet.create({
   } as TextStyle,
   section__content: {
     width: "100%",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: spacing.M16,
   },
   section__bubble: {
     height: 320,
@@ -414,6 +461,12 @@ const styles = StyleSheet.create({
     height: 300,
     zIndex: -1,
   },
+  skeleton: {
+    backgroundColor: colors.GRAY,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+
 });
 
 export default MainScreen;

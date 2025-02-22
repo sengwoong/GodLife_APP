@@ -3,6 +3,7 @@ import { BASE_URL } from '../../common/types/constants';
 import { BasePost } from '../../../types/post';
 import { Voca } from '../../../types/voca';
 import { Playlist } from '../../../types/playlist';
+import { Music } from '../../../types/music';
 
 interface UserResponse {
   id: string | number;
@@ -29,6 +30,16 @@ interface UserPostsResponse {
 
 interface BestUserResponse {
   users: UserResponse[];
+}
+
+interface RecommendContentResponse {
+  posts: (BasePost & { type: 'post' })[];
+  vocas: (Voca & { type: 'voca' })[];
+  playlists: (Playlist & { type: 'playlist' })[];
+  musics: (Music & { type: 'music' })[];
+  allItems: (BasePost | Voca | Playlist | Music & { type: string })[];
+  totalPages: number;
+  size: number;
 }
 
 export const useUser = (userId: string) => {
@@ -64,6 +75,19 @@ export const useBestUsers = () => {
       const response = await fetch(`${BASE_URL}/users/best`);
       if (!response.ok) {
         throw new Error('Failed to fetch best users');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useUserRecommend = (page: number, pageSize: number) => {
+  return useQuery<RecommendContentResponse>({
+    queryKey: ['userRecommend', page, pageSize],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/users/recommend?page=${page}&size=${pageSize}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommended content');
       }
       return response.json();
     },

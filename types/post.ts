@@ -13,6 +13,7 @@ export interface PostItem {
 
 export interface BasePost {
   id: number;
+  imageUrl: string;
   userId: number;
   userName: string;
   title: string;

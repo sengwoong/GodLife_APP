@@ -1,54 +1,98 @@
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, Text, Pressable, TextStyle } from 'react-native';
 import React from 'react';
-import { colors } from '../constants';
+import { colors, getFontStyle, spacing } from '../constants';
 import { BasePost } from '../types/post';
 import { Voca } from '../types/voca';
 import { Playlist } from '../types/playlist';
 import { Music } from '../types/music';
 
 interface SquareItemCardProps {
-  item: BasePost | Voca | Playlist | Music;
+  item: BasePost;
   type?: 'post' | 'voca' | 'playlist' | 'music';
+  onPress?: () => void;
 }
 
-export default function SquareItemCard({ item, type }: SquareItemCardProps) {
+export default function SquareItemCard({ item, type, onPress }: SquareItemCardProps) {
   const getImageUrl = () => {
     if ('postImage' in item) {
       return item.postImage;
-    } else if ('imageUrl' in item) {
-      return item.imageUrl;
-    }
-    return 'https://via.placeholder.com/164';
+    } 
+    return 'https://via.placeholder.com/60';
   };
 
   return (
-    <View style={styles.card}>
-      <Image
-        source={{ uri: getImageUrl() }}
-        style={styles.image}
-        resizeMode="cover"
-      />
-    </View>
+    <Pressable onPress={onPress} style={styles.card}>
+      <View style={styles.leftInfo}>
+        <Image 
+          source={{ uri: getImageUrl() }} 
+          style={styles.thumbnail} 
+        />
+      </View>
+      <View style={styles.rightInfo}>
+        <Text style={styles.brand}>{item.type}</Text>
+        <Text style={styles.title} numberOfLines={2}>
+          {'title' in item ? item.title : '상품명'}
+        </Text>
+        <Text style={styles.price}>
+          {'price' in item ? `${item.price}원` : '가격정보 없음'}
+        </Text>
+        {'sale' in item && item.sale && (
+          <View style={styles.saleTag}>
+            <Text style={styles.saleText}>품절</Text>
+          </View>
+        )}
+      </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    width: 164,
-    height: 164,
-    backgroundColor: colors.WHITE,
-    shadowColor: colors.BLACK,
-    shadowOffset: { 
-      width: 0, 
-      height: 2 
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  image: {
     width: '100%',
-    height: '100%',
+    flexDirection: 'row',
+    padding: spacing.M16,
+    backgroundColor: colors.WHITE,
+    borderRadius: 8,
+    marginBottom: spacing.M8,
+  },
+  leftInfo: {
+    marginRight: spacing.M16,
+  },
+  thumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 4,
     backgroundColor: colors.LIGHT_GRAY,
-  }
+  },
+  rightInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  brand: {
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.BLACK,
+    marginBottom: 2,
+  } as TextStyle,
+  title: {
+    ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
+    marginBottom: 4,
+  } as TextStyle,
+  price: {
+    ...getFontStyle('body', 'medium', 'bold'),
+    color: colors.BLACK,
+  } as TextStyle,
+  saleTag: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.GRAY,
+    paddingHorizontal: spacing.M8,
+    paddingVertical: spacing.M4,
+    borderRadius: 4,
+  },
+  saleText: {
+    ...getFontStyle('body', 'small', 'bold'),
+    color: colors.WHITE,
+  }as TextStyle,
 }); 

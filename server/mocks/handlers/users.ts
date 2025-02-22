@@ -82,6 +82,53 @@ const generateBestPosts = () => {
   }));
 };
 
+// 추천 컨텐츠 생성 함수
+const generateRecommendContent = () => {
+  const posts = Array.from({ length: 5 }, (_, i) => ({
+    id: i + 1,
+    userId: i + 1,
+    userName: `추천 크리에이터 ${i + 1}`,
+    title: `추천 컨텐츠 ${i + 1}`,
+    postContent: `이 컨텐츠를 추천합니다 ${i + 1}`,
+    postImage: `https://picsum.photos/seed/recommend-${i}/600/400`,
+    likes: Math.floor(Math.random() * 1000) + 100,
+    comments: Math.floor(Math.random() * 50) + 10,
+    type: 'post',
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+  }));
+
+  const vocas = Array.from({ length: 5 }, (_, i) => ({
+    id: i + 1,
+    vocaTitle: `추천 단어장 ${i + 1}`,
+    languages: ['English', '日本語', 'Tiếng Việt'][i % 3],
+    userId: i + 1,
+    description: `추천 단어장 설명 ${i + 1}`,
+    type: 'voca',
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+  }));
+
+  const playlists = Array.from({ length: 5 }, (_, i) => ({
+    id: i + 1,
+    playlistTitle: `추천 플레이리스트 ${i + 1}`,
+    userId: i + 1,
+    type: 'playlist',
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+  }));
+
+  const musics = Array.from({ length: 5 }, (_, i) => ({
+    id: i + 1,
+    musicTitle: `추천 음악 ${i + 1}`,
+    artist: `아티스트 ${i + 1}`,
+    userId: i + 1,
+    musicImage: `https://picsum.photos/seed/music-${i}/600/400`,
+    duration: '3:30',
+    type: 'music',
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+  }));
+
+  return { posts, vocas, playlists, musics };
+};
+
 export const userHandlers = [
   http.get(`${BASE_URL}/users/user/:userId`, ({ params }) => {
     return HttpResponse.json({
@@ -181,5 +228,37 @@ export const userHandlers = [
     return HttpResponse.json({
       posts: bestPosts
     });
-  })
+  }),
+
+  // 추천 컨텐츠 핸들러 추가
+  http.get(`${BASE_URL}/users/recommend`, ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
+
+    const { posts, vocas, playlists, musics } = generateRecommendContent();
+
+    const allItems = [
+      ...posts.map(post => ({ ...post, type: 'post' })),
+      ...vocas.map(voca => ({ ...voca, type: 'voca' })),
+      ...playlists.map(playlist => ({ ...playlist, type: 'playlist' })),
+      ...musics.map(music => ({ ...music, type: 'music' }))
+    ].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    const start = page * size;
+    const end = start + size;
+    const paginatedItems = allItems.slice(start, end);
+
+    return HttpResponse.json({
+      posts,
+      vocas,
+      playlists,
+      musics,
+      allItems: paginatedItems,
+      totalPages: Math.ceil(allItems.length / size),
+      size,
+    });
+  }),
 ] 

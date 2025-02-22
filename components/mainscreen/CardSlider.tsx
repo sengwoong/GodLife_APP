@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.M8,
   },
   cardIcon: {
-    ...getFontStyle('display', 'large', 'bold'),
+    ...getFontStyle('title', 'large', 'bold'),
     color: colors.GREEN,
     padding: spacing.M8,
   } as TextStyle,
