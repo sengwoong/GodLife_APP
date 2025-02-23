@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, SafeAreaView, View, TextStyle, TextInput, TouchableOpacity } from 'react-native';
 import { getMonthYearDetails } from '../../utils/date';
 import EventList from '../../components/EventList';
@@ -12,6 +12,7 @@ import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigato
 import { CompoundOption } from '../../components/Modal';
 import ScrollWheelPicker from '../../components/ScrollWheelPicker';
 import Calendar from './calendar/CalendarHomeScreen';
+import { useSchedules } from '../../server/query/hooks/useSchedule';
 
 
 type Navigation = CompositeNavigationProp<
@@ -47,29 +48,9 @@ function CalendarHomeScreen() {
   const [editedSchedule, setEditedSchedule] = useState<EditableSchedule | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const [schedules, setSchedules] = useState<Schedule[]>([
-    {
-      content: '프로젝트 마감',
-      id: 1,
-      time: '5:00 PM',
-      title: '업무 일정',
-      day: '2025-02-03',
-    },
-    {
-      content: '친구 생일',
-      id: 2,
-      time: 'All Day',
-      title: '생일 파티',
-      day: '2025-05-20',
-    },
-    {
-      content: '미팅qw[opfk',
-      id: 3,
-      time: '10:00 AM',
-      title: '업무 미팅',
-      day: '2025-12-30',
-    },
-  ]);
+  const { data: scheduleData, isLoading } = useSchedules(1, year, month, day);
+
+
 
   const hideOption = () => {
     setIsVisible(false);
@@ -78,7 +59,7 @@ function CalendarHomeScreen() {
 
   const showOption = () => {
     setEditedSchedule({
-      id: schedules.length + 1,
+      id: Date.now(),
       content: '',
       time: '',
       title: '',
@@ -90,20 +71,8 @@ function CalendarHomeScreen() {
 
   function handleSave() {
     if (editedSchedule) {
-      const updatedDay = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      
-      if (editedSchedule.isNew) {
-        setSchedules(prev => [...prev, { ...editedSchedule, day: updatedDay }]);
-      } else {
-        setSchedules(prev =>
-          prev.map(schedule =>
-            schedule.id === editedSchedule.id
-              ? { ...editedSchedule, day: updatedDay }
-              : schedule
-          )
-        );
-      }
-      
+
+
       setEditedSchedule(null);
       setIsVisible(false);
     }
@@ -137,28 +106,34 @@ function CalendarHomeScreen() {
 
 
   return (
-    <SafeAreaView >
-      <Calendar 
-        year={year}
-        month={month}
-        day={selectedDate}
-        schedules={schedules}
-        onDateChange={handleDateChange}
-      />
+    <SafeAreaView>
+      {isLoading ? (
+        <Text>로딩 중...</Text>
+      ) : (
+        <>
+          <Calendar 
+            year={year}
+            month={month}
+            day={selectedDate}
+            schedules={scheduleData?.content || []}
+            onDateChange={handleDateChange}
+          />
 
-      <View style={styles.rowContainer}>
-        <Text style={styles.SelectDayText}>{selectedDate}일 할일</Text>
-        <CustomButton 
-          size='text_size' 
-          label='생성하기' 
-          color='BLACK' 
-          shape='rounded' 
-          style={{ flexWrap: 'nowrap' }} 
-          onPress={showOption}
-        />
-      </View>
+          <View style={styles.rowContainer}>
+            <Text style={styles.SelectDayText}>{selectedDate}일 할일</Text>
+            <CustomButton 
+              size='text_size' 
+              label='생성하기' 
+              color='BLACK' 
+              shape='rounded' 
+              style={{ flexWrap: 'nowrap' }} 
+              onPress={showOption}
+            />
+          </View>
 
-      <EventList posts={schedules} onChangePressItem={onChangePressItem} />
+          <EventList posts={scheduleData?.content || []} onChangePressItem={onChangePressItem} />
+        </>
+      )}
 
       {isVisible && (
         <CompoundOption isVisible={isVisible} hideOption={hideOption}>
