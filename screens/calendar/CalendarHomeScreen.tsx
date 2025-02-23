@@ -11,9 +11,8 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
 import { CompoundOption } from '../../components/Modal';
 import ScrollWheelPicker from '../../components/ScrollWheelPicker';
-import Calendar from './calendar/CalendarHomeScreen';
 import { useSchedules } from '../../server/query/hooks/useSchedule';
-
+import Calendar from '../../components/calendar/Calendar';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<calendarStackParamList>,
