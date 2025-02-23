@@ -83,7 +83,7 @@ export const PostAvatarScreen = () => {
         }
         return userAllPosts.allItems.map((item, index) => (
           <View key={`all-${index}`} style={styles.content__item}>
-            <SquareItemCard item={item} />
+            <ItemCard item={item} type="post" />
             <ItemInfo item={item} />
           </View>
         ));

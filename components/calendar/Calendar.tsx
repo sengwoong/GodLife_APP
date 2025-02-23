@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextStyle } from 'react-native';
-import { colors, getFontStyle, spacing } from '../../../constants/index';
-import { CompoundOption } from '../../../components/Modal';
-import ScrollWheelPicker from '../../../components/ScrollWheelPicker';
+import { colors, getFontStyle, spacing } from '../../constants/index';
+import { CompoundOption } from '../../components/Modal';
+import ScrollWheelPicker from '../../components/ScrollWheelPicker';
 
 interface CalendarProps {
   year: number;
