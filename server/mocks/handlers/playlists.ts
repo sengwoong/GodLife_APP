@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { BASE_URL } from '../../common/types/constants'
 import { PlaylistRequest } from '../../common/types/serverType'
+import { PlaylistShareRequest } from '../../../types/playlist'
 
 export const playlistHandlers = [
   http.put(`${BASE_URL}/playlists/playlist/:playlistId/user/:userId`, async ({ params, request }) => {
@@ -92,6 +93,15 @@ export const playlistHandlers = [
       totalElements: allPlaylists.length,
       size,
       number: page
+    });
+  }),
+
+  http.put(`${BASE_URL}/playlists/share/:playlistId/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as PlaylistShareRequest;
+    return HttpResponse.json({
+      id: Number(params.playlistId),
+      isShared: body.isShared,
+      userId: Number(params.userId)
     });
   })
 ]

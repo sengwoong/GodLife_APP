@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { BASE_URL } from '../../common/types/constants'
-import { VocaRequest, VocaShareRequest } from '../../common/types/serverType'
+import { VocaRequest } from '../../common/types/serverType'
+import { VocaShareRequest } from '../../../types/voca'
 
 
 

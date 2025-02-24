@@ -132,15 +132,33 @@ export function useUserPlaylist({ userId, page = 0, size = 10 }: UserPlaylistPar
   });
 }
 
-export function useLikedPlaylists({ userId, page = 0, size = 10 }: UserPlaylistParams) {
-  return useQuery<PlaylistResponse>({
-    queryKey: ['likedPlaylists', userId, page, size],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/playlists/liked/${userId}?page=${page}&size=${size}`);
+export function useUpdatePlaylistShare() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      playlistId, 
+      userId, 
+      isShared 
+    }: { 
+      playlistId: number;
+      userId: string | number;
+      isShared: boolean;
+    }) => {
+      const response = await fetch(`${BASE_URL}/playlists/share/${playlistId}/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isShared }),
+      });
       if (!response.ok) {
-        throw new Error('좋아요 플레이리스트를 불러오는데 실패했습니다');
+        throw new Error('플레이리스트 공유 상태 업데이트에 실패했습니다');
       }
       return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPlaylists'] });
     },
   });
 }

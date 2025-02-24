@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, TextStyle } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, TextStyle, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useUserPlaylist } from '../../../server/query/hooks/usePlayList';
+import { useUserPlaylist, useUpdatePlaylistShare } from '../../../server/query/hooks/usePlayList';
 import { colors, spacing, getFontStyle } from '../../../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,11 +13,24 @@ function MyPlaylistScreen() {
     userId: 1,
     size: 20 
   });
+  const updateShare = useUpdatePlaylistShare();
+
+  const toggleSharing = async (id: number, currentShared: boolean) => {
+    try {
+      await updateShare.mutateAsync({
+        playlistId: id,
+        userId: 1,
+        isShared: !currentShared
+      });
+    } catch (error) {
+      console.error('공유 상태 업데이트 실패:', error);
+    }
+  };
 
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <Text>로딩 중...</Text>
+        <Text style={styles.loadingText}>로딩 중...</Text>
       </View>
     );
   }
@@ -43,22 +56,28 @@ function MyPlaylistScreen() {
       {/* 플레이리스트 목록 */}
       <ScrollView style={styles.playlistContainer}>
         {playlistResponse?.content.map((playlist) => (
-          <TouchableOpacity 
-            key={playlist.id} 
-            style={styles.playlistItem}
-            onPress={() => console.log('플레이리스트 선택:', playlist.id)}
-          >
-            <View style={styles.thumbnailContainer}>
-              <View style={styles.thumbnail} />
-              <Text style={styles.playCount}>0곡</Text>
-            </View>
+          <View key={playlist.id} style={styles.playlistItem}>
+            <View style={[styles.thumbnail, styles.placeholderThumbnail]} />
             <View style={styles.contentContainer}>
-              <Text style={styles.title}>{playlist.playlistTitle}</Text>
-              <Text style={styles.timestamp}>
-                {new Date(playlist.createdAt).toLocaleDateString('ko-KR')}
-              </Text>
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>{playlist.playlistTitle}</Text>
+                <Text style={styles.timestamp}>
+                  {new Date(playlist.createdAt).toLocaleDateString('ko-KR')}
+                </Text>
+              </View>
+              <View style={styles.shareContainer}>
+                <Text style={styles.shareText}>
+                  {playlist.isShared ? '공유중' : '비공개'}
+                </Text>
+                <Switch
+                  value={playlist.isShared}
+                  onValueChange={() => toggleSharing(playlist.id, playlist.isShared || false)}
+                  trackColor={{ false: colors.BLACK, true: colors.BLACK }}
+                  thumbColor={colors.WHITE}
+                />
+              </View>
             </View>
-          </TouchableOpacity>
+          </View>
         ))}
       </ScrollView>
 
@@ -83,22 +102,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingText: {
+    ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
+  } as TextStyle,
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: spacing.M16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.LIGHT_GRAY,
   },
   headerTitle: {
     ...getFontStyle('title', 'medium', 'bold'),
-  }as TextStyle, 
+    color: colors.BLACK,
+  } as TextStyle,
   settingButton: {
     ...getFontStyle('title', 'medium', 'regular'),
     width: spacing.M40,
     textAlign: 'right',
-  }as TextStyle,
+  } as TextStyle,
   playlistContainer: {
     flex: 1,
   },
@@ -106,35 +128,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.LIGHT_GRAY,
-  },
-  thumbnailContainer: {
-    alignItems: 'center',
+    borderBottomColor: colors.BLACK,
   },
   thumbnail: {
     width: spacing.M48,
     height: spacing.M48,
-    backgroundColor: colors.LIGHT_GRAY,
     borderRadius: spacing.M4,
-    marginBottom: spacing.M4,
+    marginRight: spacing.M12,
   },
-  playCount: {
-    ...getFontStyle('title', 'small', 'regular'),
-    color: colors.GRAY,
-  }as TextStyle,
+  placeholderThumbnail: {
+    backgroundColor: colors.LIGHT_GRAY,
+  },
   contentContainer: {
     flex: 1,
-    marginLeft: spacing.M12,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flex: 1,
   },
   title: {
     ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
     marginBottom: spacing.M4,
-  }as TextStyle,
+  } as TextStyle,
   timestamp: {
     ...getFontStyle('title', 'small', 'regular'),
-    color: colors.GRAY,
-  }as TextStyle,
+    color: colors.BLACK,
+  } as TextStyle,
+  shareContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  shareText: {
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.BLACK,
+    marginRight: spacing.M8,
+  } as TextStyle,
   addButton: {
     margin: spacing.M16,
     padding: spacing.M16,
@@ -145,7 +176,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     ...getFontStyle('body', 'medium', 'bold'),
     color: colors.WHITE,
-  }as TextStyle,
+  } as TextStyle,
 });
 
 export default MyPlaylistScreen; 

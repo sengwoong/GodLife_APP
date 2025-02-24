@@ -3,5 +3,11 @@ export interface Playlist {
     playlistTitle: string;
     imageUrl: string;
     createdAt: string;
+    isShared: boolean;
   }
   
+export interface PlaylistShareRequest {
+  isShared: boolean;
+}
+  
+
