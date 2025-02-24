@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 import { Voca } from '../../../types/voca';
 
@@ -86,6 +86,37 @@ export function useUpdateVoca() {
   });
 }
 
+export function useUpdateVocaShare() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      vocaId, 
+      userId, 
+      isShared 
+    }: { 
+      vocaId: number;
+      userId: string | number;
+      isShared: boolean;
+    }) => {
+      const response = await fetch(`${BASE_URL}/vocas/share/${vocaId}/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isShared }),
+      });
+      if (!response.ok) {
+        throw new Error('단어장 공유 상태 업데이트에 실패했습니다');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myVocas'] });
+    },
+  });
+}
+
 export interface UserVocaParams {
   userId: string | number;
   page?: number;
@@ -106,4 +137,43 @@ export const useUserVocas = ({ userId, page = 0, size = 10 }: UserVocaParams) =>
       return response.json();
     },
   });
-}; 
+};
+
+export function useMyVocas(userId: string | number) {
+  return useQuery({
+    queryKey: ['myVocas', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/vocas/my/${userId}`);
+      if (!response.ok) {
+        throw new Error('내 단어장을 불러오는데 실패했습니다');
+      }
+      return response.json();
+    },
+  });
+}
+
+export function usePurchasedVocas(userId: string | number) {
+  return useQuery({
+    queryKey: ['purchasedVocas', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/vocas/purchased/${userId}`);
+      if (!response.ok) {
+        throw new Error('구매한 단어장을 불러오는데 실패했습니다');
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useStudyVocas(userId: string | number) {
+  return useQuery({
+    queryKey: ['studyVocas', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/vocas/study/${userId}`);
+      if (!response.ok) {
+        throw new Error('학습중인 단어장을 불러오는데 실패했습니다');
+      }
+      return response.json();
+    },
+  });
+} 

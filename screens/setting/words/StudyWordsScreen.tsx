@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
+import { useStudyVocas } from '../../../server/query/hooks/useVoca';
 
 function StudyWordsScreen() {
-  const [studyList] = useState([
-    { id: 1, title: '초등단어', progress: '32/100' },
-    { id: 2, title: '중등단어', progress: '45/80' },
-    { id: 3, title: '고등단어', progress: '15/90' },
-    { id: 4, title: 'TOEIC 단어', progress: '60/120' },
-  ]);
+  const { data: studyList, isLoading } = useStudyVocas(1); 
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>로딩 중...</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,9 +26,7 @@ function StudyWordsScreen() {
       </View>
       <Margin size={'M16'} />
       <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={['초등', '중등', '고등', 'TOEIC', '토익']} 
-        />
+        <SearchBar initialSuggestions={['초등', '중등', '고등', 'TOEIC', '토익']} />
       </View>
       
       <FlatList
@@ -32,14 +34,16 @@ function StudyWordsScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.list__item}>
             <View style={styles.list__content}>
-              <Text style={styles.list__title}>{item.title}</Text>
+              <Text style={styles.list__title}>{item.vocaTitle}</Text>
               <Text style={styles.list__progress}>{item.progress}</Text>
             </View>
             <View style={styles.progressBar}>
               <View 
                 style={[
                   styles.progressBar__filled, 
-                  { width: `${(parseInt(item.progress.split('/')[0]) / parseInt(item.progress.split('/')[1])) * 100}%` }
+                  { 
+                    width: `${(parseInt(item.progress.split('/')[0]) / parseInt(item.progress.split('/')[1])) * 100}%` 
+                  }
                 ]} 
               />
             </View>
@@ -57,6 +61,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.WHITE,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
+  } as TextStyle,
   header: {
     paddingHorizontal: spacing.M20,
     backgroundColor: colors.WHITE,
@@ -82,7 +95,7 @@ const styles = StyleSheet.create({
   list__item: {
     paddingVertical: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.GRAY,
+    borderBottomColor: colors.BLACK,
   },
   list__content: {
     flexDirection: 'row',
@@ -95,17 +108,17 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
   list__progress: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
   progressBar: {
     height: 4,
-    backgroundColor: colors.GRAY,
+    backgroundColor: colors.LIGHT_GRAY,
     borderRadius: 2,
   },
   progressBar__filled: {
     height: '100%',
-    backgroundColor: colors.YELLOW,
+    backgroundColor: '#34C759',
     borderRadius: 2,
   },
 });

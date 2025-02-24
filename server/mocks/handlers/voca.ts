@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { BASE_URL } from '../../common/types/constants'
-import { VocaRequest } from '../../common/types/serverType'
+import { VocaRequest, VocaShareRequest } from '../../common/types/serverType'
 
 
 
@@ -80,6 +80,69 @@ export const vocaHandlers = [
       id: Number(params.vocaId),
       ...body,
       userId: params.userId
+    });
+  }),
+
+  http.get(`${BASE_URL}/vocas/my/:userId`, ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
+
+    const myVocas = Array.from({ length: 20 }, (_, i) => ({
+      id: i + 1,
+      vocaTitle: `내 단어장 ${i + 1}`,
+      wordCount: Math.floor(Math.random() * 100) + 1,
+      isShared: Math.random() > 0.5,
+      createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    }));
+
+    const filteredVocas = myVocas.filter(voca => 
+      voca.vocaTitle.toLowerCase().includes(search)
+    );
+
+    return HttpResponse.json(filteredVocas);
+  }),
+
+  http.get(`${BASE_URL}/vocas/purchased/:userId`, ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
+
+    const purchasedVocas = Array.from({ length: 15 }, (_, i) => ({
+      id: i + 1,
+      vocaTitle: `구매한 단어장 ${i + 1}`,
+      price: Math.floor(Math.random() * 5000) + 1000,
+      createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    }));
+
+    const filteredVocas = purchasedVocas.filter(voca => 
+      voca.vocaTitle.toLowerCase().includes(search)
+    );
+
+    return HttpResponse.json(filteredVocas);
+  }),
+
+  http.get(`${BASE_URL}/vocas/study/:userId`, ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
+
+    const studyVocas = Array.from({ length: 10 }, (_, i) => ({
+      id: i + 1,
+      vocaTitle: `학습중인 단어장 ${i + 1}`,
+      progress: `${Math.floor(Math.random() * 100)}/${Math.floor(Math.random() * 100) + 100}`,
+    }));
+
+    const filteredVocas = studyVocas.filter(voca => 
+      voca.vocaTitle.toLowerCase().includes(search)
+    );
+
+    return HttpResponse.json(filteredVocas);
+  }),
+
+  http.put(`${BASE_URL}/vocas/share/:vocaId/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as VocaShareRequest;
+    return HttpResponse.json({
+      id: Number(params.vocaId),
+      isShared: body.isShared,
+      userId: Number(params.userId)
     });
   }),
 ] 

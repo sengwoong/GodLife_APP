@@ -29,7 +29,6 @@ export type SettingStackParamList = {
   [SettingNavigations.MYPLAYLIST]: undefined;
   [SettingNavigations.LIKEDPLAYLIST]: undefined;
   [SettingNavigations.STUDYWORDS]: undefined;
-  [SettingNavigations.PURCHASEDWORDS]: undefined;
   [SettingNavigations.MYWORDS]: undefined;
   [SettingNavigations.POSTCOMMENTS]: undefined;
   [SettingNavigations.POSTADS]: undefined;
@@ -110,13 +109,6 @@ function SettingStackNavigator() {
         component={StudyWordsScreen}
         options={{
           headerTitle: '공부할 단어',
-        }}
-      />
-      <Stack.Screen
-        name={SettingNavigations.PURCHASEDWORDS}
-        component={PurchasedWordsScreen}
-        options={{
-          headerTitle: '구매한 단어',
         }}
       />
       <Stack.Screen

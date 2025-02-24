@@ -117,12 +117,6 @@ function SettingScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => navigation.navigate(SettingNavigations.PURCHASEDWORDS)}
-          >
-            <Text style={styles.menuText}>구매한 단어</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.menuItem}
             onPress={() => navigation.navigate(SettingNavigations.MYWORDS)}
           >
             <Text style={styles.menuText}>나의 단어</Text>

@@ -5,8 +5,8 @@ import {VocaNavigations} from '../../../constants';
 import VocaScreen from '../../../screens/voca/VocaScreen';
 import HomeHeaderLeft from '../HomeHeaderLeft';
 import WordContentScreen from '../../../screens/voca/VocaContentScreen';
-import WordEditScreen from '../../../screens/voca/WordEditScreen';
 import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
+import WordEditScreen from '../../../screens/voca/WordEditScreen';
 export type VocaStackParamList = {
   [VocaNavigations.VOCAMAIN]: undefined;
   [VocaNavigations.VOCACONTENT]: {vocaIndex: number };

@@ -1,33 +1,34 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
-
-interface WordList {
-  id: number;
-  title: string;
-  wordCount: number;
-  isShared: boolean;
-  lastModified: string;
-}
+import { useMyVocas, useUpdateVocaShare } from '../../../server/query/hooks/useVoca';
 
 function MyWordsScreen() {
-  const [myWordsList, setMyWordsList] = useState<WordList[]>([
-    { id: 1, title: '자주 틀리는 단어', wordCount: 50, isShared: true, lastModified: '2024.03.15' },
-    { id: 2, title: '오늘 배운 단어', wordCount: 30, isShared: false, lastModified: '2024.03.14' },
-    { id: 3, title: '시험 준비 단어', wordCount: 100, isShared: true, lastModified: '2024.03.10' },
-    { id: 4, title: '회화 필수 단어', wordCount: 75, isShared: false, lastModified: '2024.03.05' },
-  ]);
+  const { data: myWordsList, isLoading } = useMyVocas(1);
+  const updateShare = useUpdateVocaShare();
 
-  const toggleSharing = (id: number) => {
-    setMyWordsList(prevList =>
-      prevList.map(item =>
-        item.id === id ? { ...item, isShared: !item.isShared } : item
-      )
-    );
+  const toggleSharing = async (id: number, currentShared: boolean) => {
+    try {
+      await updateShare.mutateAsync({
+        vocaId: id,
+        userId: 1,
+        isShared: !currentShared
+      });
+    } catch (error) {
+      console.error('공유 상태 업데이트 실패:', error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>로딩 중...</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -38,9 +39,7 @@ function MyWordsScreen() {
       </View>
       <Margin size={'M16'} />
       <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={['자주', '시험', '회화', '오늘']} 
-        />
+        <SearchBar initialSuggestions={['자주', '시험', '회화', '오늘']} />
       </View>
       
       <FlatList
@@ -50,10 +49,10 @@ function MyWordsScreen() {
             <View style={styles.list__content}>
               <View style={styles.list__mainInfo}>
                 <View style={styles.list__titleRow}>
-                  <Text style={styles.list__title}>{item.title}</Text>
+                  <Text style={styles.list__title}>{item.vocaTitle}</Text>
                   <Text style={styles.list__count}>{item.wordCount}개의 단어</Text>
                 </View>
-                <Text style={styles.list__date}>마지막 수정: {item.lastModified}</Text>
+                <Text style={styles.list__date}>마지막 수정: {new Date(item.createdAt).toLocaleDateString('ko-KR')}</Text>
               </View>
               <View style={styles.list__shareContainer}>
                 <Text style={styles.list__shareText}>
@@ -61,8 +60,8 @@ function MyWordsScreen() {
                 </Text>
                 <Switch
                   value={item.isShared}
-                  onValueChange={() => toggleSharing(item.id)}
-                  trackColor={{ false: colors.GRAY, true: colors.YELLOW }}
+                  onValueChange={() => toggleSharing(item.id, item.isShared || false)}
+                  trackColor={{ false: colors.BLACK, true: colors.BLACK }}
                   thumbColor={colors.WHITE}
                 />
               </View>
@@ -81,6 +80,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.WHITE,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    ...getFontStyle('body', 'medium', 'regular'),
+    color: colors.BLACK,
+  } as TextStyle,
   header: {
     paddingHorizontal: spacing.M20,
     backgroundColor: colors.WHITE,
@@ -106,7 +114,7 @@ const styles = StyleSheet.create({
   list__item: {
     paddingVertical: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.GRAY,
+    borderBottomColor: colors.BLACK,
   },
   list__content: {
     flexDirection: 'row',
@@ -128,11 +136,11 @@ const styles = StyleSheet.create({
     marginRight: spacing.M8,
   } as TextStyle,
   list__count: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
   list__date: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
   list__shareContainer: {
@@ -140,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   list__shareText: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
     marginRight: spacing.M8,
   } as TextStyle,
