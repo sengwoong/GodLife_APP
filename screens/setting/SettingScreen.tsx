@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   }as TextStyle,
   pointLabel: {
     ...getFontStyle('body', 'small', 'regular'),
-    color: colors.GRAY,
+    color: colors.BLACK,
     marginTop: spacing.M4,
   }as TextStyle,
   totalPoints: {
