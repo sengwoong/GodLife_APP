@@ -1,26 +1,55 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, spacing, getFontStyle } from '../../../constants';
+import { useInfinitePointHistory } from '../../../server/query/hooks/usePoint';
+import { formatDate } from '../../../utils/dateUtils' ;
+import { Point } from '../../../types/point';
 
 function PointUsageScreen() {
-  const usageData = [
-    { id: 1, title: '단어 구매', date: '2024.01.20', points: '-150p' },
-    { id: 2, title: '플레이리스트 구매', date: '2024.01.19', points: '-100p' },
-  ];
+  const userId = 1; // 실제 사용시에는 로그인된 사용자 ID를 사용
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isLoading,
+    isFetchingNextPage 
+  } = useInfinitePointHistory(userId, 'use');
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  const renderItem = ({ item }: { item: Point }) => (
+    <View style={styles.historyItem}>
+      <View>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
+      </View>
+      <Text style={[styles.points, { color: colors.RED }]}>
+        -{Math.abs(item.points)}p
+      </Text>
+    </View>
+  );
+
+  const loadMore = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        {usageData.map((item) => (
-          <View key={item.id} style={styles.historyItem}>
-            <View>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.date}>{item.date}</Text>
-            </View>
-            <Text style={styles.points}>{item.points}</Text>
-          </View>
-        ))}
-      </ScrollView>
+      <FlatList
+        data={data?.pages.flatMap(page => page.content) || []}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => `point-${item.id}-${index}`}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isFetchingNextPage ? <ActivityIndicator /> : null
+        }
+      />
     </SafeAreaView>
   );
 }
