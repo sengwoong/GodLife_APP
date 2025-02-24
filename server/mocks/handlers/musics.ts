@@ -78,4 +78,30 @@ export const musicHandlers = [
     });
   }),
 
+  http.get(`${BASE_URL}/musics/liked/:userId`, ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
+
+    const likedMusics = Array.from({ length: 20 }, (_, i) => ({
+      id: (i + 1).toString(),
+      musicTitle: `좋아요 한 음악 ${i + 1}`,
+      musicUrl: `https://example.com/music${i + 1}.mp3`,
+      color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+      imageUrl: `https://example.com/image${i + 1}.jpg`,
+      musicLike: true
+    }));
+
+    const start = page * size;
+    const end = start + size;
+    const paginatedMusics = likedMusics.slice(start, end);
+
+    return HttpResponse.json({
+      content: paginatedMusics,
+      totalPages: Math.ceil(likedMusics.length / size),
+      totalElements: likedMusics.length,
+      size,
+      number: page
+    });
+  }),
 ] 

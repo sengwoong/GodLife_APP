@@ -4,5 +4,6 @@ export interface Music {
     musicUrl: string;
     color: string;
     imageUrl: string;
+    musicLike: boolean;
 } 
   

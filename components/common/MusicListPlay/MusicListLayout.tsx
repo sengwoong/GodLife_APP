@@ -27,7 +27,9 @@ function PlaylistLayout({
   onMenuPress,
   onItemPress,
 }: PlaylistLayoutProps) {
-
+  console.log(musicList);
+  console.log(title)
+  console.log(subtitle)
   const topButtons = useMemo(() => (
     <View style={styles.topButtons}>
       <View style={styles.leftButtons}>

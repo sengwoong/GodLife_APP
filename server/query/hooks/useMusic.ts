@@ -106,4 +106,17 @@ export function useUpdateMusic() {
       queryClient.invalidateQueries({ queryKey: ['musics'] });
     },
   });
+}
+
+export function useLikedMusics({ userId, page = 0, size = 10 }: { userId: string | number, page?: number, size?: number }) {
+  return useQuery<MusicResponse>({
+    queryKey: ['likedMusics', userId, page, size],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/musics/liked/${userId}?page=${page}&size=${size}`);
+      if (!response.ok) {
+        throw new Error('좋아요 표시된 음악을 불러오는데 실패했습니다');
+      }
+      return response.json();
+    },
+  });
 } 
