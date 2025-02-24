@@ -17,6 +17,7 @@ export type PostStackParamList = {
   [PostNavigations.POSTAVATAR]: {
     userId: number;
   };
+  PostAvatar: { userId: number };
 };
 
 const Stack = createStackNavigator<PostStackParamList>();

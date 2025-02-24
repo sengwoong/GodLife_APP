@@ -132,4 +132,17 @@ export function useUserPlaylist({ userId, page = 0, size = 10 }: UserPlaylistPar
   });
 }
 
+export function useLikedPlaylists({ userId, page = 0, size = 10 }: UserPlaylistParams) {
+  return useQuery<PlaylistResponse>({
+    queryKey: ['likedPlaylists', userId, page, size],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/playlists/liked/${userId}?page=${page}&size=${size}`);
+      if (!response.ok) {
+        throw new Error('좋아요 플레이리스트를 불러오는데 실패했습니다');
+      }
+      return response.json();
+    },
+  });
+}
+
 

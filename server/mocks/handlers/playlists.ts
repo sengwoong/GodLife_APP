@@ -93,5 +93,5 @@ export const playlistHandlers = [
       size,
       number: page
     });
-  }),
-] 
+  })
+]

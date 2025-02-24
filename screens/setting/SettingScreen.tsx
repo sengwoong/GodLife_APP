@@ -85,9 +85,9 @@ function SettingScreen() {
           <Text style={styles.sectionTitle}>플레이리스트</Text>
           <TouchableOpacity 
             style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.RECENTPLAYLIST)}
+            onPress={() => navigation.navigate(SettingNavigations.IMPORT)}
           >
-            <Text style={styles.playlistText}>최근 재생목록</Text>
+            <Text style={styles.playlistText}>유튜브 재생목록 가져오기</Text>
             <Text style={styles.playlistCount}>12곡</Text>
           </TouchableOpacity>
           <TouchableOpacity 

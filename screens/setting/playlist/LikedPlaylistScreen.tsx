@@ -3,54 +3,33 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PlaylistLayout from '../../../components/common/MusicListPlay/MusicListLayout';
 
-interface PlaylistItem {
-  id: number;
-  title: string;
-  artist: string;
-  color: string;
-}
-
-const likedSongs: PlaylistItem[] = [
-  {
-    id: 1,
-    title: '좋아요 한 노래 1',
-    artist: '아티스트 1',
-    color: '#FFFFFF',
-  },
-  {
-    id: 2,
-    title: '좋아요 한 노래 2',
-    artist: '아티스트 2',
-    color: '#FFFFFF',
-  },
-];
-
 function LikedPlaylistScreen() {
+  // 임시 userId - 실제로는 인증 상태에서 가져와야 합니다
+  const userId = "1";
+
   const handlePlayAll = () => {
-    console.log('Play all songs');
+    console.log('전체 재생');
   };
 
   const handleShuffle = () => {
-    console.log('Shuffle songs');
+    console.log('셔플 재생');
   };
 
   const handleMenu = () => {
-    console.log('Open menu');
+    console.log('메뉴 열기');
   };
 
-  const handleItemPress = (id: number) => {
-    const selectedSong = likedSongs.find(song => song.id === id);
-    if (selectedSong) {
-      console.log('Selected song:', selectedSong.title);
-    }
+  const handleItemPress = (id: string) => {
+    console.log('선택된 플레이리스트:', id);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <PlaylistLayout
         title="좋아요 한 곡"
-        data={likedSongs}
+        data={data?.content || []}
         showTabs={false}
+        isLoading={isLoading}
         onPlayAll={handlePlayAll}
         onShuffle={handleShuffle}
         onMenuPress={handleMenu}

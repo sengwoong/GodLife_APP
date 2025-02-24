@@ -9,7 +9,7 @@ export { default as PointUsageScreen } from './points/PointUsageScreen';
 export { default as ImportPlaylistScreen } from './playlist/ImportPlaylistScreen';
 export { default as LikedPlaylistScreen } from './playlist/LikedPlaylistScreen';
 export { default as MyPlaylistScreen } from './playlist/MyPlaylistScreen';
-export { default as RecentPlaylistScreen } from './playlist/RecentPlaylistScreen';
+export { default as ImportScreen } from './playlist/ImportPlaylistScreen';
 
 // Post 관련 화면들
 export { default as PostAdsScreen } from './post/PostAdsScreen';

@@ -1,36 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextStyle  } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, spacing, getFontStyle } from '../../../constants';
+import { useUserPlaylist } from '../../../server/query/hooks/usePlayList';
 
 function ImportPlaylistScreen() {
   const navigation = useNavigation();
-
-  const playlistData = [
-    {
-      id: 1,
-      title: '별의 이야시',
-      artist: '로지',
-      timestamp: '2024.01.19 10:23',
-      thumbnail: null
-    },
-    {
-      id: 2,
-      title: '별의 이야시',
-      artist: '로지',
-      timestamp: '2024.01.19 10:23',
-      thumbnail: null
-    },
-  ];
+  const { data: playlistResponse, isLoading } = useUserPlaylist({ 
+    userId: 1, // 임시 userId
+    size: 20 
+  });
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text>←</Text>
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>유튜브 플레이리스트</Text>
         <TouchableOpacity>
           <Text style={styles.settingButton}>⚙️</Text>
@@ -44,19 +29,16 @@ function ImportPlaylistScreen() {
 
       {/* Playlist List */}
       <ScrollView style={styles.playlistContainer}>
-        {playlistData.map((item) => (
-          <View key={item.id} style={styles.playlistItem}>
-            {item.thumbnail ? (
-              <Image source={item.thumbnail}  />
-            ) : (
-              <View style={[styles.thumbnail, styles.placeholderThumbnail]} />
-            )}
+        {playlistResponse?.content.map((playlist) => (
+          <View key={playlist.id} style={styles.playlistItem}>
+            <View style={[styles.thumbnail, styles.placeholderThumbnail]} />
             <View style={styles.contentContainer}>
               <View style={styles.textContainer}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.artist}>{item.artist}</Text>
+                <Text style={styles.title}>{playlist.playlistTitle}</Text>
+                <Text style={styles.timestamp}>
+                  {new Date(playlist.createdAt).toLocaleDateString('ko-KR')}
+                </Text>
               </View>
-              <Text style={styles.timestamp}>{item.timestamp}</Text>
             </View>
           </View>
         ))}
@@ -66,6 +48,12 @@ function ImportPlaylistScreen() {
       <View style={styles.arrowIndicator}>
         <Text style={styles.arrowText}>↓</Text>
       </View>
+
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <Text>로딩 중...</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -83,18 +71,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
   },
-  backButton: {
-    ...getFontStyle('title', 'large', 'regular'),
-    width: spacing.M40,
-  },
   headerTitle: {
     ...getFontStyle('title', 'medium', 'bold'),
-  }as TextStyle,
+  } as TextStyle,
   settingButton: {
     ...getFontStyle('title', 'medium', 'regular'),
     width: spacing.M40,
     textAlign: 'right',
-  }as TextStyle,
+  } as TextStyle,
   importButton: {
     backgroundColor: colors.BLACK,
     margin: spacing.M16,
@@ -105,7 +89,7 @@ const styles = StyleSheet.create({
   importButtonText: {
     color: colors.WHITE,
     ...getFontStyle('body', 'medium', 'bold'),
-  }as TextStyle,
+  } as TextStyle,
   playlistContainer: {
     flex: 1,
   },
@@ -134,16 +118,11 @@ const styles = StyleSheet.create({
   title: {
     ...getFontStyle('body', 'medium', 'regular'),
     marginBottom: spacing.M4,
-  }as TextStyle,
-  artist: {
-    ...getFontStyle('body', 'small', 'regular'),
-    color: colors.GRAY,
-  }as TextStyle,
+  } as TextStyle,
   timestamp: {
-    ...getFontStyle('body', 'small', 'regular'),
+    ...getFontStyle('title', 'small', 'regular'),
     color: colors.GRAY,
-    marginTop: spacing.M4,
-  }as TextStyle,
+  } as TextStyle,
   arrowIndicator: {
     position: 'absolute',
     bottom: spacing.M20,
@@ -154,7 +133,17 @@ const styles = StyleSheet.create({
   arrowText: {
     ...getFontStyle('title', 'large', 'regular'),
     color: colors.GRAY,
-  }as TextStyle,
+  } as TextStyle,
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  },
 });
 
 export default ImportPlaylistScreen; 

@@ -47,7 +47,7 @@ export const SettingNavigations = {
   IMPORTPLAYLIST: 'ImportPlaylist',
   POINTHISTORY: 'PointHistory',
   POINTUSAGE: 'PointUsage',
-  RECENTPLAYLIST: 'RecentPlaylist',
+  IMPORT: 'Import',
   MYPLAYLIST: 'MyPlaylist',
   LIKEDPLAYLIST: 'LikedPlaylist',
   STUDYWORDS: 'StudyWords',

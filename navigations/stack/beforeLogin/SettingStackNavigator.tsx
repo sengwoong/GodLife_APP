@@ -8,7 +8,7 @@ import { SettingNavigations } from '../../../constants';
 
 // 새로운 스크린들 import
 import PointHistoryScreen from '../../../screens/setting/points/PointHistoryScreen';
-import RecentPlaylistScreen from '../../../screens/setting/playlist/RecentPlaylistScreen';
+import ImportScreen from '../../../screens/setting/playlist/ImportPlaylistScreen';
 import StudyWordsScreen from '../../../screens/setting/words/StudyWordsScreen';
 import PointUsageScreen from '../../../screens/setting/points/PointUsageScreen';
 import PurchasedWordsScreen from '../../../screens/setting/words/PurchasedWordsScreen';
@@ -25,7 +25,7 @@ export type SettingStackParamList = {
   [SettingNavigations.IMPORTPLAYLIST]: undefined;
   [SettingNavigations.POINTHISTORY]: undefined;
   [SettingNavigations.POINTUSAGE]: undefined;
-  [SettingNavigations.RECENTPLAYLIST]: undefined;
+  [SettingNavigations.IMPORT]: undefined;
   [SettingNavigations.MYPLAYLIST]: undefined;
   [SettingNavigations.LIKEDPLAYLIST]: undefined;
   [SettingNavigations.STUDYWORDS]: undefined;
@@ -85,8 +85,8 @@ function SettingStackNavigator() {
         }}
       />
       <Stack.Screen
-        name={SettingNavigations.RECENTPLAYLIST}
-        component={RecentPlaylistScreen}
+        name={SettingNavigations.IMPORT}
+        component={ImportScreen}
         options={{
           headerTitle: '최근 재생목록',
         }}
