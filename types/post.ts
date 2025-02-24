@@ -40,3 +40,34 @@ export interface VocaPost extends BasePost {
 export interface Post extends BasePost {
   type: 'normal';
 }
+
+export interface PostAd {
+  id: number;
+  postId: number;
+  title: string;
+  status: boolean;
+  startDate: string;
+  endDate: string;
+  userId: number;
+}
+
+export interface PostComment {
+  id: number;
+  postId: number;
+  postTitle: string;
+  content: string;
+  createdAt: string;
+  likes: number;
+  userId: number;
+}
+
+export interface SharedPost {
+  id: number;
+  postId: number;
+  title: string;
+  recipient: string;
+  recipientId: number;
+  thumbnail: string | null;
+  createdAt: string;
+  userId: number;
+}

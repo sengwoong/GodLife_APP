@@ -1,49 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useMyComments } from '../../../server/query/hooks/usePost';
+import { formatDate } from '../../../utils/dateUtils';
 
-interface Comment {
-  id: number;
-  postId: number;
-  postTitle: string;
-  comment: string;
-  date: string;
-  likes: number;
-}
 
 function PostCommentsScreen() {
   const navigation = useNavigation();
-  const [comments] = useState<Comment[]>([
-    { 
-      id: 1, 
-      postId: 101,
-      postTitle: '오늘의 학습 일기',
-      comment: '정말 좋은 내용이네요!',
-      date: '2024.03.15',
-      likes: 5
-    },
-    { 
-      id: 2, 
-      postId: 102,
-      postTitle: '영단어 학습 팁',
-      comment: '많은 도움이 되었습니다.',
-      date: '2024.03.14',
-      likes: 3
-    },
-    { 
-      id: 3, 
-      postId: 103,
-      postTitle: '시험 준비 방법',
-      comment: '공감되는 내용입니다.',
-      date: '2024.03.13',
-      likes: 7
-    },
-  ]);
+  const userId = 1;
+  const { data: commentsData, isLoading } = useMyComments(userId);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
 
   const handlePostPress = (postId: number, postTitle: string) => {
     Alert.alert(
@@ -79,7 +53,7 @@ function PostCommentsScreen() {
       </View>
       
       <FlatList
-        data={comments}
+        data={commentsData?.content || []}
         renderItem={({ item }) => (
           <View style={styles.list__item}>
             <TouchableOpacity 
@@ -91,9 +65,9 @@ function PostCommentsScreen() {
                   <Text style={styles.list__postTitle}>{item.postTitle}</Text>
                   <Icon name="chevron-right" size={20} color={colors.GRAY} />
                 </View>
-                <Text style={styles.list__comment}>{item.comment}</Text>
+                <Text style={styles.list__comment}>{item.content}</Text>
                 <View style={styles.list__footer}>
-                  <Text style={styles.list__date}>{item.date}</Text>
+                  <Text style={styles.list__date}>{formatDate(item.createdAt)}</Text>
                   <Text style={styles.list__likes}>좋아요 {item.likes}</Text>
                 </View>
               </View>

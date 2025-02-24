@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Switch } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Switch, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
+import { useMyPostAds } from '../../../server/query/hooks/usePost';
+import { formatDate } from '../../../utils/dateUtils';
 
 interface PostAd {
   id: number;
@@ -14,19 +16,18 @@ interface PostAd {
 }
 
 function PostAdsScreen() {
-  const [postAds, setPostAds] = useState<PostAd[]>([
-    { id: 1, title: '새해 이벤트 광고', status: true, startDate: '2024.01.01', endDate: '2024.01.31' },
-    { id: 2, title: '봄맞이 할인', status: false, startDate: '2024.03.01', endDate: '2024.03.31' },
-    { id: 3, title: '여름 특별전', status: true, startDate: '2024.06.01', endDate: '2024.06.30' },
-  ]);
+  const userId = 1; 
+  const { data: postAdsData, isLoading } = useMyPostAds(userId);
+
+
 
   const toggleAdStatus = (id: number) => {
-    setPostAds(prevAds =>
-      prevAds.map(ad =>
-        ad.id === id ? { ...ad, status: !ad.status } : ad
-      )
-    );
+ 
   };
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -43,14 +44,14 @@ function PostAdsScreen() {
       </View>
       
       <FlatList
-        data={postAds}
+        data={postAdsData?.content || []}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.list__item}>
             <View style={styles.list__content}>
               <View style={styles.list__mainInfo}>
                 <Text style={styles.list__title}>{item.title}</Text>
                 <Text style={styles.list__date}>
-                  {item.startDate} ~ {item.endDate}
+                  {formatDate(item.startDate)} ~ {formatDate(item.endDate)}
                 </Text>
               </View>
               <View style={styles.list__statusContainer}>

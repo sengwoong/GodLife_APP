@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
+import { useSharedPosts } from '../../../server/query/hooks/usePost';
+import { formatDate } from '../../../utils/dateUtils';
 
 interface SharedPost {
   id: number;
@@ -14,29 +16,12 @@ interface SharedPost {
 }
 
 function PostShareScreen() {
-  const [sharedPosts] = useState<SharedPost[]>([
-    { 
-      id: 1, 
-      title: '영어 학습 노하우',
-      recipient: '김철수',
-      date: '2024.03.15',
-      thumbnail: null
-    },
-    { 
-      id: 2, 
-      title: '토익 시험 준비',
-      recipient: '이영희',
-      date: '2024.03.14',
-      thumbnail: null
-    },
-    { 
-      id: 3, 
-      title: '단어 암기법',
-      recipient: '박지성',
-      date: '2024.03.13',
-      thumbnail: null
-    },
-  ]);
+  const userId = 1; 
+  const { data: sharedPostsData, isLoading } = useSharedPosts(userId);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,7 +38,7 @@ function PostShareScreen() {
       </View>
       
       <FlatList
-        data={sharedPosts}
+        data={sharedPostsData?.content || []}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.list__item}>
             <View style={styles.list__content}>
@@ -65,7 +50,7 @@ function PostShareScreen() {
               <View style={styles.list__mainInfo}>
                 <Text style={styles.list__title}>{item.title}</Text>
                 <Text style={styles.list__recipient}>공유 대상: {item.recipient}</Text>
-                <Text style={styles.list__date}>{item.date}</Text>
+                <Text style={styles.list__date}>{formatDate(item.createdAt)}</Text>
               </View>
             </View>
           </TouchableOpacity>

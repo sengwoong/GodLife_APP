@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { MusicPost, Post, VocaPost } from '../../../types/post';
+import { MusicPost, Post, PostAd, PostComment, SharedPost, VocaPost } from '../../../types/post';
 import { BASE_URL } from '../../common/types/constants';
 
 interface PostResponse {
@@ -13,6 +13,30 @@ interface PostResponse {
 
 interface BestPostsResponse {
   posts: Post[];
+}
+
+interface PostAdResponse {
+  content: PostAd[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+}
+
+interface PostCommentResponse {
+  content: PostComment[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+}
+
+interface SharedPostResponse {
+  content: SharedPost[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
 }
 
 export const usePost = (category: string, search: string = '', page: number = 0) => {
@@ -114,6 +138,45 @@ export const useBestPosts = () => {
       const response = await fetch(`${BASE_URL}/posts/best`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useMyPostAds = (userId: number) => {
+  return useQuery<PostAdResponse>({
+    queryKey: ['myPostAds', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/posts/ads/user/${userId}`);
+      if (!response.ok) {
+        throw new Error('광고 목록 조회 실패');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useMyComments = (userId: number) => {
+  return useQuery<PostCommentResponse>({
+    queryKey: ['myComments', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/posts/comments/user/${userId}`);
+      if (!response.ok) {
+        throw new Error('댓글 목록 조회 실패');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useSharedPosts = (userId: number) => {
+  return useQuery<SharedPostResponse>({
+    queryKey: ['sharedPosts', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/posts/shared/user/${userId}`);
+      if (!response.ok) {
+        throw new Error('공유 포스트 목록 조회 실패');
       }
       return response.json();
     },

@@ -68,6 +68,43 @@ const generateSinglePost = (postId: string, type: 'music' | 'normal' | 'voca', s
   return basePost;
 };
 
+const generateMockPostAds = (userId: number) => {
+  return Array.from({ length: 5 }, (_, i) => ({
+    id: i + 1,
+    postId: 100 + i,
+    title: `광고 ${i + 1}`,
+    status: Math.random() > 0.5,
+    startDate: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    endDate: new Date(Date.now() + ((i + 30) * 24 * 60 * 60 * 1000)).toISOString(),
+    userId
+  }));
+};
+
+const generateMockComments = (userId: number) => {
+  return Array.from({ length: 10 }, (_, i) => ({
+    id: i + 1,
+    postId: 200 + i,
+    postTitle: `포스트 제목 ${i + 1}`,
+    content: `댓글 내용 ${i + 1}`,
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    likes: Math.floor(Math.random() * 10),
+    userId
+  }));
+};
+
+const generateMockSharedPosts = (userId: number) => {
+  return Array.from({ length: 8 }, (_, i) => ({
+    id: i + 1,
+    postId: 300 + i,
+    title: `공유된 포스트 ${i + 1}`,
+    recipient: `사용자${i + 1}`,
+    recipientId: 400 + i,
+    thumbnail: Math.random() > 0.5 ? `https://picsum.photos/200/300?random=${i}` : null,
+    createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+    userId
+  }));
+};
+
 export const postHandlers = [
   http.get(`${BASE_URL}/posts/category/:category`, ({ request, params }) => {
     const url = new URL(request.url);
@@ -280,6 +317,45 @@ export const postHandlers = [
     // 무조건 10개의 포스트를 반환
     return HttpResponse.json({
       bestPosts
+    });
+  }),
+
+  http.get(`${BASE_URL}/posts/ads/user/:userId`, ({ params }) => {
+    const { userId } = params;
+    const ads = generateMockPostAds(Number(userId));
+    
+    return HttpResponse.json({
+      content: ads,
+      totalPages: 1,
+      totalElements: ads.length,
+      size: ads.length,
+      number: 0,
+    });
+  }),
+
+  http.get(`${BASE_URL}/posts/comments/user/:userId`, ({ params }) => {
+    const { userId } = params;
+    const comments = generateMockComments(Number(userId));
+    
+    return HttpResponse.json({
+      content: comments,
+      totalPages: 1,
+      totalElements: comments.length,
+      size: comments.length,
+      number: 0,
+    });
+  }),
+
+  http.get(`${BASE_URL}/posts/shared/user/:userId`, ({ params }) => {
+    const { userId } = params;
+    const sharedPosts = generateMockSharedPosts(Number(userId));
+    
+    return HttpResponse.json({
+      content: sharedPosts,
+      totalPages: 1,
+      totalElements: sharedPosts.length,
+      size: sharedPosts.length,
+      number: 0,
     });
   }),
 ]; 
