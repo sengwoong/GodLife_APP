@@ -5,6 +5,8 @@ import { PostDetailScreen } from '../../../screens/post/PostDetailScreen';
 import { PostAvatarScreen } from '../../../screens/post/PostAvatarScreen';
 import { PostNavigations } from '../../../constants';
 import HomeHeaderLeft from '../HomeHeaderLeft';
+import { TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 
 export type PostStackParamList = {
@@ -46,9 +48,17 @@ function PostStackNavigator() {
       <Stack.Screen
         name={PostNavigations.POSTDETAIL}
         component={PostDetailScreen}
-        options={{
+        options={({ navigation }) => ({
           headerTitle: '포스트 상세',
-        }}
+          headerLeft: () => (
+            <TouchableOpacity 
+              onPress={() => navigation.goBack()}
+              style={{ marginLeft: 16 }}
+            >
+              <Icon name="left" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name={PostNavigations.POSTAVATAR}
