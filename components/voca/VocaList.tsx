@@ -3,6 +3,7 @@ import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, 
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
 import { useSearchStore } from '../../store/useSearchStore';
+import { Voca } from '../../types/voca';
 
 
 

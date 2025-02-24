@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextStyle, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, getFontStyle, spacing } from '../../../constants';
+import { colors, getFontStyle, spacing,PostNavigations, drawerNavigations } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
-import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useMyComments } from '../../../server/query/hooks/usePost';
 import { formatDate } from '../../../utils/dateUtils';
+import { PostStackParamList } from '../../../navigations/stack/beforeLogin/PostStackNavigator';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { MainDrawerParamList } from '../../../navigations/drawer/MainDrawerNavigator';
+import { SettingStackParamList } from '../../../navigations/stack/beforeLogin/SettingStackNavigator';
 
+type NavigationProp = CompositeNavigationProp<
+  StackNavigationProp<SettingStackParamList>,
+  CompositeNavigationProp<
+    DrawerNavigationProp<MainDrawerParamList>,
+    StackNavigationProp<PostStackParamList>
+  >
+>;
 
 function PostCommentsScreen() {
-  const navigation = useNavigation();
-  const userId = 1;
+  const userId = 1; 
   const { data: commentsData, isLoading } = useMyComments(userId);
-
+  const navigation = useNavigation<NavigationProp>();
   if (isLoading) {
     return <ActivityIndicator />;
   }
@@ -31,7 +42,7 @@ function PostCommentsScreen() {
         {
           text: '이동',
           onPress: () => {
-            console.log('Navigate to post:', postId);
+            navigation.navigate(drawerNavigations.POST, { screen: PostNavigations.POSTDETAIL, params: { postId } });
           }
         }
       ]
@@ -141,11 +152,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   list__date: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
   list__likes: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
 });

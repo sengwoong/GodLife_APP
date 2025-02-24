@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
-import { useMyPostAds } from '../../../server/query/hooks/usePost';
+import { useMyPostAds, useTogglePostAd } from '../../../server/query/hooks/usePost';
 import { formatDate } from '../../../utils/dateUtils';
 
 interface PostAd {
@@ -16,13 +16,17 @@ interface PostAd {
 }
 
 function PostAdsScreen() {
-  const userId = 1; 
-  const { data: postAdsData, isLoading } = useMyPostAds(userId);
+  const userId = 1;
+  const { data: postAdsData, isLoading, refetch } = useMyPostAds(userId);
+  const toggleAdMutation = useTogglePostAd();
 
-
-
-  const toggleAdStatus = (id: number) => {
- 
+  const toggleAdStatus = async (id: number) => {
+    try {
+      await toggleAdMutation.mutateAsync(id);
+      refetch();
+    } catch (error) {
+      console.error('광고 상태 변경 실패:', error);
+    }
   };
 
   if (isLoading) {
@@ -39,7 +43,7 @@ function PostAdsScreen() {
       <Margin size={'M16'} />
       <View style={styles.search}>
         <SearchBar 
-          initialSuggestions={['이벤트', '할인', '특별전']} 
+          initialSuggestions={postAdsData?.content.map((item) => item.title) || []} 
         />
       </View>
       

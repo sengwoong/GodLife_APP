@@ -358,5 +358,13 @@ export const postHandlers = [
       number: 0,
     });
   }),
+
+  http.put(`${BASE_URL}/posts/ads/:adId/toggle`, async ({ params }) => {
+    const { adId } = params;
+    return HttpResponse.json({
+      id: Number(adId),
+      status: true, 
+    });
+  }),
 ]; 
 

@@ -182,3 +182,17 @@ export const useSharedPosts = (userId: number) => {
     },
   });
 };
+
+export const useTogglePostAd = () => {
+  return useMutation({
+    mutationFn: async (adId: number) => {
+      const response = await fetch(`${BASE_URL}/posts/ads/${adId}/toggle`, {
+        method: 'PUT',
+      });
+      if (!response.ok) {
+        throw new Error('광고 상태 변경 실패');
+      }
+      return response.json();
+    },
+  });
+};

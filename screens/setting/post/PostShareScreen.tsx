@@ -33,7 +33,7 @@ function PostShareScreen() {
       <Margin size={'M16'} />
       <View style={styles.search}>
         <SearchBar 
-          initialSuggestions={['영어', '토익', '단어']} 
+          initialSuggestions={sharedPostsData?.content.map((item) => item.title) || []} 
         />
       </View>
       

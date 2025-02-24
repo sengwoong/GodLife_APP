@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { colors, getFontStyle, spacing } from '../../constants';
+import { colors, getFontStyle, PostNavigations, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import Margin from '../../components/division/Margin';
@@ -29,7 +29,7 @@ export const PostScreen = () => {
   ];
 
   const handlePostPress = (post: Post) => {
-    navigation.navigate('PostDetail', { postId: post.id });
+    navigation.navigate(PostNavigations.POSTDETAIL, { postId: post.id });
   };
 
   const toggleLike = (postId: number) => {

@@ -1,5 +1,5 @@
 import {createDrawerNavigator} from '@react-navigation/drawer';
-// import { NavigatorScreenParams } from '@react-navigation/native';
+import { NavigatorScreenParams } from '@react-navigation/native';
 import { drawerNavigations } from '../../constants';
 import CustomDrawerContent from './CustomDrawerContent';
 import MainStackNavigator from '../stack/beforeLogin/MainStackNavigator';
@@ -8,15 +8,16 @@ import VocaStackNavigator from '../stack/beforeLogin/VocaStackNavigator';
 import CalendarStackNavigator from '../stack/beforeLogin/CalendarStackNavigator';
 import SettingStackNavigator from '../stack/beforeLogin/SettingStackNavigator';
 import PostStackNavigator from '../stack/beforeLogin/PostStackNavigator';
+import { PostStackParamList } from '../stack/beforeLogin/PostStackNavigator';
 const Drawer = createDrawerNavigator();
 
 export type MainDrawerParamList = {
-  [drawerNavigations.PLAYLIST]: undefined;
-  [drawerNavigations.CALENDAR]: undefined;
-  [drawerNavigations.SETTING]: undefined;
+  PlayList: undefined;
+  Calendar: undefined;
+  Setting: undefined;
+  Post: NavigatorScreenParams<PostStackParamList>;
   [drawerNavigations.MAIN]: undefined;
   [drawerNavigations.VOCA]: undefined;
-  [drawerNavigations.POST]: undefined;
 };
 
 function MainDrawerNavigator() {
