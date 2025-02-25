@@ -80,7 +80,7 @@ function MyPlaylistScreen() {
         ))}
       </ScrollView>
 
-      {/* 새 플레이리스트 추가 버튼 */}
+
       <TouchableOpacity 
         style={styles.addButton}
         onPress={() => navigation.navigate(SettingNavigations.IMPORTPLAYLIST)}

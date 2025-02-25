@@ -25,10 +25,7 @@ function StudyWordsScreen() {
         <Text style={styles.header__subtitle}>현재 학습중인 단어장 목록입니다</Text>
       </View>
       <Margin size={'M16'} />
-      <View style={styles.search}>
-        <SearchBar initialSuggestions={['초등', '중등', '고등', 'TOEIC', '토익']} />
-      </View>
-      
+
       <FlatList
         data={studyList}
         renderItem={({ item }) => (

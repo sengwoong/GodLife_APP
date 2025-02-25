@@ -40,12 +40,7 @@ function PostAdsScreen() {
         <Text style={styles.header__title}>포스트 광고 관리</Text>
         <Text style={styles.header__subtitle}>광고 상태를 관리하세요</Text>
       </View>
-      <Margin size={'M16'} />
-      <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={postAdsData?.content.map((item) => item.title) || []} 
-        />
-      </View>
+
       
       <FlatList
         data={postAdsData?.content || []}

@@ -43,7 +43,7 @@ export function useLogin() {
       try {
         console.log('useLogin 호출')
         console.log('credentials', credentials)
-        const response = await fetch(`${BASE_URL}/api/login`, {
+        const response = await fetch(`${BASE_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ export function useGetUser(userId: string | number) {
 export function useUpdateUser(userId: string | number) {
   return useMutation({
     mutationFn: async (updateData: UpdateUserRequest) => {
-      const response = await fetch(`${BASE_URL}/api/users/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export function useUpdateUser(userId: string | number) {
 export function useDeleteUser(userId: string | number) {
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${BASE_URL}/api/users/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

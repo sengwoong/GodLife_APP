@@ -56,12 +56,6 @@ function PostCommentsScreen() {
         <Text style={styles.header__title}>댓글 관리</Text>
         <Text style={styles.header__subtitle}>내가 작성한 댓글을 관리하세요</Text>
       </View>
-      <Margin size={'M16'} />
-      <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={['학습', '영단어', '시험']} 
-        />
-      </View>
       
       <FlatList
         data={commentsData?.content || []}

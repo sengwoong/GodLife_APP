@@ -31,11 +31,7 @@ function PostShareScreen() {
         <Text style={styles.header__subtitle}>친구에게 공유한 포스트 목록입니다</Text>
       </View>
       <Margin size={'M16'} />
-      <View style={styles.search}>
-        <SearchBar 
-          initialSuggestions={sharedPostsData?.content.map((item) => item.title) || []} 
-        />
-      </View>
+  
       
       <FlatList
         data={sharedPostsData?.content || []}

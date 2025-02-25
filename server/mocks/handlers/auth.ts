@@ -3,8 +3,8 @@ import { BASE_URL } from '../../common/types/constants'
 import { LoginRequest } from '../../common/types/serverType'
 
 export const authHandlers = [
-  http.post('http://10.0.2.2:8081/api/login', async ({ request }) => {
-    console.log('/api/login 백엔드 호출')
+  http.post(`${BASE_URL}/login`, async ({ request }) => {
+    console.log('/login 백엔드 호출')
     const { email, password } = await request.json() as LoginRequest
     console.log('email', email)
     console.log('password', password)
