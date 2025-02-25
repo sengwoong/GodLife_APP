@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   }as TextStyle,
   date: {
     ...getFontStyle('body', 'small', 'regular'),
-    color: colors.GRAY,
+    color: colors.BLACK,
   }as TextStyle,
   points: {
     ...getFontStyle('body', 'medium', 'medium'),

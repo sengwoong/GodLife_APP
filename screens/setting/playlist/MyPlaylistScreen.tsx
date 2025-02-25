@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image, TextStyle, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useUserPlaylist, useUpdatePlaylistShare } from '../../../server/query/hooks/usePlayList';
-import { colors, spacing, getFontStyle } from '../../../constants';
+import { colors, spacing, getFontStyle, SettingNavigations } from '../../../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function MyPlaylistScreen() {
   const navigation = useNavigation();
+  const [isModalVisible, setIsModalVisible] = useState(false);
   
   // 임시로 userId를 1로 설정 (실제로는 인증 시스템에서 가져와야 함)
   const { data: playlistResponse, isLoading, error } = useUserPlaylist({ 
@@ -48,9 +49,7 @@ function MyPlaylistScreen() {
       {/* 헤더 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>내 플레이리스트</Text>
-        <TouchableOpacity>
-          <Text style={styles.settingButton}>⚙️</Text>
-        </TouchableOpacity>
+
       </View>
 
       {/* 플레이리스트 목록 */}
@@ -84,9 +83,9 @@ function MyPlaylistScreen() {
       {/* 새 플레이리스트 추가 버튼 */}
       <TouchableOpacity 
         style={styles.addButton}
-        onPress={() => console.log('새 플레이리스트 추가')}
+        onPress={() => navigation.navigate(SettingNavigations.IMPORTPLAYLIST)}
       >
-        <Text style={styles.addButtonText}>+ 새 플레이리스트 만들기</Text>
+        <Text style={styles.addButtonText}>+ 유튜브에서 불러오기</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

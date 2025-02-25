@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, getFontStyle } from '../../../constants';
 import { useInfinitePointHistory } from '../../../server/query/hooks/usePoint';
@@ -57,29 +57,27 @@ function PointUsageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.WHITE,
   },
   historyItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.M16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.LIGHT_GRAY,
   },
   title: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
+    ...getFontStyle('body', 'medium', 'medium'),
+    marginBottom: spacing.M4,
+  } as TextStyle,
   date: {
-    fontSize: 14,
-    color: '#666',
-  },
+    ...getFontStyle('body', 'small', 'regular'),
+    color: colors.BLACK,
+  } as TextStyle,
   points: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#f00',
-  },
+    ...getFontStyle('body', 'medium', 'medium'),
+  } as TextStyle,
 });
 
 export default PointUsageScreen; 

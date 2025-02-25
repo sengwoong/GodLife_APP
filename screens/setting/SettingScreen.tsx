@@ -76,7 +76,7 @@ function SettingScreen() {
             style={styles.menuItem}
             onPress={() => navigation.navigate(SettingNavigations.POSTSHARE)}
           >
-            <Text style={styles.menuText}>포스트 친구에게 전송</Text>
+            <Text style={styles.menuText}>포스트 공유</Text>
           </TouchableOpacity>
         </View>
 
@@ -101,7 +101,7 @@ function SettingScreen() {
             style={styles.playlistItem}
             onPress={() => navigation.navigate(SettingNavigations.LIKEDPLAYLIST)}
           >
-            <Text style={styles.playlistText}>찜하기 표시한 곡</Text>
+            <Text style={styles.playlistText}>좋아요 표시한 곡</Text>
             <Text style={styles.playlistCount}>24곡</Text>
           </TouchableOpacity>
         </View>
