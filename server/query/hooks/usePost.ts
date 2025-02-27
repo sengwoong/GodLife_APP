@@ -39,28 +39,14 @@ interface SharedPostResponse {
   number: number;
 }
 
+// Read
 export const usePost = (category: string, search: string = '', page: number = 0) => {
   return useQuery<PostResponse>({
     queryKey: ['posts', category, search, page],
     queryFn: async () => {
-        console.log("usePost");
-        console.log("category");
-        console.log(category);
       const response = await fetch(
         `${BASE_URL}/posts/category/${category}?search=${search}&page=${page}`
       );
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    },
-  });
-};
-
-export const useLikePost = () => {
-  return useMutation({
-    mutationFn: async ({ postId, userId }: { postId: number, userId: number }) => {
-      const response = await fetch(`${BASE_URL}/posts/${postId}/like/user/${userId}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -106,15 +92,6 @@ export const useSinglePost = (postId: string) => {
     },
   });
 };
-
-  
-  export interface UserPostsParams {
-    userId: string | number;
-    page?: number;
-    size?: number;
-    search?: string;
-  }
-  
 
 export const useUserPosts = ({ userId, page = 0, size = 10}: UserPostsParams) => {
   return useQuery<PostResponse>({
@@ -183,6 +160,7 @@ export const useSharedPosts = (userId: number) => {
   });
 };
 
+// Update
 export const useTogglePostAd = () => {
   return useMutation({
     mutationFn: async (adId: number) => {
@@ -196,3 +174,23 @@ export const useTogglePostAd = () => {
     },
   });
 };
+
+// Create
+export const useLikePost = () => {
+  return useMutation({
+    mutationFn: async ({ postId, userId }: { postId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/posts/${postId}/like/user/${userId}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
+  });
+};
+
+export interface UserPostsParams {
+  userId: string | number;
+  page?: number;
+  size?: number;
+  search?: string;
+}
