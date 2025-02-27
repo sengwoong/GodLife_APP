@@ -35,6 +35,32 @@ const generatePointHistory = (userId: string | number) => {
 };
 
 export const pointHandlers = [
+  // Create
+  // 포인트 적립
+  http.post(`${BASE_URL}/points/earn/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as PointRequest;
+    return HttpResponse.json({
+      id: Date.now(),
+      ...body,
+      type: 'earn',
+      userId: Number(params.userId),
+      createdAt: new Date().toISOString()
+    });
+  }),
+
+  // 포인트 사용
+  http.post(`${BASE_URL}/points/use/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as PointRequest;
+    return HttpResponse.json({
+      id: Date.now(),
+      ...body,
+      type: 'use',
+      userId: Number(params.userId),
+      createdAt: new Date().toISOString()
+    });
+  }),
+
+  // Read
   // 포인트 내역 조회
   http.get(`${BASE_URL}/points/user/:userId`, ({ params, request }) => {
     const { userId } = params;
@@ -83,29 +109,5 @@ export const pointHandlers = [
     summary.totalPoints = summary.earnedPoints - summary.usedPoints;
 
     return HttpResponse.json(summary);
-  }),
-
-  // 포인트 적립
-  http.post(`${BASE_URL}/points/earn/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as PointRequest;
-    return HttpResponse.json({
-      id: Date.now(),
-      ...body,
-      type: 'earn',
-      userId: Number(params.userId),
-      createdAt: new Date().toISOString()
-    });
-  }),
-
-  // 포인트 사용
-  http.post(`${BASE_URL}/points/use/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as PointRequest;
-    return HttpResponse.json({
-      id: Date.now(),
-      ...body,
-      type: 'use',
-      userId: Number(params.userId),
-      createdAt: new Date().toISOString()
-    });
   }),
 ]; 

@@ -10,6 +10,7 @@ interface PointHistoryResponse {
   number: number;
 }
 
+// Read
 // 포인트 내역 무한 스크롤 조회
 export function useInfinitePointHistory(userId: number, type?: 'earn' | 'use') {
   return useInfiniteQuery<PointHistoryResponse>({
