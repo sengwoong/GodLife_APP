@@ -3,6 +3,14 @@ import { BASE_URL } from '../../common/types/constants'
 import { MusicRequest } from '../../common/types/serverType'
 
 export const musicHandlers = [
+  http.post(`${BASE_URL}/musics/playlist/:playlistId`, async ({ request }) => {
+    const body = await request.json() as MusicRequest
+    return HttpResponse.json({
+      id: Date.now(),
+      ...body
+    })
+  }),
+
   http.put(`${BASE_URL}/musics/playlist/:playlistId/music/:musicId/user/:userId`, async ({ params, request }) => {
     const body = await request.json() as MusicRequest
     return HttpResponse.json({
@@ -14,14 +22,6 @@ export const musicHandlers = [
 
   http.delete(`${BASE_URL}/musics/playlist/:playlistId/music/:musicId/user/:userId`, () => {
     return new HttpResponse(null, { status: 200 })
-  }),
-
-  http.post(`${BASE_URL}/musics/playlist/:playlistId`, async ({ request }) => {
-    const body = await request.json() as MusicRequest
-    return HttpResponse.json({
-      id: Date.now(),
-      ...body
-    })
   }),
 
   http.get(`${BASE_URL}/musics/playlist/:playlistId`, ({ params, request }) => {
