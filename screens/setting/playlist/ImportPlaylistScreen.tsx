@@ -114,7 +114,7 @@ function ImportPlaylistScreen() {
 
       {/* Playlist List */}
       <ScrollView style={styles.playlistContainer}>
-        {playlistResponse?.content.map((playlist) => (
+        {playlistResponse?.pages.flatMap(page => page.content).map((playlist) => (
           <View key={playlist.id} style={styles.playlistItem}>
             <View style={[styles.thumbnail, styles.placeholderThumbnail]} />
             <View style={styles.contentContainer}>

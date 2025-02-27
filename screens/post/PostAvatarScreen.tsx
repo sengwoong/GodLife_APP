@@ -72,7 +72,7 @@ export const PostAvatarScreen = () => {
   const { data: userData } = useUser('1');
   const { data: userAllPosts } = useUserAllPosts('1', currentPage, pageSize);
   const {data: userVocas} = useUserVocas({userId: '1', page: currentPage, size: pageSize});
-  const {data: userPlaylists} = useUserPlaylist({userId: '1', page: currentPage, size: pageSize});
+  const {data: userPlaylists} = useUserPlaylist({userId: '1', searchText: '', page: currentPage, size: pageSize});
   const {data: userPosts} = useUserPosts({userId: '1', page: currentPage, size: pageSize});
 
   const renderItems = () => {

@@ -25,8 +25,8 @@ export default function MusicEditScreen() {
 
   const route = useRoute<RouteProp<PlayListStackParamList, 'MusicEdit'>>();
   const { playListIndex, musicIndex } = route.params;
-  const userId = useAuthStore(state => state.user?.id);
-
+  // const userId = useAuthStore(state => state.user?.id);
+  const userId = 1;
   if (!userId) {
     throw new Error('User ID is undefined');
   }

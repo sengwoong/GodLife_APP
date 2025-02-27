@@ -40,6 +40,7 @@ function LikedPlaylistScreen() {
         title="좋아요 한 곡"
         musicList={formattedMusics}
         showTabs={false}
+        searchbar={false}
         onPlayAll={handlePlayAll}
         onShuffle={handleShuffle}
         onMenuPress={handleMenu}

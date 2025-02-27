@@ -11,6 +11,7 @@ interface PlaylistLayoutProps {
   title: string;
   subtitle?: string;
   showTabs?: boolean;
+  searchbar?: boolean;
   musicList?: Music[] | undefined;
   onPlayAll?: () => void;
   onShuffle?: () => void;
@@ -22,6 +23,7 @@ function PlaylistLayout({
   title,
   subtitle,
   musicList,
+  searchbar = true,
   onPlayAll,
   onShuffle,
   onMenuPress,
@@ -62,7 +64,7 @@ function PlaylistLayout({
       <Margin size={'M12'} />
       {topButtons}
       <Margin size={'M4'} />
-      <SearchBar initialSuggestions={musicList?.map(item => item.musicTitle)} />
+      {searchbar && <SearchBar initialSuggestions={musicList?.map(item => item.musicTitle)} />}
       <Margin size={'M4'} />
       {header}
       <Margin size={'M4'} />

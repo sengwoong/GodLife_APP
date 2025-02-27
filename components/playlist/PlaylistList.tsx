@@ -1,9 +1,9 @@
 import React from 'react';
 import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { useInfinitePlayList } from '../../server/query/hooks/usePlayList';
 import { useSearchStore } from '../../store/useSearchStore';
 import { Playlist } from '../../types/playlist';
+import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
 
 
 
@@ -38,7 +38,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
 }) => {
 
   const searchText = useSearchStore(state => state.searchText);
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfinitePlayList(searchText);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useUserPlaylist({ userId: '1', searchText });
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;
