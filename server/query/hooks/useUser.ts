@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 import { BasePost } from '../../../types/post';
 import { Voca } from '../../../types/voca';
@@ -40,6 +40,22 @@ interface RecommendContentResponse {
   allItems: (BasePost | Voca | Playlist | Music & { type: string })[];
   totalPages: number;
   size: number;
+}
+
+interface CreateUserData {
+  email: string;
+  password: string;
+  nickName: string;
+  phoneNumber?: string;
+  address?: string;
+}
+
+interface UpdateUserData {
+  nickName?: string;
+  phoneNumber?: string;
+  address?: string;
+  profileImage?: string;
+  bio?: string;
 }
 
 export const useUser = (userId: string) => {
@@ -90,6 +106,60 @@ export const useUserRecommend = (page: number, pageSize: number) => {
         throw new Error('Failed to fetch recommended content');
       }
       return response.json();
+    },
+  });
+};
+
+export const useCreateUser = () => {
+  return useMutation({
+    mutationFn: async (userData: CreateUserData) => {
+      const response = await fetch(`${BASE_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create user');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, userData }: { userId: string, userData: UpdateUserData }) => {
+      const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
+      return response.json();
+    },
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['user', userId] });
+    },
+  });
+};
+
+export const useDeleteUser = () => {
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
     },
   });
 };    
