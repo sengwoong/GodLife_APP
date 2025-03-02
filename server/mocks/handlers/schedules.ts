@@ -3,24 +3,13 @@ import { BASE_URL } from '../../common/types/constants'
 import { ScheduleRequest } from '../../common/types/serverType'
 
 export const scheduleHandlers = [
-  http.put(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as ScheduleRequest
-    return HttpResponse.json({
-      id: params.scheduleId,
-      ...body,
-      userId: params.userId
-    })
-  }),
-
-  http.delete(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, () => {
-    return new HttpResponse(null, { status: 200 })
-  }),
-
+  // Read 작업
   http.get(`${BASE_URL}/schedules/user/:userId`, async ({ request }) => {
     const url = new URL(request.url);
     const year = url.searchParams.get('year');
     const month = url.searchParams.get('month'); 
     const day = url.searchParams.get('day'); 
+    
     // 더미 데이터 생성
     const dummySchedules = [
       {
@@ -67,9 +56,6 @@ export const scheduleHandlers = [
       }
     ];
 
-
-    
-
     return HttpResponse.json({
       content: dummySchedules,
       totalPages: 1,
@@ -79,6 +65,23 @@ export const scheduleHandlers = [
     })
   }),
 
+  // 단일 일정 조회
+  http.get(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, ({ params }) => {
+    const { scheduleId } = params;
+    
+    // 더미 단일 일정 데이터
+    const schedule = {
+      content: '프로젝트 마감',
+      id: Number(scheduleId),
+      time: '5:00 PM',
+      title: '업무 일정',
+      day: '2025-03-03',
+    };
+
+    return HttpResponse.json(schedule);
+  }),
+
+  // Create 작업
   http.post(`${BASE_URL}/schedules/user/:userId`, async ({ params, request }) => {
     const body = await request.json() as ScheduleRequest
     return HttpResponse.json({
@@ -86,5 +89,20 @@ export const scheduleHandlers = [
       ...body,
       userId: params.userId
     })
+  }),
+
+  // Update 작업
+  http.put(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as ScheduleRequest
+    return HttpResponse.json({
+      id: params.scheduleId,
+      ...body,
+      userId: params.userId
+    })
+  }),
+
+  // Delete 작업
+  http.delete(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, () => {
+    return new HttpResponse(null, { status: 200 })
   })
 ] 

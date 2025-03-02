@@ -20,6 +20,7 @@ interface ScheduleResponse {
   number: number;
 }
 
+// Read 작업
 export function useSchedules(userId: number, year: number, month: number, day: number) {
   const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
   
@@ -38,6 +39,22 @@ export function useSchedules(userId: number, year: number, month: number, day: n
   });
 }
 
+// 단일 일정 조회
+export function useSchedule(scheduleId: number, userId: number) {
+  return useQuery<Schedule>({
+    queryKey: ['schedule', scheduleId, userId],
+    queryFn: async () => {
+      const response = await fetch(
+        `${BASE_URL}/schedules/schedule/${scheduleId}/user/${userId}`
+      );
+      if (!response.ok) {
+        throw new Error('일정 조회 실패');
+      }
+      return response.json();
+    },
+  });
+}
+
 // 스케줄 생성 시 필요한 데이터 타입
 export interface CreateScheduleData {
   scheduleTitle: string;
@@ -46,6 +63,7 @@ export interface CreateScheduleData {
   endTime: string;
 }
 
+// Create 작업
 export function useCreateSchedule() {
   const queryClient = useQueryClient();
   
@@ -72,6 +90,7 @@ export function useCreateSchedule() {
   });
 }
 
+// Update 작업
 export function useUpdateSchedule() {
   const queryClient = useQueryClient();
 
@@ -99,10 +118,12 @@ export function useUpdateSchedule() {
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ['schedules', userId] });
+      queryClient.invalidateQueries({ queryKey: ['schedule'] });
     },
   });
 }
 
+// Delete 작업
 export function useDeleteSchedule() {
   const queryClient = useQueryClient();
 
