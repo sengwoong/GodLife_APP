@@ -3,19 +3,9 @@ import { BASE_URL } from '../../common/types/constants'
 import { VocaRequest } from '../../common/types/serverType'
 import { VocaShareRequest } from '../../../types/voca'
 
-
-
 export const vocaHandlers = [
-  http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as VocaRequest
-    console.log('vocaHandlers', body)
-    return HttpResponse.json({
-      id: params.vocaId,
-      ...body,
-      userId: params.userId
-    })
-  }),
-  
+  // Read 작업
+  // 단일 단어장 조회
   http.get(`${BASE_URL}/vocas/voca/:vocaId`, ({ params }) => {
     const vocaId = Number(params.vocaId);
     // Mock data for single voca
@@ -27,10 +17,7 @@ export const vocaHandlers = [
     });
   }),
 
-  http.delete(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, () => {
-    return new HttpResponse(null, { status: 200 })
-  }),
-
+  // 사용자 단어장 목록 조회
   http.get(`${BASE_URL}/vocas/user/:userId`, ({ params, request }) => {
     const { userId } = params;
     const url = new URL(request.url);
@@ -64,26 +51,7 @@ export const vocaHandlers = [
     });
   }),
 
-  http.post(`${BASE_URL}/vocas/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as VocaRequest;
-    return HttpResponse.json({
-      id: Date.now(), 
-      vocaTitle: body.vocaTitle,
-      description: body.description || '', 
-      userId: params.userId,
-      languages: body.languages || ''
-    });
-  }),
-
-  http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as VocaRequest;
-    return HttpResponse.json({
-      id: Number(params.vocaId),
-      ...body,
-      userId: params.userId
-    });
-  }),
-
+  // 내 단어장 조회
   http.get(`${BASE_URL}/vocas/my/:userId`, ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
@@ -103,6 +71,7 @@ export const vocaHandlers = [
     return HttpResponse.json(filteredVocas);
   }),
 
+  // 구매한 단어장 조회
   http.get(`${BASE_URL}/vocas/purchased/:userId`, ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
@@ -121,6 +90,7 @@ export const vocaHandlers = [
     return HttpResponse.json(filteredVocas);
   }),
 
+  // 학습중인 단어장 조회
   http.get(`${BASE_URL}/vocas/study/:userId`, ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
@@ -138,6 +108,29 @@ export const vocaHandlers = [
     return HttpResponse.json(filteredVocas);
   }),
 
+  // Create 작업
+  http.post(`${BASE_URL}/vocas/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as VocaRequest;
+    return HttpResponse.json({
+      id: Date.now(), 
+      vocaTitle: body.vocaTitle,
+      description: body.description || '', 
+      userId: params.userId,
+      languages: body.languages || ''
+    });
+  }),
+
+  // Update 작업
+  http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
+    const body = await request.json() as VocaRequest;
+    return HttpResponse.json({
+      id: Number(params.vocaId),
+      ...body,
+      userId: params.userId
+    });
+  }),
+
+  // 단어장 공유 상태 업데이트
   http.put(`${BASE_URL}/vocas/share/:vocaId/user/:userId`, async ({ params, request }) => {
     const body = await request.json() as VocaShareRequest;
     return HttpResponse.json({
@@ -145,5 +138,10 @@ export const vocaHandlers = [
       isShared: body.isShared,
       userId: Number(params.userId)
     });
+  }),
+
+  // Delete 작업
+  http.delete(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, () => {
+    return new HttpResponse(null, { status: 200 })
   }),
 ] 
