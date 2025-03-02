@@ -23,7 +23,7 @@ export const wordHandlers = [
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = parseInt(url.searchParams.get('size') || '10', 10);
 
-    const words = generateWords(Number(vocaId));
+    const words = generateWords(vocaId as string);
     
     // 특정 인덱스의 단어만 반환
     if (index !== null) {
