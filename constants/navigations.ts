@@ -26,11 +26,12 @@ const CalendarNavigations = {
     } as const;
 
 const PlayListNavigations = {
-    PLAYLIST: 'PlayListMain',
+    PLAYLIST: 'PlayList',
     PLAYLISTCONTENT: 'PlayListContent',
-    MUSICEDIT: 'MusicEdit',
     PLAYLISTEDIT: 'PlaylistEdit',
-    } as const;
+    MUSICEDIT: 'MusicEdit',
+    NOW_PLAYING: 'NowPlaying',
+} as const;
     
 const MainNavigations = {
   MAIN: 'MainPage',

@@ -32,8 +32,14 @@ function PlayListScreen() {
   const { mutate: deletePlayList } = useDeletePlayList();
   const { mutate: createPlayList } = useCreatePlayList();
 
-  const navigateToPlayListContent = (playlistId: number) => {
-    navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
+  const navigateToNowPlaying = (playlistId: number) => {
+    navigation.navigate(PlayListNavigations.NOW_PLAYING, { 
+      playListId: playlistId,
+    });
+  };
+
+  const navigateToMusicManagement = (playlistId: number) => {
+    navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, {
       playListIndex: playlistId,
     });
   };
@@ -51,6 +57,7 @@ function PlayListScreen() {
       playlistData: {
         playlistTitle: newPlaylistName,
         imageUrl: '',
+        isShared: false,
       },
       userId: userId,
     });
@@ -74,7 +81,7 @@ function PlayListScreen() {
       <Margin size={'M12'} />
       <PlaylistSearch />
       <PlaylistList
-        navigateToPlayListContent={navigateToPlayListContent}
+        navigateToPlayListContent={navigateToNowPlaying}
         onLongPress={handleLongPress}
       />
       
@@ -119,13 +126,23 @@ function PlayListScreen() {
       >
         <CompoundOption.Background>
           <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 수정하기</CompoundOption.Title>
+            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 옵션</CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
                 navigation.navigate(PlayListNavigations.PLAYLISTEDIT, { playListIndex: contextMenu.selectedPlaylistId! });
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
-              수정하기
+              플레이 리스트 타이틀 수정하기
+            </CompoundOption.Button>
+            <CompoundOption.Divider />
+            <CompoundOption.Button
+              onPress={() => {
+                if (contextMenu.selectedPlaylistId !== null) {
+                  navigateToMusicManagement(contextMenu.selectedPlaylistId);
+                }
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
+              }}>
+              뮤직 관리하기
             </CompoundOption.Button>
             <CompoundOption.Divider />
             <CompoundOption.Button

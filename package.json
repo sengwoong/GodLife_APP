@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-community/slider": "^4.5.6",
     "@react-native-vector-icons/ant-design": "^4.4.2",
     "@react-native-vector-icons/entypo": "^1.0.1",
     "@react-native-vector-icons/evil-icons": "^1.10.1",
@@ -29,8 +30,11 @@
     "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.6.0",
+    "react-native-track-player": "^4.1.1-nightly-2765d09cb93541d89be94a4809320e4df33c0d47",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.2.0",
+    "react-native-webview": "^13.13.5",
+    "react-native-youtube-iframe": "^2.3.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

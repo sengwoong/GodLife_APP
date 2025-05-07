@@ -1,0 +1,9 @@
+<key>LSApplicationQueriesSchemes</key>
+<array>
+	<string>youtube</string>
+	<string>youtubemusic</string>
+	<string>vnd.youtube</string>
+	<string>itms-apps</string>
+	<string>mailto</string>
+	<string>tel</string>
+</array> 
