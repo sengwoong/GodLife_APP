@@ -44,9 +44,11 @@ export const usePost = (category: string, search: string = '', page: number = 0)
   return useQuery<PostResponse>({
     queryKey: ['posts', category, search, page],
     queryFn: async () => {
-      const response = await fetch(
-        `${BASE_URL}/posts/category/${category}?search=${search}&page=${page}`
-      );
+      const url = new URL(`${BASE_URL}/posts/category/${category}`);
+      url.searchParams.append('search', search);
+      url.searchParams.append('page', page.toString());
+      
+      const response = await fetch(url.toString());
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

@@ -2,7 +2,7 @@ const authNavigations = {
   HOME: 'Home',
   LOGIN: 'Login',
   SIGNUP: 'Signup',
-  } as const;
+} as const;
 
 const drawerNavigations = {
   PLAYLIST: 'PlayList',
@@ -14,11 +14,11 @@ const drawerNavigations = {
 } as const;
 
 const VocaNavigations = {
-    VOCAMAIN: 'VocaMainMain',
-    VOCACONTENT: 'VocaContent',
-    WORDCONTENTEDIT: 'WordContentEdit',
-    VOCACONTENTEDIT: 'VocaContentEdit',
-    } as const;
+  VOCAMAIN: 'VocaMain',
+  VOCACONTENT: 'VocaContent',
+  WORDCONTENTEDIT: 'WordContentEdit',
+  VOCACONTENTEDIT: 'VocaContentEdit',
+} as const;
   
 const CalendarNavigations = {
     CALENDAR: 'CalendarMain',

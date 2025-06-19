@@ -104,6 +104,34 @@ const generateMockSharedPosts = (userId: number) => {
 
 export const postHandlers = [
   // Read
+  http.get(`${BASE_URL}/posts/category/:category`, ({ params, request }) => {
+    const url = new URL(request.url);
+    const { category } = params;
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
+
+    const allPosts = generateMockPosts(category, 100);
+    
+    const filteredPosts = allPosts.filter(post => 
+      post.postContent.toLowerCase().includes(search) ||
+      post.userName.toLowerCase().includes(search)
+    );
+
+    const start = page * size;
+    const end = start + size;
+    const paginatedPosts = filteredPosts.slice(start, end);
+
+    return HttpResponse.json({
+      content: paginatedPosts,
+      totalPages: Math.ceil(filteredPosts.length / size),
+      totalElements: filteredPosts.length,
+      size,
+      number: page,
+      last: end >= filteredPosts.length,
+    });
+  }),
+
   http.get(`${BASE_URL}/posts`, ({ request }) => {
     const url = new URL(request.url);
     const category = url.searchParams.get('category') || 'all';

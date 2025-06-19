@@ -8,7 +8,6 @@ import HomeHeaderLeft from '../HomeHeaderLeft';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
-
 export type PostStackParamList = {
   [PostNavigations.POST]: undefined;
   [PostNavigations.POSTDETAIL]: {
@@ -17,7 +16,6 @@ export type PostStackParamList = {
   [PostNavigations.POSTAVATAR]: {
     userId: number;
   };
-  PostAvatar: { userId: number };
 };
 
 const Stack = createStackNavigator<PostStackParamList>();

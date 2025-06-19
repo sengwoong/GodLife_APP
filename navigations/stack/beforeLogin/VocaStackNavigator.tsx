@@ -7,11 +7,12 @@ import HomeHeaderLeft from '../HomeHeaderLeft';
 import WordContentScreen from '../../../screens/voca/VocaContentScreen';
 import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
 import WordEditScreen from '../../../screens/voca/WordEditScreen';
+
 export type VocaStackParamList = {
   [VocaNavigations.VOCAMAIN]: undefined;
-  [VocaNavigations.VOCACONTENT]: {vocaIndex: number };
-  [VocaNavigations.WORDCONTENTEDIT]: { vocaIndex: number , wordIndex: number |  undefined};
-  [VocaNavigations.VOCACONTENTEDIT]: { vocaIndex: number };
+  [VocaNavigations.VOCACONTENT]: { vocaId: number };
+  [VocaNavigations.WORDCONTENTEDIT]: { vocaId: number, wordId?: number };
+  [VocaNavigations.VOCACONTENTEDIT]: { vocaId: number };
 };
 
 const Stack = createStackNavigator<VocaStackParamList>();
