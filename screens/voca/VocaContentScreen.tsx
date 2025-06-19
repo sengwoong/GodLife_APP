@@ -20,15 +20,15 @@ type Navigation = CompositeNavigationProp<
 
 function VocaContentScreen() {
   const navigation = useNavigation<Navigation>();
-  const route = useRoute<RouteProp<VocaStackParamList, 'VocaContent'>>();
-  const { vocaIndex } = route.params || {};
+  const route = useRoute<RouteProp<VocaStackParamList, 'VOCACONTENT'>>();
+  const { vocaId } = route.params;
  
-  const navigateToVocaUpdateWord = (wordIndex: number) => {
-    navigation.navigate(VocaNavigations.WORDCONTENTEDIT, { vocaIndex, wordIndex });
+  const navigateToVocaUpdateWord = (wordId: number) => {
+    navigation.navigate(VocaNavigations.WORDEDIT, { vocaId, wordId });
   };
 
   const navigateToVocaAddWord = () => {
-    navigation.navigate(VocaNavigations.WORDCONTENTEDIT, {vocaIndex, wordIndex: undefined });
+    navigation.navigate(VocaNavigations.WORDEDIT, { vocaId });
   };
 
   return (

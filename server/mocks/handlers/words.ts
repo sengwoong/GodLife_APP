@@ -8,6 +8,10 @@ const generateWords = (vocaId: string | number, count = 100) => {
     id: i + 1,
     word: `Word ${i + 1}`,
     meaning: `Meaning for word ${i + 1}`,
+    wrongMeanings: [
+      `Wrong meaning 1 for word ${i + 1}`,
+      `Wrong meaning 2 for word ${i + 1}`
+    ],
     vocaId: Number(vocaId),
   }));
 };

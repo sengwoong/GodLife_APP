@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 import { Voca } from '../../../types/voca';
+import axios from 'axios';
 
 interface VocaResponse {
   content: Voca[];
@@ -216,4 +217,18 @@ export function useDeleteVoca() {
       queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
     }
   });
-} 
+}
+
+export const useVocaWords = (vocaId: number) => {
+  return useQuery({
+    queryKey: ['vocaWords', vocaId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch words');
+      }
+      const data = await response.json();
+      return data.content;
+    },
+  });
+}; 

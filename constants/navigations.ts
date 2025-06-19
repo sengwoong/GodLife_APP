@@ -13,11 +13,13 @@ const drawerNavigations = {
   POST: 'Post'
 } as const;
 
-const VocaNavigations = {
-  VOCAMAIN: 'VocaMain',
-  VOCACONTENT: 'VocaContent',
-  WORDCONTENTEDIT: 'WordContentEdit',
-  VOCACONTENTEDIT: 'VocaContentEdit',
+export const VocaNavigations = {
+  VOCA: 'VOCA',
+  VOCACONTENT: 'VOCACONTENT',
+  VOCACONTENTEDIT: 'VOCACONTENTEDIT',
+  VOCAEDIT: 'VOCAEDIT',
+  WORDEDIT: 'WORDEDIT',
+  VOCAGAME: 'VOCAGAME',
 } as const;
   
 const CalendarNavigations = {

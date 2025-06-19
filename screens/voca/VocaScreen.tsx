@@ -60,8 +60,8 @@ const VocaScreen = () => {
     },
   });
 
-  const navigateToVocaContent = (vocaIndex: number) => {
-    navigation.navigate(VocaNavigations.VOCACONTENT, { vocaIndex });
+  const navigateToVocaGame = (vocaId: number) => {
+    navigation.navigate(VocaNavigations.VOCAGAME, { vocaId });
   };
 
   const handleAddVoca = () => {
@@ -95,7 +95,7 @@ const VocaScreen = () => {
       
       <VocaList
         userId={userId!}
-        navigateToVocaContent={navigateToVocaContent}
+        navigateToVocaContent={navigateToVocaGame}
         onLongPress={handleLongPress}
       />
       
@@ -152,18 +152,27 @@ const VocaScreen = () => {
       >
         <CompoundOption.Background>
           <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedVocaTitle}번의 단어장 수정하기 </CompoundOption.Title>
+            <CompoundOption.Title>{contextMenu.selectedVocaTitle}번의 단어장 수정하기</CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
-                navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex: contextMenu.selectedVocaId! });
+                navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaId: contextMenu.selectedVocaId! });
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
               수정하기
+            </CompoundOption.Button>
+            <CompoundOption.Button
+              onPress={() => {
+                navigation.navigate(VocaNavigations.VOCACONTENT, { vocaId: contextMenu.selectedVocaId! });
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
+              }}>
+              단어 목록 보기
             </CompoundOption.Button>
             <CompoundOption.Divider />
             <CompoundOption.Button
               isDanger
               onPress={() => {
                 console.log('삭제:', contextMenu.selectedVocaId);
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
               삭제하기
             </CompoundOption.Button>
@@ -239,6 +248,17 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.GRAY,
   },
+  gameButton: {
+    backgroundColor: colors.BLACK,
+    padding: spacing.M12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: spacing.M12,
+  },
+  gameButtonText: {
+    color: colors.WHITE,
+    ...getFontStyle('title', 'medium', 'bold'),
+  } as TextStyle,
 });
 
 export default VocaScreen;

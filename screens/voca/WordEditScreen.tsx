@@ -18,14 +18,14 @@ import { useWord, useCreateWord, useUpdateWord } from '../../server/query/hooks/
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/useAuthStore';
 
-export default function VocaEditScreen() {
-  const route = useRoute<RouteProp<VocaStackParamList, 'WordContentEdit'>>();
-  const { vocaIndex, wordIndex } = route.params || {};
+export default function WordEditScreen() {
+  const route = useRoute<RouteProp<VocaStackParamList, 'WORDEDIT'>>();
+  const { vocaId, wordId } = route.params;
   const userId = useAuthStore(state => state.user?.id);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [english, setEnglish] = useState('');
+  const [korean, setKorean] = useState('');
 
-  const { data: wordData, isLoading } = wordIndex !== undefined ? useWord(vocaIndex, wordIndex) : { data: null, isLoading: false };
+  const { data: wordData, isLoading } = wordId !== undefined ? useWord(vocaId, wordId) : { data: null, isLoading: false };
 
   const navigation = useNavigation();
   const createWordMutation = useCreateWord();
@@ -34,15 +34,14 @@ export default function VocaEditScreen() {
 
   useEffect(() => {
     if (wordData) {
-      setTitle(wordData.word);
-      setDescription(wordData.meaning);
+      setEnglish(wordData.english);
+      setKorean(wordData.korean);
     }
   }, [wordData]);
 
   const handleSubmit = async () => {
     try {
-      if (wordIndex !== undefined && wordData) {
-
+      if (wordId !== undefined && wordData) {
         if (!userId) {
           throw new Error('User ID is not available');
         }
@@ -50,30 +49,29 @@ export default function VocaEditScreen() {
         await updateWordMutation.mutateAsync({
           wordId: wordData.id,
           data: {
-            word: title,
-            meaning: description,
+            english,
+            korean,
           },
           userId: userId,
         });
 
         queryClient.invalidateQueries({ 
-          queryKey: ['words', vocaIndex]
+          queryKey: ['words', vocaId]
         });
 
         queryClient.invalidateQueries({ 
-          queryKey: ['word', vocaIndex, wordIndex]
+          queryKey: ['word', vocaId, wordId]
         });
 
       } else {
-
         await createWordMutation.mutateAsync({
-          word: title,
-          meaning: description,
-          vocaId: vocaIndex,
+          english,
+          korean,
+          vocaId,
         });
 
         queryClient.invalidateQueries({ 
-          queryKey: ['words', vocaIndex]
+          queryKey: ['words', vocaId]
         });
       }
       navigation.goBack();
@@ -87,25 +85,25 @@ export default function VocaEditScreen() {
       <SafeAreaView style={styles.container}>
         <Margin size={'M16'} />
         <View style={styles.header}>
-          <Text style={styles.header__title}>{'단어 추가하기'}</Text>
+          <Text style={styles.header__title}>{wordId ? '단어 수정하기' : '단어 추가하기'}</Text>
         </View>
         <Margin size={'M12'} />
         
         <TextInput
           style={styles.form__input}
-          placeholder={'단어 추가하기'}
-          value={title}
-          onChangeText={setTitle}
+          placeholder={'영어 단어'}
+          value={english}
+          onChangeText={setEnglish}
         />
         <Margin size={'M4'} />
 
-          <TextInput
-            style={[styles.form__input, styles.form__textarea]}
-            placeholder="단어 해석"
-            value={description}
-            onChangeText={setDescription}
-            multiline
-          />
+        <TextInput
+          style={[styles.form__input, styles.form__textarea]}
+          placeholder="한글 뜻"
+          value={korean}
+          onChangeText={setKorean}
+          multiline
+        />
 
         <Margin size={'M8'} />
   
