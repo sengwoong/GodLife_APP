@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, ScrollView, Image, TextStyle, ImageStyle } from 'react-native';
-import { colors, getFontStyle, spacing } from '../../constants';
+import { SafeAreaView, Text, View, StyleSheet, ScrollView, Image, TextStyle, ImageStyle, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { colors, getFontStyle, spacing, MainNavigations } from '../../constants';
 import LinearGradient from 'react-native-linear-gradient';
 import ItemCard from '../../components/ItemCard';
 import CustomButton from '../../components/CustomButton';
@@ -20,7 +22,16 @@ const GRADIENT_SIZE = 54;
 const AVATAR_SIZE = 50;
 const MUSIC_PLAYER_WIDTH = "80%";
 
+type mainStackParamList = {
+  [MainNavigations.MAIN]: undefined;
+  [MainNavigations.POST_DETAIL]: { postId: number };
+};
+
+type NavigationProp = NativeStackNavigationProp<mainStackParamList>;
+
 function MainScreen() {
+  const navigation = useNavigation<NavigationProp>();
+
   const CategoryButtons = [
     { label: '전체보기', id: 'post' },
     { label: '단어장', id: 'voca' },
@@ -71,6 +82,7 @@ function MainScreen() {
       musicUrl: "https://example.com/com",
       color: colors.BLUE,
       imageUrl: 'https://example.com/avatar1.png',
+      musicLike: false
     }
   ]  
    
@@ -89,6 +101,13 @@ function MainScreen() {
       default:
         return recommendContent.allItems;
     }
+  };
+
+  const handlePostPress = (postId: number) => {
+    console.log('Navigating to post:', postId);
+    navigation.navigate(MainNavigations.POST_DETAIL, {
+      postId: postId
+    });
   };
 
   return (
@@ -129,32 +148,42 @@ function MainScreen() {
             {!isLoadingBestPosts && bestPosts?.posts && (
               <>
                 {bestPosts.posts.map((post, index) => (
-                  <View key={index} style={styles.product__container}>
-                    <Image 
-                      source={{ uri: post.postImage }} 
-                      style={styles.product__image as ImageStyle} 
-                    />
-                    <View style={styles.product__info}>
-                      <Text style={styles.product__category}>{post.userName}</Text>
-                      <Text 
-                        style={styles.product__description} 
-                        numberOfLines={2} 
-                        ellipsizeMode="clip" 
-                      >
-                        {post.title}
-                      </Text>
-                      <View style={styles.product__priceContainer}>
-                        {post.sale && (
-                          <Text style={styles.product__price}>
-                            {post.price} 포인트
-                          </Text>
-                        )}
-                      </View>
-                      <View style={styles.product__ratingContainer}>
-                        <Text style={styles.product__tag}>#{post.type}</Text>
+                  <TouchableOpacity 
+                    key={post.id}
+                    onPress={() => {
+                      console.log('Pressing post:', post.id);
+                      handlePostPress(post.id);
+                    }}
+                    activeOpacity={0.8}
+                    style={{ width: 164, marginRight: spacing.M2 }}
+                  >
+                    <View style={styles.product__container}>
+                      <Image 
+                        source={{ uri: post.postImage }} 
+                        style={styles.product__image as ImageStyle} 
+                      />
+                      <View style={styles.product__info}>
+                        <Text style={styles.product__category}>{post.userName}</Text>
+                        <Text 
+                          style={styles.product__description} 
+                          numberOfLines={2} 
+                          ellipsizeMode="clip" 
+                        >
+                          {post.title}
+                        </Text>
+                        <View style={styles.product__priceContainer}>
+                          {post.sale && (
+                            <Text style={styles.product__price}>
+                              {post.price} 포인트
+                            </Text>
+                          )}
+                        </View>
+                        <View style={styles.product__ratingContainer}>
+                          <Text style={styles.product__tag}>#{post.type}</Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </>
             )}
@@ -194,17 +223,32 @@ function MainScreen() {
 
         <Margin size={'M16'} />
 
-        <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={styles.section}>
+        <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={[styles.section, { position: 'relative' }]}>
           <Text style={styles.section__title}>추천 상품</Text>
-          <View style={styles.section__content}>
+          <Margin size={'M8'} />
+          <View style={[styles.section__content, { position: 'relative' }]}>
             {!isLoadingRecommend && recommendContent && (
               <>
-                {getContentByType().map((item) => (
-                  <SquareItemCard
+                {getContentByType().map((item, index) => (
+                  <TouchableOpacity
                     key={item.id}
-                    item={item as BasePost}
-                    type={activeButton.id as 'post' | 'voca' | 'playlist' | 'music'}
-                  />
+                    style={{ 
+                      width: '100%',
+                      position: 'relative',
+                      zIndex: 1000,
+                    }}
+                    onPress={() => {
+                      console.log('Pressing recommended item:', item.id);
+                      handlePostPress(Number(item.id));
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <SquareItemCard
+                      key={item.id}
+                      item={item as BasePost}
+                      type={activeButton.id as 'post' | 'voca' | 'playlist' | 'music'}
+                    />
+                  </TouchableOpacity>
                 ))}
                 {getContentByType().length === 0 && (
                   <Text style={[styles.section__title, { color: colors.WHITE }]}>
@@ -325,7 +369,7 @@ const styles = StyleSheet.create({
 
   product__container: {
     width: 164,
-    marginRight: spacing.M12,
+    marginRight: spacing.M2,
   },
   product__image: {
     width: 164,
@@ -334,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.GRAY,
   } as ImageStyle,
   product__info: {
-    padding: spacing.M8,
+    padding: spacing.M2,
   },
   product__category: {
     ...getFontStyle('title', 'small', 'bold'),
@@ -386,12 +430,15 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: spacing.M16,
     paddingVertical: spacing.M32,
-    overflow: 'visible', 
+    position: 'relative',
+    overflow: 'visible',
   },
   section__title: {
     ...getFontStyle('title', 'medium', 'bold'),
     color: colors.WHITE,
     marginBottom: spacing.M12,
+    position: 'relative',
+    zIndex: 1,
   } as TextStyle,
   section__content: {
     width: "100%",
@@ -399,6 +446,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: spacing.M16,
+    position: 'relative',
+    zIndex: 2,
   },
   section__bubble: {
     height: 320,

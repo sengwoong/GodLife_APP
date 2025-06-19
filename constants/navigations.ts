@@ -34,7 +34,8 @@ const PlayListNavigations = {
 } as const;
     
 const MainNavigations = {
-  MAIN: 'MainPage',
+  MAIN: 'Main',
+  POST_DETAIL: 'PostDetail'
 } as const;
 
 const PostNavigations = {

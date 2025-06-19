@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, Text, Pressable, TextStyle } from 'react-native';
+import { View, Image, StyleSheet, Text, TextStyle } from 'react-native';
 import React from 'react';
 import { colors, getFontStyle, spacing } from '../constants';
 import { BasePost } from '../types/post';
@@ -9,10 +9,9 @@ import { Music } from '../types/music';
 interface SquareItemCardProps {
   item: BasePost;
   type?: 'post' | 'voca' | 'playlist' | 'music';
-  onPress?: () => void;
 }
 
-export default function SquareItemCard({ item, type, onPress }: SquareItemCardProps) {
+export default function SquareItemCard({ item, type }: SquareItemCardProps) {
   const getImageUrl = () => {
     if ('postImage' in item) {
       return item.postImage;
@@ -21,7 +20,7 @@ export default function SquareItemCard({ item, type, onPress }: SquareItemCardPr
   };
 
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <View style={styles.card}>
       <View style={styles.leftInfo}>
         <Image 
           source={{ uri: getImageUrl() }} 
@@ -42,7 +41,7 @@ export default function SquareItemCard({ item, type, onPress }: SquareItemCardPr
           </View>
         )}
       </View>
-    </Pressable>
+    </View>
   );
 }
 
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
     padding: spacing.M16,
     backgroundColor: colors.WHITE,
     borderRadius: 8,
-    marginBottom: spacing.M8,
+    position: 'relative',
   },
   leftInfo: {
     marginRight: spacing.M16,
