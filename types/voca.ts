@@ -1,5 +1,5 @@
 export interface Voca {
-    id: number;
+    vocaId: number;
     vocaTitle: string;
     languages: string;
     userId: number;

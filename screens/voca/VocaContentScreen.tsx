@@ -22,7 +22,7 @@ function VocaContentScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<RouteProp<VocaStackParamList, 'VOCACONTENT'>>();
   const { vocaId } = route.params;
- 
+  console.log('VocaContentScreen vocaId:', vocaId);
   const navigateToVocaUpdateWord = (wordId: number) => {
     navigation.navigate(VocaNavigations.WORDEDIT, { vocaId, wordId });
   };
@@ -42,7 +42,7 @@ function VocaContentScreen() {
       <VocaContentSearch />
       <Margin size={'M4'} />
       <View style={styles.content}>
-        <VocaContentList navigateToWordDetail={navigateToVocaUpdateWord} />
+        <VocaContentList vocaIndex={vocaId} navigateToWordDetail={navigateToVocaUpdateWord} />
       </View>
       <FAB onPress={navigateToVocaAddWord} />
     </SafeAreaView>

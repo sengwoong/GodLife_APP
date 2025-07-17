@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 import { Voca } from '../../../types/voca';
-import axios from 'axios';
 
 interface VocaResponse {
   content: Voca[];
@@ -53,7 +52,7 @@ export const useUserVocas = ({ userId, page = 0, size = 10, search = '' }: UserV
     queryKey: ['userVocas', userId, page, size, search],
     queryFn: async () => {
       const response = await fetch(
-        `${BASE_URL}/vocas/user/${userId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}`
+        `${BASE_URL}/vocas/user/${userId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}&sort=asc`
       );
       if (!response.ok) {
         throw new Error('Network response was not ok');

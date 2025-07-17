@@ -80,31 +80,6 @@ function SettingScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Playlist Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>플레이리스트</Text>
-          <TouchableOpacity 
-            style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.IMPORT)}
-          >
-            <Text style={styles.playlistText}>유튜브 재생목록 가져오기</Text>
-            <Text style={styles.playlistCount}>12곡</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.MYPLAYLIST)}
-          >
-            <Text style={styles.playlistText}>내 플레이리스트</Text>
-            <Text style={styles.playlistCount}>8곡</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.LIKEDPLAYLIST)}
-          >
-            <Text style={styles.playlistText}>좋아요 표시한 곡</Text>
-            <Text style={styles.playlistCount}>24곡</Text>
-          </TouchableOpacity>
-        </View>
 
         {/* Word List Section */}
         <View style={styles.section}>

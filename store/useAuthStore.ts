@@ -14,7 +14,7 @@ interface AuthState {
 }
 
 const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  user: {id: 14, username: 'test'},
   token: null,
   setAuth: (user, token) => set({ user, token }),
   logout: () => set({ user: null, token: null }),

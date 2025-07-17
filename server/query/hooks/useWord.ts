@@ -35,6 +35,7 @@ interface UpdateWordData {
 // Read 작업
 // 단어 목록 조회 (무한 스크롤)
 export function useInfiniteWords(vocaId: number, searchText: string) {
+  console.log('useInfiniteWords vocaId:', vocaId, 'searchText:', searchText); // 추가
   return useInfiniteQuery<WordResponse, Error>({
     queryKey: ['words', vocaId, searchText],
     queryFn: async ({ pageParam = 0 }) => {

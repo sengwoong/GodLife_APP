@@ -13,6 +13,7 @@ import PlaylistSearch from '../../components/playlist/PlaylistSearch';
 import PlaylistList from '../../components/playlist/PlaylistList';
 import { useCreatePlayList, useDeletePlayList } from '../../server/query/hooks/usePlayList';
 import useAuthStore from '../../store/useAuthStore';
+import useUserId from '../../server/query/hooks/useUserId';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<PlayListStackParamList>,
@@ -45,7 +46,7 @@ function PlayListScreen() {
   };
 
   // const userId = useAuthStore(state => state.user?.id);
-  const userId = 1;
+  const userId = useUserId();
 
   if (!userId) {
     throw new Error('User ID is undefined');

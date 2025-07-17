@@ -40,7 +40,7 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
       <FlatList
         data={data?.pages.flatMap(page => page.content) || []}
         renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaContent} onLongPress={onLongPress} />}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
+        keyExtractor={(item, index) => `${item.vocaId}-${index}`}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage();
@@ -56,8 +56,11 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
 const VocaItem = ({ item, onPress, onLongPress }: { item: Voca; onPress: (id: number) => void; onLongPress: (id: number, vocaTitle: string) => void }) => (
   <TouchableOpacity
     style={styles.list__item}
-    onPress={() => onPress(item.id)}
-    onLongPress={() => onLongPress(item.id, item.vocaTitle)}>
+    onPress={() => {
+      console.log('VOCACONTENT로 이동 vocaId:', item.vocaId);
+      onPress(item.vocaId);
+    }}
+    onLongPress={() => onLongPress(item.vocaId, item.vocaTitle)}>
     <View style={styles.list__content}>
       <Text style={styles.list__title}>{item.vocaTitle}</Text>
       <Text style={styles.list__count}>{item.languages}</Text>

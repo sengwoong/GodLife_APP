@@ -17,6 +17,7 @@ import Margin from '../../components/division/Margin';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import { useSingleMusic, useCreateMusic, useUpdateMusic } from '../../server/query/hooks/useMusic';
 import useAuthStore from '../../store/useAuthStore';
+import useUserId from '../../server/query/hooks/useUserId';
 
 export default function MusicEditScreen() {
   const [title, setTitle] = useState('');
@@ -26,7 +27,7 @@ export default function MusicEditScreen() {
   const route = useRoute<RouteProp<PlayListStackParamList, 'MusicEdit'>>();
   const { playListIndex, musicIndex } = route.params;
   // const userId = useAuthStore(state => state.user?.id);
-  const userId = 1;
+  const userId = useUserId();
   if (!userId) {
     throw new Error('User ID is undefined');
   }

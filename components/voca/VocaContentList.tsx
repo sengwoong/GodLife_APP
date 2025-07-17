@@ -13,6 +13,7 @@ interface Word {
 }
 
 interface VocaContentListProps {
+  vocaIndex: number;
   navigateToWordDetail: (wordId: number) => void;
 }
 
@@ -27,12 +28,9 @@ const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void
   </TouchableOpacity>
 );
 
-const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail }) => {
+const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateToWordDetail }) => {
   const searchText = useSearchStore(state => state.searchText);
   
-  const route = useRoute();
-  const { vocaIndex } = route.params as { vocaIndex: number };
-
   const {
     data,
     isLoading,
@@ -41,6 +39,10 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail 
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteWords(vocaIndex, searchText);
+
+  console.log('VocaContentList vocaIndex:', vocaIndex);
+  console.log('VocaContentList data:', data);
+  console.log('VocaContentList error:', error);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;

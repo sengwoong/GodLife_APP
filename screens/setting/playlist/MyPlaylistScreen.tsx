@@ -4,14 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import { useUserPlaylist, useUpdatePlaylistShare } from '../../../server/query/hooks/usePlayList';
 import { colors, spacing, getFontStyle, SettingNavigations } from '../../../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import useUserId from '../../../server/query/hooks/useUserId';
 
 function MyPlaylistScreen() {
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   
   // 임시로 userId를 1로 설정 (실제로는 인증 시스템에서 가져와야 함)
+  const userId = useUserId();
   const { data: playlistResponse, isLoading, error } = useUserPlaylist({ 
-    userId: 1,
+    userId: userId,
     size: 20 
   });
   const updateShare = useUpdatePlaylistShare();
@@ -20,7 +22,7 @@ function MyPlaylistScreen() {
     try {
       await updateShare.mutateAsync({
         playlistId: id,
-        userId: 1,
+        userId: userId,
         isShared: !currentShared
       });
     } catch (error) {

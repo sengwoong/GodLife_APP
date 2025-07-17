@@ -36,20 +36,24 @@ const VocaScreen = () => {
 
   const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
   const userId = useAuthStore(state => state.user?.id);
+  console.log('VocaScreen userId:', userId); // 14가 찍혀야 정상
 
   const queryClient = useQueryClient();
 
   const { mutate: createVoca } = useMutation({
     mutationFn: async (newVocaName: string) => {
-      const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
+      const url = `${BASE_URL}/vocas/user/${userId}`;
+      console.log('createVoca 요청 URL:', url, 'userId:', userId);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ vocaTitle: newVocaName, languages: selectedLanguage }),
       });
-      console.log(response);
       if (!response.ok) {
+        const errText = await response.text();
+        console.log('createVoca fetch error:', errText);
         throw new Error('Failed to create new voca');
       }
       return response.json();
@@ -162,6 +166,7 @@ const VocaScreen = () => {
             </CompoundOption.Button>
             <CompoundOption.Button
               onPress={() => {
+
                 navigation.navigate(VocaNavigations.VOCACONTENT, { vocaId: contextMenu.selectedVocaId! });
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
