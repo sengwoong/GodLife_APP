@@ -101,8 +101,7 @@ export function MiniPlayer({
   
   // 플레이어 상태 변경 핸들러 개선
   const onPlayerStateChange = React.useCallback((state: PLAYER_STATES) => {
-    console.log("MiniPlayer state changed:", state);
-    
+
     if (state === PLAYER_STATES.ENDED && onPlayPause) {
       // 곡이 끝나면 재생 상태 업데이트
       runOnJS(onPlayPause)();
@@ -112,7 +111,7 @@ export function MiniPlayer({
   // 재생/일시정지 토글 함수 직접 구현
   const handleTogglePlayPause = () => {
     if (onPlayPause) {
-      console.log("MiniPlayer toggle play/pause, new state:", !isPlaying);
+    
       onPlayPause();
     }
   };
@@ -323,12 +322,12 @@ export function MiniPlayer({
                       }
                     }}
                   >
-                    <View style={styles.playlistItemContent}>
-                      {track.imageUrl ? (
-                        <Image source={{ uri: track.imageUrl }} style={styles.playlistItemImage} />
-                      ) : (
-                        <View style={styles.playlistItemImagePlaceholder} />
-                      )}
+                                      <View style={styles.playlistItemContent}>
+                    {track.imageUrl ? (
+                      <Image source={{ uri: track.imageUrl }} style={styles.playlistItemImage} />
+                    ) : (
+                      <View style={styles.playlistItemImagePlaceholder} />
+                    )}
                       <View style={styles.playlistItemInfo}>
                         <Text 
                           style={[
@@ -375,7 +374,7 @@ export function MiniPlayer({
                     styles.secondaryControlButton,
                     currentTrackIndex <= 0 && styles.disabledButton
                   ]}>
-                  <Text style={styles.controlIconLarge}>⏮</Text>
+                  <Text style={styles.controlIcon}>⏮</Text>
                 </Pressable>
                 
                 <Pressable onPress={handleTogglePlayPause} style={styles.fullScreenControlButton}>
@@ -390,7 +389,7 @@ export function MiniPlayer({
                     styles.secondaryControlButton,
                     currentTrackIndex >= totalTracks - 1 && styles.disabledButton
                   ]}>
-                  <Text style={styles.controlIconLarge}>⏭</Text>
+                  <Text style={styles.controlIcon}>⏭</Text>
                 </Pressable>
               </View>
               
@@ -597,7 +596,7 @@ const styling = () =>
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingVertical: spacing.S8,
+      paddingVertical: spacing.M8,
       paddingHorizontal: spacing.M12,
       borderRadius: 20,
       marginTop: spacing.M16,
@@ -605,7 +604,7 @@ const styling = () =>
     loopText: {
       color: colors.WHITE,
       fontSize: 14,
-      marginLeft: spacing.S4,
+      marginLeft: spacing.M4,
     },
     loopTextActive: {
       fontWeight: 'bold',
@@ -635,7 +634,7 @@ const styling = () =>
       color: colors.WHITE,
       marginBottom: spacing.M16,
       marginTop: spacing.M8,
-    },
+    } as TextStyle,
     playlistScrollView: {
       maxHeight: SCREEN_HEIGHT * 0.3,
     },
@@ -661,7 +660,7 @@ const styling = () =>
       height: 40,
       borderRadius: 4,
       marginRight: spacing.M12,
-    },
+    } as ImageStyle,
     playlistItemImagePlaceholder: {
       width: 40,
       height: 40,
@@ -675,14 +674,14 @@ const styling = () =>
     playlistItemTitle: {
       ...getFontStyle('titleBody', 'small', 'bold'),
       color: colors.WHITE,
-    },
+    } as TextStyle,
     playlistItemTitleActive: {
       color: colors.GREEN,
     },
     playlistItemArtist: {
       ...getFontStyle('titleBody', 'small', 'regular'),
       color: colors.LIGHT_GRAY,
-    },
+    } as TextStyle,  
     playlistItemPlayingIndicator: {
       marginLeft: spacing.M8,
     },
@@ -715,7 +714,7 @@ const styling = () =>
     playlistToggleText: {
       color: colors.WHITE,
       ...getFontStyle('body', 'small', 'medium'),
-    },
+    } as  TextStyle  ,
     playlistContainer: {
       flex: 1,
       width: '100%',

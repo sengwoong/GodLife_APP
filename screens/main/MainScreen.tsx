@@ -53,8 +53,6 @@ function MainScreen() {
   // 임시로 빈 값 반환
   const { data: recommendContent, isLoading: isLoadingRecommend } = { data: null, isLoading: false } as any;
 
-  console.log("bestPosts", bestPosts);
-
   const popularAvatars = (bestUsers?.users?.slice(0, 3).map((user: any) => ({
     id: user.id,
     image: user.profileImage,
@@ -106,7 +104,6 @@ function MainScreen() {
   };
 
   const handlePostPress = (postId: number) => {
-    console.log('Navigating to post:', postId);
     navigation.navigate(MainNavigations.POST_DETAIL, {
       postId: postId
     });
@@ -153,7 +150,7 @@ function MainScreen() {
                   <TouchableOpacity 
                     key={post.id}
                     onPress={() => {
-                      console.log('Pressing post:', post.id);
+                  
                       handlePostPress(post.id);
                     }}
                     activeOpacity={0.8}
@@ -240,7 +237,6 @@ function MainScreen() {
                       zIndex: 1000,
                     }}
                     onPress={() => {
-                      console.log('Pressing recommended item:', item.id);
                       handlePostPress(Number(item.id));
                     }}
                     activeOpacity={0.8}

@@ -41,7 +41,6 @@ export const useUser = (userId: number) => {
         throw new Error('사용자를 찾을 수 없습니다');
       }
       const data = await response.json();
-      console.log('👤 사용자 정보 조회 완료');
       return data;
     },
     enabled: userId !== undefined,
@@ -66,15 +65,11 @@ export const useCreateUser = () => {
         throw new Error('사용자 생성에 실패했습니다');
       }
       const data = await response.json();
-      console.log('✅ 사용자 생성 완료');
       return data;
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['user', data.id], data);
     },
-    onError: (error, variables) => {
-      console.error('❌ 사용자 생성 실패:', error);
-    }
   });
 };
 
@@ -95,7 +90,6 @@ export const useUpdateUser = () => {
         throw new Error('사용자 정보 수정에 실패했습니다');
       }
       const data = await response.json();
-      console.log('✅ 사용자 정보 수정 완료');
       return data;
     },
     onSuccess: (data, { userId }) => {
@@ -103,7 +97,7 @@ export const useUpdateUser = () => {
       queryClient.setQueryData(['user', userId], data);
     },
     onError: (error, variables) => {
-      console.error('❌ 사용자 정보 수정 실패:', error);
+    
     }
   });
 };
@@ -120,14 +114,10 @@ export const useDeleteUser = () => {
       if (!response.ok) {
         throw new Error('사용자 삭제에 실패했습니다');
       }
-      console.log('✅ 사용자 삭제 완료');
     },
     onSuccess: (_, userId) => {
       queryClient.removeQueries({ queryKey: ['user', userId] });
     },
-    onError: (error, variables) => {
-      console.error('❌ 사용자 삭제 실패:', error);
-    }
   });
 };
 
@@ -141,7 +131,7 @@ export const useUserStats = (userId: number) => {
         throw new Error('사용자 통계를 불러올 수 없습니다');
       }
       const data = await response.json();
-      console.log('📊 사용자 통계 조회 완료');
+
       return data;
     },
     enabled: userId !== undefined,
@@ -163,15 +153,13 @@ export const useUploadUserProfile = () => {
         throw new Error('프로필 이미지 업로드에 실패했습니다');
       }
       const data = await response.json();
-      console.log('✅ 프로필 이미지 업로드 완료');
+
       return data;
     },
     onSuccess: (data, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ['user', userId] });
     },
-    onError: (error, variables) => {
-      console.error('❌ 프로필 이미지 업로드 실패:', error);
-    }
+
   });
 };
 
@@ -193,10 +181,8 @@ export const useChangePassword = () => {
       if (!response.ok) {
         throw new Error('비밀번호 변경에 실패했습니다');
       }
-      console.log('✅ 비밀번호 변경 완료');
+
     },
-    onError: (error, variables) => {
-      console.error('❌ 비밀번호 변경 실패:', error);
-    }
+
   });
 };    

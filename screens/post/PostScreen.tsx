@@ -44,21 +44,7 @@ export const PostScreen = () => {
     });
   };
 
-  const handlePlayAll = () => {
-    console.log('Play all songs');
-  };
 
-  const handleShuffle = () => {
-    console.log('Shuffle songs');
-  };
-
-  const handleMenu = () => {
-    console.log('Open menu');
-  };
-
-  const handleItemPress = (id: number) => {
-    console.log('Selected song:', id);
-  };
 
   const renderPost = ({ item }: ListRenderItemInfo<Post>) => (
     <TouchableOpacity activeOpacity={1} onPress={() => handlePostPress(item)}>

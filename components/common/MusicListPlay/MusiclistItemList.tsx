@@ -6,11 +6,11 @@ import { Music } from '../../../types/music';
 interface PlaylistItemListProps {
   musicList: Music[] | undefined;
   onItemPress?: (id: string) => void;
+  onItemLongPress?: (music: Music) => void;
   onLoadMore?: () => void;
 }
 
-const PlaylistItemList: React.FC<PlaylistItemListProps> = ({ musicList, onItemPress, onLoadMore }) => {
-  console.log('musicList', musicList?.map(item => item.color))
+const PlaylistItemList: React.FC<PlaylistItemListProps> = ({ musicList, onItemPress, onItemLongPress, onLoadMore }) => {
 
   const handleEndReached = useCallback(() => {
     if (onLoadMore) {
@@ -24,7 +24,8 @@ const PlaylistItemList: React.FC<PlaylistItemListProps> = ({ musicList, onItemPr
       renderItem={({ item }) => (
         <TouchableOpacity 
           style={styles.list__item}
-          onPress={() => onItemPress?.(item.id)}
+          onPress={() => onItemPress?.(item.musicId.toString())}
+          onLongPress={() => onItemLongPress?.(item)}
         >
           <View 
             style={[
@@ -38,7 +39,7 @@ const PlaylistItemList: React.FC<PlaylistItemListProps> = ({ musicList, onItemPr
           </View>
         </TouchableOpacity>
       )}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.musicId.toString()}
       contentContainerStyle={styles.list}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}

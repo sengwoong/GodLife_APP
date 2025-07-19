@@ -17,6 +17,7 @@ interface PlaylistLayoutProps {
   onShuffle?: () => void;
   onMenuPress?: () => void;
   onItemPress?: (id: string) => void;
+  onItemLongPress?: (music: Music) => void;
 }
 
 function PlaylistLayout({
@@ -28,10 +29,9 @@ function PlaylistLayout({
   onShuffle,
   onMenuPress,
   onItemPress,
+  onItemLongPress,
 }: PlaylistLayoutProps) {
-  console.log(musicList);
-  console.log(title)
-  console.log(subtitle)
+
   const topButtons = useMemo(() => (
     <View style={styles.topButtons}>
       <View style={styles.leftButtons}>
@@ -44,9 +44,6 @@ function PlaylistLayout({
           <Text style={styles.optionButtonText}>셔플</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-        <Icon name="bars" size={24} color={colors.BLACK} />
-      </TouchableOpacity>
     </View>
   ), [onPlayAll, onShuffle, onMenuPress]);
 
@@ -68,7 +65,7 @@ function PlaylistLayout({
       <Margin size={'M4'} />
       {header}
       <Margin size={'M4'} />
-      <PlaylistItemList musicList={musicList} onItemPress={onItemPress} />
+      <PlaylistItemList musicList={musicList} onItemPress={onItemPress} onItemLongPress={onItemLongPress} />
     </SafeAreaView>
   );
 }

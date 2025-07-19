@@ -322,7 +322,7 @@ function NowPlayingScreen() {
             <Image source={{ uri: currentPlayingTrack.imageUrl }} style={styles.albumArtStyle as ImageStyle} />
           ) : (
             <View style={[styles.albumArtStyle, styles.albumArtPlaceholder]}>
-              {React.createElement(Icon as any, { name: "music", size: 100, color: colors.WHITE })}
+              <Text style={{ fontSize: 100, color: colors.WHITE }}>🎵</Text>
             </View>
           )}
         </View>
