@@ -34,8 +34,7 @@ interface VocabularyResponse {
 // 단어장 생성 API
 const generateVocabulary = async (params: VocabularyRequest): Promise<VocabularyResponse> => {
   const url = `${AI_URL}/vocabulary/generate`;
-  console.log('AI API 호출 URL:', url);
-  console.log('요청 파라미터:', params);
+
   
   try {
     const response = await fetch(url, {
@@ -46,8 +45,6 @@ const generateVocabulary = async (params: VocabularyRequest): Promise<Vocabulary
       body: JSON.stringify(params),
     });
 
-    console.log('응답 상태:', response.status);
-    console.log('응답 헤더:', response.headers);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -56,7 +53,7 @@ const generateVocabulary = async (params: VocabularyRequest): Promise<Vocabulary
     }
 
     const result = await response.json();
-    console.log('API 응답 성공:', result);
+
     return result;
   } catch (error) {
     console.error('API 호출 중 에러:', error);

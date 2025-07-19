@@ -17,6 +17,7 @@ interface VocaContentListProps {
   navigateToWordDetail: (wordId: number) => void;
   onRefresh?: () => void;
   refreshing?: boolean;
+  onAddWord?: () => void;
 }
 
 const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void }) => {
@@ -32,7 +33,13 @@ const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void
   );
 };
 
-const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateToWordDetail, onRefresh, refreshing = false }) => {
+const VocaContentList: React.FC<VocaContentListProps> = ({ 
+  vocaIndex, 
+  navigateToWordDetail, 
+  onRefresh, 
+  refreshing = false,
+  onAddWord 
+}) => {
   const searchText = useSearchStore(state => state.searchText);
   
   const {
@@ -51,7 +58,7 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateTo
       console.log('📝 단어 목록 업데이트:', totalWords, '개');
     }
   }, [data]);
-  
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -71,16 +78,19 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateTo
   }
 
   const words = (data as any)?.pages?.flatMap((page: any) => page.content) || [];
-  console.log('VocaContentList - words array:', words);
-  console.log('VocaContentList - words array length:', words.length);
   
   // 빈 배열인지 확인
   if (words.length === 0) {
-    console.log('VocaContentList - words array is empty!');
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>단어장에 단어가 없습니다.</Text>
         <Text style={styles.emptySubText}>새 단어를 추가해보세요!</Text>
+        <TouchableOpacity 
+          style={styles.addWordButton}
+          onPress={onAddWord || (() => navigateToWordDetail(0))}
+        >
+          <Text style={styles.addWordButtonText}>단어 추가하기</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -139,7 +149,7 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     paddingVertical: spacing.M24,
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,
   loadingContainer: {
@@ -178,6 +188,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.M16,
     color: colors.GRAY,
     ...getFontStyle('body', 'medium', 'regular'),
+  } as TextStyle,
+  addWordButton: {
+    marginTop: spacing.M24,
+    backgroundColor: colors.GREEN,
+    paddingVertical: spacing.M16,
+    paddingHorizontal: spacing.M32,
+    borderRadius: 8,
+  },
+  addWordButtonText: {
+    color: colors.WHITE,
+    ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
 });
 

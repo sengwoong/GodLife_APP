@@ -17,7 +17,6 @@ import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStac
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import { useWord, useCreateWord, useUpdateWord } from '../../server/query/hooks/useWord';
-import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/useAuthStore';
 
 export default function WordEditScreen() {
@@ -32,22 +31,13 @@ export default function WordEditScreen() {
   const navigation = useNavigation();
   const createWordMutation = useCreateWord();
   const updateWordMutation = useUpdateWord();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
-    console.log('WordEditScreen - vocaId:', vocaId);
-    console.log('WordEditScreen - wordId:', wordId);
-    console.log('WordEditScreen - wordData:', wordData);
-    console.log('WordEditScreen - isLoading:', isLoading);
-    
     if (wordData) {
-      console.log('WordEditScreen - Setting data from wordData');
       setWord(wordData.word);
       setMeaning(wordData.meaning);
-    } else {
-      console.log('WordEditScreen - No wordData available');
     }
-  }, [wordData, vocaId, wordId, isLoading]);
+  }, [wordData]);
 
   const handleSubmit = async () => {
     if (!word.trim() || !meaning.trim()) {
@@ -55,46 +45,40 @@ export default function WordEditScreen() {
       return;
     }
 
-    try {
-      if (wordId !== undefined && wordData) {
-        if (!userId) {
-          throw new Error('User ID is not available');
-        }
+    if (!userId) {
+      Alert.alert('오류', '사용자 정보를 찾을 수 없습니다.');
+      return;
+    }
 
+    try {
+      // 단어 수정 모드
+      if (wordId && wordData) {
         await updateWordMutation.mutateAsync({
           wordId: wordData.wordId,
+          userId: Number(userId), // number로 변환
           data: {
             word: word.trim(),
             meaning: meaning.trim(),
           },
-          userId: userId,
         });
-
-        queryClient.invalidateQueries({ 
-          queryKey: ['words', vocaId]
-        });
-
-        queryClient.invalidateQueries({ 
-          queryKey: ['word', wordId]
-        });
-
         Alert.alert('성공', '단어가 성공적으로 수정되었습니다.');
-      } else {
+      } 
+      // 단어 생성 모드
+      else if (vocaId) {
         await createWordMutation.mutateAsync({
           word: word.trim(),
           meaning: meaning.trim(),
           vocaId,
         });
-
-        queryClient.invalidateQueries({ 
-          queryKey: ['words', vocaId]
-        });
-
         Alert.alert('성공', '단어가 성공적으로 추가되었습니다.');
+      } 
+      else {
+        throw new Error('단어장 정보가 없습니다.');
       }
+      
       navigation.goBack();
     } catch (error) {
-      console.error('Error saving word:', error);
+      console.error('❌ 단어 저장 실패:', error);
       Alert.alert('오류', '단어 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };

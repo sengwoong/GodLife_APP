@@ -126,6 +126,7 @@ export function useCreateWord() {
     },
     onSuccess: (_, data) => {
       queryClient.invalidateQueries({ queryKey: ['words', data.vocaId] });
+      queryClient.invalidateQueries({ queryKey: ['infiniteWords', data.vocaId] });
     },
   });
 }
@@ -148,9 +149,18 @@ export function useUpdateWord() {
       }
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['word', data.wordId] });
-      queryClient.invalidateQueries({ queryKey: ['words', data.voca.vocaId] });
+      
+      // voca 정보가 있는 경우 vocaId로 쿼리 무효화
+      if (data.voca?.vocaId) {
+        queryClient.invalidateQueries({ queryKey: ['words', data.voca.vocaId] });
+        queryClient.invalidateQueries({ queryKey: ['infiniteWords', data.voca.vocaId] });
+      } else {
+        // voca 정보가 없으면 모든 words 쿼리 무효화
+        queryClient.invalidateQueries({ queryKey: ['words'] });
+        queryClient.invalidateQueries({ queryKey: ['infiniteWords'] });
+      }
     },
   });
 }

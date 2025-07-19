@@ -53,9 +53,7 @@ export function useUserVocas(userId: string | number, search?: string, page: num
       if (!response.ok) {
         throw new Error('단어장 목록을 불러올 수 없습니다');
       }
-      const data = await response.json();
-      console.log('📚 단어장 목록 조회:', data.content?.length, '개');
-      return data;
+      return response.json();
     },
     enabled: userId !== undefined,
     staleTime: 0,
@@ -85,7 +83,6 @@ export function useCreateVoca() {
       return response.json();
     },
     onSuccess: async (_, { userId }) => {
-      console.log('✅ 단어장 생성 완료');
       try {
         await queryClient.invalidateQueries({
           queryKey: ['userVocas', userId],
@@ -117,7 +114,6 @@ export function useUpdateVoca() {
       return response.json();
     },
     onSuccess: async (data, { vocaId, userId }) => {
-      console.log('✅ 단어장 수정 완료:', vocaId);
       try {
         await queryClient.invalidateQueries({
           queryKey: ['userVocas'],
@@ -147,7 +143,6 @@ export function useDeleteVoca() {
       }
     },
     onSuccess: async (_, { userId }) => {
-      console.log('✅ 단어장 삭제 완료');
       try {
         await queryClient.invalidateQueries({
           queryKey: ['userVocas'],
@@ -182,9 +177,7 @@ export function useSearchVocas(userId: string | number, search: string, page: nu
       if (!response.ok) {
         throw new Error('단어장 검색에 실패했습니다');
       }
-      const data = await response.json();
-      console.log('🔍 단어장 검색 결과:', data.content?.length, '개');
-      return data;
+      return response.json();
     },
     enabled: userId !== undefined && search !== undefined,
     staleTime: 0,
@@ -204,9 +197,7 @@ export function useVocaStats(userId: string | number) {
       if (!response.ok) {
         throw new Error('단어장 통계를 불러올 수 없습니다');
       }
-      const data = await response.json();
-      console.log('📊 단어장 통계 조회 완료');
-      return data;
+      return response.json();
     },
     enabled: userId !== undefined,
     staleTime: 5 * 60 * 1000, // 5분

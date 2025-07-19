@@ -25,9 +25,7 @@ function VocaContentScreen() {
   const { vocaId } = route.params;
   const [refreshing, setRefreshing] = useState(false);
   const queryClient = useQueryClient();
-  
-  console.log('VocaContentScreen vocaId:', vocaId);
-  
+
   const navigateToVocaUpdateWord = (wordId: number) => {
     navigation.navigate(VocaNavigations.WORDEDIT, { vocaId, wordId });
   };
@@ -43,11 +41,10 @@ function VocaContentScreen() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      // 단어 데이터를 다시 가져오기
       await queryClient.invalidateQueries({ queryKey: ['words', vocaId] });
-      console.log('단어 데이터 새로고침 완료');
+      console.log('📝 단어 데이터 새로고침 완료');
     } catch (error) {
-      console.error('새로고침 중 오류 발생:', error);
+      console.error('❌ 단어 데이터 새로고침 실패:', error);
     } finally {
       setRefreshing(false);
     }
@@ -69,10 +66,10 @@ function VocaContentScreen() {
           navigateToWordDetail={navigateToVocaUpdateWord}
           refreshing={refreshing}
           onRefresh={handleRefresh}
+          onAddWord={navigateToVocaAddWord}
         />
       </View>
       
-      {/* 기존 FAB */}
       <FAB onPress={navigateToVocaAddWord} />
     </SafeAreaView>
   );
