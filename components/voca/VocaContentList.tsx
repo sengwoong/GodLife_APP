@@ -40,10 +40,6 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateTo
     isFetchingNextPage,
   } = useInfiniteWords(vocaIndex, searchText);
 
-  console.log('VocaContentList vocaIndex:', vocaIndex);
-  console.log('VocaContentList data:', data);
-  console.log('VocaContentList error:', error);
-
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;
   }
@@ -84,7 +80,7 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
   list__meaning: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
 });

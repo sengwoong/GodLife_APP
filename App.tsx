@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import RootNavigator from './navigations/root/RootNavigator';
@@ -33,10 +33,30 @@ function App() {
     selectTrack
   } = usePlayerStore();
 
+  const [currentScreen, setCurrentScreen] = useState<string | null>(null);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        <NavigationContainer theme={navTheme}>
+        <NavigationContainer 
+          theme={navTheme}
+          onStateChange={(state) => {
+            if (state) {
+              const currentRoute = state.routes[state.index];
+              if (currentRoute?.state?.routes && currentRoute.state.index !== undefined) {
+                const nestedRoute = currentRoute.state.routes[currentRoute.state.index];
+                if (nestedRoute?.state?.routes && nestedRoute.state.index !== undefined) {
+                  const finalRoute = nestedRoute.state.routes[nestedRoute.state.index];
+                  setCurrentScreen(finalRoute?.name || null);
+                } else {
+                  setCurrentScreen(nestedRoute?.name || null);
+                }
+              } else {
+                setCurrentScreen(currentRoute?.name || null);
+              }
+            }
+          }}
+        >
           <QueryProvider>
             <Drawer.Navigator>
               <Drawer.Screen 
@@ -59,10 +79,17 @@ function App() {
               onNext={playNext}
               onToggleLooping={() => setLooping(!isLooping)}
               onSelectTrack={(index) => selectTrack(index)}
-              videoId={currentPlayingTrack?.videoId}
+              videoId={currentPlayingTrack?.videoId || undefined}
               currentTrackIndex={currentTrackIndex}
               totalTracks={currentPlaylistTracks.length}
-              playlistTracks={currentPlaylistTracks}
+              playlistTracks={currentPlaylistTracks.map(track => ({
+                id: typeof track.id === 'string' ? parseInt(track.id) : track.id,
+                musicTitle: track.musicTitle,
+                artist: track.artist || '',
+                imageUrl: track.imageUrl,
+                videoId: track.videoId || undefined
+              }))}
+              currentScreen={currentScreen || undefined}
             />
           </QueryProvider>
         </NavigationContainer>

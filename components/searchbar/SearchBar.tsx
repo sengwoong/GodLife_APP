@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     borderColor: colors.GRAY,
     borderRadius: 10,
     padding: spacing.M12,
+    color: colors.BLACK,
   } as TextStyle,
 });
 

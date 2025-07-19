@@ -64,51 +64,29 @@ function NowPlayingScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // 화면이 포커스될 때 플레이리스트 로드 및 재생 시작 로직
+      // 플레이리스트 로드 및 재생 시작
       const loadAndPlay = async () => {
         if (!playListId) return;
 
-        // 현재 스토어의 플레이리스트가 이 화면의 playListId와 다른 경우, 또는 비어있는 경우 새로 로드
-        if (
-          !currentPlayingTrack ||
-          currentPlayingTrack.playListIdContext !== playListId ||
-          currentPlaylistTracks.length === 0 ||
-          (musicIdToPlay && currentPlayingTrack.id !== musicIdToPlay) // 특정 곡 재생 요청 시
-        ) {
-          setIsLoadingPlaylist(true);
-          // musicDataResult가 이미 로드된 상태일 수 있으므로, 쿼리 로딩 상태도 함께 확인
-          if (musicDataResult?.pages && musicDataResult.pages.length > 0) {
-            const allTracksFromPlaylist = musicDataResult.pages.flatMap(page => page.content) as YouTubeTrack[];
-            if (allTracksFromPlaylist.length > 0) {
-              let startIndex = 0;
-              if (musicIdToPlay) {
-                const foundIndex = allTracksFromPlaylist.findIndex(track => String(track.id) === String(musicIdToPlay));
-                if (foundIndex !== -1) {
-                  startIndex = foundIndex;
-                }
-              }
-              startPlaylist(allTracksFromPlaylist, startIndex, playListId);
-            } else {
-              Alert.alert("정보", "플레이리스트에 음악이 없습니다.");
-              // 스토어 상태 초기화 또는 이전 화면으로 이동 등의 처리
-            }
-          } else if (!isLoadingMusicQuery && !musicError) {
-             // 데이터가 없고, 로딩중도 아니고, 에러도 아닌 경우 (빈 플레이리스트)
-             Alert.alert("정보", "플레이리스트에 음악이 없습니다.");
+        // 데이터가 있으면 재생 시작
+        if (musicDataResult?.pages && musicDataResult.pages.length > 0) {
+          const tracks = musicDataResult.pages.flatMap(page => page.content) as YouTubeTrack[];
+          
+          if (tracks.length > 0) {
+            // 특정 곡 재생 요청이 있으면 해당 곡부터, 없으면 처음부터
+            const startIndex = musicIdToPlay 
+              ? tracks.findIndex(track => String(track.id) === String(musicIdToPlay)) || 0
+              : 0;
+            
+            startPlaylist(tracks, startIndex, playListId);
+          } else {
+            Alert.alert("정보", "플레이리스트에 음악이 없습니다.");
           }
-          setIsLoadingPlaylist(false);
         }
       };
 
       loadAndPlay();
-
-      // 화면 벗어날 때 interval 정리 (선택적, 스토어의 isPlaying으로 제어되므로)
-      // return () => {
-      //   if (progressIntervalRef.current) {
-      //     clearInterval(progressIntervalRef.current);
-      //   }
-      // };
-    }, [playListId, musicIdToPlay, musicDataResult, isLoadingMusicQuery, musicError, startPlaylist, currentPlayingTrack, currentPlaylistTracks])
+    }, [playListId, musicIdToPlay, musicDataResult, startPlaylist])
   );
 
   // 플레이어 상태 변경 핸들러 수정

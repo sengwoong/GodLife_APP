@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
   list__count: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
   } as TextStyle,
   search: {

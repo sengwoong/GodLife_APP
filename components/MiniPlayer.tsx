@@ -57,6 +57,7 @@ interface MiniPlayerProps {
     videoId?: string;
   }>;
   onSelectTrack?: (index: number) => void;
+  currentScreen?: string; // 현재 화면 이름을 props로 받기
 }
 
 // 아이콘 대신 임시 텍스트 사용
@@ -84,12 +85,16 @@ export function MiniPlayer({
   totalTracks = 0,
   playlistTracks = [],
   onSelectTrack,
+  currentScreen,
 }: MiniPlayerProps) {
   const styles = styling();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const context = useSharedValue(0);
+  
+  // NowPlayingScreen에서는 미니 플레이어 숨기기
+  const shouldShowMiniPlayer = isVisible && currentScreen !== 'NowPlaying';
   
   // 플레이어 참조 타입 수정
   const playerRef = React.useRef<any>(null);
@@ -116,6 +121,7 @@ export function MiniPlayer({
     'worklet';
     translateY.value = withTiming(0, { duration: 300 });
     runOnJS(setIsFullScreen)(true);
+    
     if (onFullScreenToggle) {
       runOnJS(onFullScreenToggle)(true);
     }
@@ -125,7 +131,6 @@ export function MiniPlayer({
     'worklet';
     translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 });
     runOnJS(setIsFullScreen)(false);
-    runOnJS(setShowPlaylist)(false);
     if (onFullScreenToggle) {
       runOnJS(onFullScreenToggle)(false);
     }
@@ -219,7 +224,7 @@ export function MiniPlayer({
     setShowPlaylist(!showPlaylist);
   };
 
-  if (!isVisible) {
+  if (!shouldShowMiniPlayer) {
     return null;
   }
 

@@ -12,8 +12,9 @@ const drawerNavigations = {
   MAIN: 'Main',
   POST: 'Post'
 } as const;
-
-export const VocaNavigations = {
+  
+const VocaNavigations = {
+  VOCAAIGENERATE: 'VOCAAIGENERATE',
   VOCA: 'VOCA',
   VOCACONTENT: 'VOCACONTENT',
   VOCACONTENTEDIT: 'VOCACONTENTEDIT',

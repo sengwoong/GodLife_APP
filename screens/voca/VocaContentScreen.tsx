@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView, TextStyle, Text } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TextStyle, Text, TouchableOpacity } from 'react-native';
 import { CompositeNavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { spacing, VocaNavigations } from '../../constants';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -31,6 +31,10 @@ function VocaContentScreen() {
     navigation.navigate(VocaNavigations.WORDEDIT, { vocaId });
   };
 
+  const navigateToAIGenerate = () => {
+    navigation.navigate(VocaNavigations.VOCAAIGENERATE);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Margin size={'M16'} />
@@ -44,6 +48,8 @@ function VocaContentScreen() {
       <View style={styles.content}>
         <VocaContentList vocaIndex={vocaId} navigateToWordDetail={navigateToVocaUpdateWord} />
       </View>
+      
+      {/* 기존 FAB */}
       <FAB onPress={navigateToVocaAddWord} />
     </SafeAreaView>
   );
@@ -74,6 +80,29 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  aiFab: {
+    position: 'absolute',
+    bottom: 100, // 기존 FAB 위에 위치
+    right: spacing.M16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.BLUE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: colors.BLACK,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  aiFab__text: {
+    color: colors.WHITE,
+    ...getFontStyle('body', 'medium', 'bold'),
+  } as TextStyle,
 });
 
 export default VocaContentScreen;

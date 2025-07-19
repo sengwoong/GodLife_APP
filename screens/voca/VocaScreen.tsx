@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput, ActivityIndicator, GestureResponderEvent } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput, ActivityIndicator, GestureResponderEvent, Alert } from 'react-native';
 import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -15,6 +15,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../server/common/types/constants';
 import SelectButton from '../../components/SelectButton';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
@@ -89,8 +90,30 @@ const VocaScreen = () => {
       <Margin size={'M16'} />
 
       <View style={styles.header}>
-        <Text style={styles.header__title}>단어장</Text>
-        <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
+        <View style={styles.header__content}>
+          <View>
+            <Text style={styles.header__title}>단어장</Text>
+            <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
+          </View>
+          <View style={styles.header__buttons}>
+            <TouchableOpacity 
+              style={styles.header__button} 
+              onPress={() => navigation.navigate(VocaNavigations.VOCAAIGENERATE)}
+            >
+              <Icon name="aliwangwang" size={20} color={colors.BLUE} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.header__button} 
+              onPress={() => {
+                // 물음표 버튼 기능 (도움말 또는 정보)
+                Alert.alert('도움말', '단어장 사용법에 대한 도움말입니다.');
+              }}
+            >
+              <Icon name="info-circle" size={20} color={colors.YELLOW} />
+            </TouchableOpacity>
+     
+          </View>
+        </View>
       </View>
 
       <Margin size={'M12'} />
@@ -103,9 +126,7 @@ const VocaScreen = () => {
         onLongPress={handleLongPress}
       />
       
-      <FAB onPress={() => setIsModalVisible(true)} /> 
-
-
+      <FAB onPress={() => setIsModalVisible(true)} />
 
       <CompoundOption
         isVisible={isModalVisible} 
@@ -147,8 +168,6 @@ const VocaScreen = () => {
           </CompoundOption.Container>
         </CompoundOption.Background>
       </CompoundOption>
-
-
 
       <CompoundOption
         isVisible={contextMenu.isVisible}
@@ -198,6 +217,11 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.WHITE,
   },
+  header__content: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   header__title: {
     color: colors.BLACK,
     ...getFontStyle('title', 'large', 'bold'),
@@ -207,6 +231,20 @@ const styles = StyleSheet.create({
     color: colors.BLACK,
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,
+  header__buttons: {
+    flexDirection: 'row',
+    gap: spacing.M8,
+  },
+  header__button: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.WHITE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.GRAY,
+  },
   search: {
     paddingHorizontal: spacing.M20,
     width: '100%',

@@ -6,6 +6,7 @@ import VocaContentScreen from '../../../screens/voca/VocaContentScreen';
 import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
 import WordEditScreen from '../../../screens/voca/WordEditScreen';
 import VocaGameScreen from '../../../screens/voca/VocaGameScreen';
+import VocaAIGenerateScreen from '../../../screens/voca/VocaAIGenerateScreen';
 
 export type VocaStackParamList = {
   [VocaNavigations.VOCA]: undefined;
@@ -14,6 +15,7 @@ export type VocaStackParamList = {
   [VocaNavigations.VOCAEDIT]: { vocaId: number };
   [VocaNavigations.WORDEDIT]: { vocaId: number; wordId?: number };
   [VocaNavigations.VOCAGAME]: { vocaId: number };
+  [VocaNavigations.VOCAAIGENERATE]: undefined;
 };
 
 const Stack = createNativeStackNavigator<VocaStackParamList>();
@@ -49,6 +51,11 @@ const VocaStackNavigator = () => {
       <Stack.Screen
         name={VocaNavigations.VOCAGAME}
         component={VocaGameScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={VocaNavigations.VOCAAIGENERATE}
+        component={VocaAIGenerateScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
