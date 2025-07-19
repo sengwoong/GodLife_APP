@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity, Alert, Modal, ScrollView, Platform, Image, TextStyle, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity, Alert, Modal, ScrollView, Platform, Image, TextStyle, Dimensions, ImageStyle } from 'react-native';
 import { RouteProp, useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import YoutubeIframe, { PLAYER_STATES } from 'react-native-youtube-iframe';
+import YoutubeIframe, { PLAYER_STATES, YoutubeIframeRef } from 'react-native-youtube-iframe';
 import Slider from '@react-native-community/slider';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import { colors, getFontStyle, spacing } from '../../constants';
@@ -26,7 +26,7 @@ function NowPlayingScreen() {
   const navigation = useNavigation();
   const { playListId, musicIdToPlay } = route.params as { playListId: number; musicIdToPlay?: number };
 
-  const playerRef = useRef<typeof YoutubeIframe>(null);
+  const playerRef = useRef<YoutubeIframeRef>(null);
 
   // Zustand 스토어에서 상태 및 액션 가져오기
   const {
@@ -69,8 +69,9 @@ function NowPlayingScreen() {
         if (!playListId) return;
 
         // 데이터가 있으면 재생 시작
-        if (musicDataResult?.pages && musicDataResult.pages.length > 0) {
-          const tracks = musicDataResult.pages.flatMap(page => page.content) as YouTubeTrack[];
+        const infiniteData = musicDataResult as any;
+        if (infiniteData?.pages && infiniteData.pages.length > 0) {
+          const tracks = infiniteData.pages.flatMap((page: any) => page.content) as YouTubeTrack[];
           
           if (tracks.length > 0) {
             // 특정 곡 재생 요청이 있으면 해당 곡부터, 없으면 처음부터
@@ -91,7 +92,6 @@ function NowPlayingScreen() {
 
   // 플레이어 상태 변경 핸들러 수정
   const onPlayerStateChange = useCallback((state: PLAYER_STATES) => {
-    console.log("Player state changed:", state);
     setActualPlayerState(state); // 스토어의 actualPlayerState 업데이트
 
     if (state === PLAYER_STATES.ENDED) {
@@ -165,14 +165,12 @@ function NowPlayingScreen() {
     togglePlayPause();
     
     // 디버깅을 위한 로그
-    console.log("Toggle play/pause, new state:", !isPlaying);
-  }, [togglePlayPause, isPlaying]);
+  }, [togglePlayPause]);
 
   // 광고 스킵 기능 추가
   const handleSkipAd = useCallback(() => {
     if (playerRef.current) {
       // 광고 스킵 시도
-      console.log("광고 스킵 시도");
       playerRef.current.seekTo(duration, true); // 영상 끝으로 이동하여 광고 종료
       
       // 다음 곡으로 이동
@@ -273,7 +271,7 @@ function NowPlayingScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrowleft" size={24} color={colors.WHITE} />
+          {React.createElement(Icon as any, { name: "arrowleft", size: 24, color: colors.WHITE })}
         </TouchableOpacity>
         
         <View style={styles.headerCenter}>
@@ -284,13 +282,13 @@ function NowPlayingScreen() {
         
         <View style={styles.headerIconContainer}>
           <TouchableOpacity onPress={togglePlaylist}>
-            <Icon name="menu-fold" size={24} style={styles.headerIcon} />
+            {React.createElement(Icon as any, { name: "menu-fold", size: 24, style: styles.headerIcon })}
           </TouchableOpacity>
           <TouchableOpacity onPress={handleSharePress}>
-            <Icon name="sharealt" size={24} style={styles.headerIcon} />
+            {React.createElement(Icon as any, { name: "sharealt", size: 24, style: styles.headerIcon })}
           </TouchableOpacity>
           <TouchableOpacity onPress={handleLyricsPress}>
-            <Icon name="profile" size={24} style={styles.headerIcon} />
+            {React.createElement(Icon as any, { name: "profile", size: 24, style: styles.headerIcon })}
           </TouchableOpacity>
         </View>
       </View>
@@ -308,8 +306,7 @@ function NowPlayingScreen() {
               webViewStyle={{ opacity: 0, position: 'absolute', top: -1000, left: -1000 }}
               onError={(e) => console.error('Youtube Player Error:', e)}
               onReady={() => {
-                console.log("Player ready");
-                playerRef.current?.getDuration().then(d => updateProgress(currentTime, d));
+                playerRef.current?.getDuration().then((d: number) => updateProgress(currentTime, d));
               }}
               forceAndroidAutoplay={true}
               webViewProps={{
@@ -322,10 +319,10 @@ function NowPlayingScreen() {
 
         <View style={styles.albumArtContainer}>
           {currentPlayingTrack?.imageUrl ? (
-            <Image source={{ uri: currentPlayingTrack.imageUrl }} style={styles.albumArtStyle} />
+            <Image source={{ uri: currentPlayingTrack.imageUrl }} style={styles.albumArtStyle as ImageStyle} />
           ) : (
             <View style={[styles.albumArtStyle, styles.albumArtPlaceholder]}>
-              <Icon name="music" size={100} color={colors.WHITE} />
+              {React.createElement(Icon as any, { name: "music", size: 100, color: colors.WHITE })}
             </View>
           )}
         </View>
@@ -370,15 +367,15 @@ function NowPlayingScreen() {
             style={styles.controlButtonBase} 
             disabled={currentPlaylistTracks.length <= 0 || currentTrackIndex <= 0}
           >
-            <Icon 
-              name="stepbackward" 
-              size={28} 
-              color={(currentPlaylistTracks.length <= 0 || currentTrackIndex <= 0) ? colors.LIGHT_GRAY : colors.BLACK} 
-            />
+            {React.createElement(Icon as any, { 
+              name: "stepbackward", 
+              size: 28, 
+              color: (currentPlaylistTracks.length <= 0 || currentTrackIndex <= 0) ? colors.LIGHT_GRAY : colors.BLACK 
+            })}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={handleTogglePlayPause} style={[styles.controlButtonBase, styles.playPauseButton]}>
-            <Icon name={isPlaying ? "pause" : "caretright"} size={32} color={colors.WHITE} />
+            {React.createElement(Icon as any, { name: isPlaying ? "pause" : "caretright", size: 32, color: colors.WHITE })}
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -386,11 +383,11 @@ function NowPlayingScreen() {
             style={styles.controlButtonBase} 
             disabled={currentPlaylistTracks.length <= 0 || currentTrackIndex >= currentPlaylistTracks.length - 1}
           >
-            <Icon 
-              name="stepforward" 
-              size={28} 
-              color={(currentPlaylistTracks.length <= 0 || currentTrackIndex >= currentPlaylistTracks.length - 1) ? colors.LIGHT_GRAY : colors.BLACK} 
-            />
+            {React.createElement(Icon as any, { 
+              name: "stepforward", 
+              size: 28, 
+              color: (currentPlaylistTracks.length <= 0 || currentTrackIndex >= currentPlaylistTracks.length - 1) ? colors.LIGHT_GRAY : colors.BLACK 
+            })}
           </TouchableOpacity>
         </View>
 
@@ -399,7 +396,7 @@ function NowPlayingScreen() {
               style={[styles.loopButton, isLooping && styles.loopButtonActive]} 
               onPress={handleToggleLooping}
             >
-              <Icon name="retweet" size={18} color={isLooping ? colors.GREEN : colors.WHITE} />
+              {React.createElement(Icon as any, { name: "retweet", size: 18, color: isLooping ? colors.GREEN : colors.WHITE })}
               <Text style={[styles.loopText, isLooping && styles.loopTextActive]}>
                 {isLooping ? "무한 재생 켜짐" : "무한 재생"}
               </Text>
@@ -453,7 +450,7 @@ function NowPlayingScreen() {
             <View style={styles.playlistHeader}>
               <Text style={styles.playlistHeaderTitle}>현재 재생 목록</Text>
               <TouchableOpacity onPress={togglePlaylist}>
-                <Icon name="close" size={24} color={colors.WHITE} />
+                {React.createElement(Icon as any, { name: "close", size: 24, color: colors.WHITE })}
               </TouchableOpacity>
             </View>
             
@@ -469,7 +466,7 @@ function NowPlayingScreen() {
                 >
                   <View style={styles.playlistItemContent}>
                     {track.imageUrl ? (
-                      <Image source={{ uri: track.imageUrl }} style={styles.playlistItemImage} />
+                      <Image source={{ uri: track.imageUrl }} style={styles.playlistItemImage as ImageStyle} />
                     ) : (
                       <View style={styles.playlistItemImagePlaceholder} />
                     )}
@@ -639,6 +636,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.M16,
     borderWidth: 1,
     borderColor: colors.GRAY,
+  },
+  loopButtonActive: {
+    borderColor: colors.GREEN,
   },
   loopText: {
     color: colors.WHITE,
@@ -836,6 +836,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
   },
+  playlistItemActive: {
+    backgroundColor: colors.LIGHT_GRAY,
+  },
   playlistItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -859,21 +862,21 @@ const styles = StyleSheet.create({
   playlistItemTitle: {
     ...getFontStyle('body', 'medium', 'bold'),
     color: colors.BLACK,
-  },
+  } as TextStyle,
   playlistItemTitleActive: {
     color: colors.GREEN,
-  },
+  } as TextStyle,
   playlistItemArtist: {
     ...getFontStyle('body', 'medium', 'regular'),
     color: colors.GRAY,
-  },
+  } as TextStyle,
   playlistItemPlayingIndicator: {
     marginLeft: spacing.M12,
   },
   playlistItemPlayingText: {
     ...getFontStyle('body', 'medium', 'bold'),
     color: colors.GREEN,
-  },
+  } as TextStyle,
 });
 
 export default NowPlayingScreen; 

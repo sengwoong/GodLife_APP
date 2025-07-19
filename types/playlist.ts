@@ -3,7 +3,7 @@ export interface Playlist {
     playlistTitle: string;
     imageUrl: string;
     createdAt: string;
-    isShared: boolean;
+    shared: boolean;
   }
   
 export interface PlaylistShareRequest {

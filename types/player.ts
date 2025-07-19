@@ -1,4 +1,5 @@
 export interface YouTubeTrack {
+  id: string | number; // 백엔드의 음악 ID (musicId와 동일)
   musicId: string | number; // 백엔드의 음악 ID
   musicUrl: string;    // 원본 유튜브 URL
   musicTitle: string;

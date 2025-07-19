@@ -20,6 +20,7 @@ interface SignUpRequest {
   email: string
   password: string
   nickName: string
+  age: number
 }
 
 // 로그인

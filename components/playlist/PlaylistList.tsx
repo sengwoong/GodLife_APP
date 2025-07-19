@@ -3,7 +3,8 @@ import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, 
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useSearchStore } from '../../store/useSearchStore';
 import { Playlist } from '../../types/playlist';
-import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
+import { useUserPlaylists } from '../../server/query/hooks/usePlayList';
+import useUserId from '../../server/query/hooks/useUserId';
 
 
 
@@ -38,7 +39,8 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
 }) => {
 
   const searchText = useSearchStore(state => state.searchText);
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useUserPlaylist({ userId: '1', searchText });
+  const userId = useUserId();
+  const { data, isLoading, error } = useUserPlaylists(userId || 1, searchText || '', 0, 10);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;
@@ -50,7 +52,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
 
   return (
     <FlatList
-      data={data?.pages.flatMap(page => page.content) || []}
+      data={data?.content || []}
       renderItem={({ item }) => (
         <PlaylistItem 
           item={item} 
@@ -59,13 +61,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
         />
       )}
       keyExtractor={(item) => item.playlistId.toString()}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }}
       onEndReachedThreshold={0.5}
-      ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
     />
   );
 };

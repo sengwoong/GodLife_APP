@@ -11,7 +11,7 @@ import { CompoundOption } from '../../components/Modal';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import PlaylistSearch from '../../components/playlist/PlaylistSearch';
 import PlaylistList from '../../components/playlist/PlaylistList';
-import { useCreatePlayList, useDeletePlayList } from '../../server/query/hooks/usePlayList';
+import { useCreatePlaylist, useDeletePlaylist } from '../../server/query/hooks/usePlayList';
 import useAuthStore from '../../store/useAuthStore';
 import useUserId from '../../server/query/hooks/useUserId';
 
@@ -30,8 +30,8 @@ function PlayListScreen() {
     selectedPlaylistTitle: null as string | null,
   });
 
-  const { mutate: deletePlayList } = useDeletePlayList();
-  const { mutate: createPlayList } = useCreatePlayList();
+  const { mutate: deletePlayList } = useDeletePlaylist();
+  const { mutate: createPlayList } = useCreatePlaylist();
 
   const navigateToNowPlaying = (playlistId: number) => {
     navigation.navigate(PlayListNavigations.NOW_PLAYING, { 
@@ -56,9 +56,7 @@ function PlayListScreen() {
     // 리엑트쿼리 플레이리스트 추가 요청 
     createPlayList({
       playlistData: {
-        playlistTitle: newPlaylistName,
-        imageUrl: '',
-        isShared: false,
+        playListTitle: newPlaylistName,
       },
       userId: userId,
     });
@@ -150,7 +148,10 @@ function PlayListScreen() {
               isDanger
               onPress={() => {
                 if (contextMenu.selectedPlaylistId) {
-                  deletePlayList(contextMenu.selectedPlaylistId);
+                  deletePlayList({
+                    playlistId: contextMenu.selectedPlaylistId,
+                    userId: userId,
+                  });
                 }
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>

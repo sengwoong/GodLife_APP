@@ -27,14 +27,15 @@ interface UpdatePlaylistData {
 }
 
 // 사용자 플레이리스트 목록 조회 (페이지네이션)
-export function useUserPlaylists(userId: number, page: number = 0, size: number = 10) {
+export function useUserPlaylists(userId: number, searchText: string, page: number = 0, size: number = 10) {
   return useQuery<PlaylistResponse>({
     queryKey: ['userPlaylists', userId, page, size],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
         size: size.toString(),
-        sort: 'createdAt,desc'
+        sort: 'createdAt,desc',
+        searchText: searchText
       });
       
       const response = await fetch(`${BASE_URL}/playlists/user/${userId}?${params}`);
