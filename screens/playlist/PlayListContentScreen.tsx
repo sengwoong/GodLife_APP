@@ -1,5 +1,6 @@
 import React from 'react';
 import { CompositeNavigationProp, RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import PlayListLayout from '../../components/common/MusicListPlay/MusicListLayout';
@@ -8,6 +9,7 @@ import { PlayListNavigations } from '../../constants';
 import { useInfiniteMusic } from '../../server/query/hooks/useMusic';
 import { Music } from '../../types/music';
 import { useSearchStore } from '../../store/useSearchStore';
+import { colors, getFontStyle } from '../../constants';
 
 type PlayListContentScreenRouteProp = RouteProp<PlayListStackParamList, 'PlayListContent'>;
 type PlayListNavigationProp = StackNavigationProp<PlayListStackParamList>;
@@ -44,20 +46,21 @@ function PlayListContentScreen() {
 
   const musicList: Music[] | undefined = data?.pages.flatMap(page => 
     page.content.map(item => ({
-      id: item.id.toString(),
+      musicId: item.musicId,
       musicTitle: item.musicTitle,
       musicUrl: item.musicUrl,
       color: item.color,
       imageUrl: item.imageUrl,
+      musicLike: item.musicLike || false,
     }))
   ) || undefined;
 
   const handleMusicItemPress = (id: string) => {
-    const selectedMusic = musicList?.find(music => music.id === id);
+    const selectedMusic = musicList?.find(music => music.musicId.toString() === id);
     if (selectedMusic) {
       navigation.navigate(PlayListNavigations.MUSICEDIT, {
         playListIndex: playListIndex,
-        musicIndex: parseInt(selectedMusic.id)
+        musicIndex: selectedMusic.musicId
       });
     }
   };

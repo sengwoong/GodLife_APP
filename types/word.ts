@@ -1,5 +1,5 @@
 interface Word {
-    id: number;
+    wordId: number;
     word: string;
     meaning: string;
     vocaId: number;

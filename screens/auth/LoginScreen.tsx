@@ -4,7 +4,7 @@ import { useLogin } from '../../server/query/hooks/useAuth';
 import CustomButton from '../../components/CustomButton';
 import { TextInput } from 'react-native-gesture-handler';
 import { colors, getFontStyle } from '../../constants';
-import useForm from '../../hooks/useForm';
+import useForm from '../../components/hooks/useForm';
 import InputField from '../../components/InputField';
 import { validateLogin } from '../../utils/validateLogin';
 import useAuthStore from '../../store/useAuthStore';

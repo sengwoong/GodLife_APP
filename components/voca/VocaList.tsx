@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle } from 'react-native';
+import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle, RefreshControl } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
 import { useSearchStore } from '../../store/useSearchStore';
@@ -11,12 +11,16 @@ interface VocaListProps {
   userId: number;
   navigateToVocaContent: (vocaIndex: number) => void;
   onLongPress: (id: number, vocaTitle: string) => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
 
-const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLongPress }) => {
+const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLongPress, onRefresh, refreshing = false }) => {
   
   const searchText = useSearchStore(state => state.searchText);
+  console.log('VocaList - userId:', userId, 'searchText:', searchText);
+  
   const {
     data,
     isLoading,
@@ -26,18 +30,23 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
     isFetchingNextPage,
   } = useInfiniteVoca(userId!, searchText);
   
+  console.log('VocaList - isLoading:', isLoading, 'error:', error, 'data:', data);
 
   if (isLoading) {
+    console.log('VocaList - 로딩 중...');
     return <ActivityIndicator size="large" color={colors.GREEN} />;
   }
 
   if (error) {
+    console.log('VocaList - 에러 발생:', error.message);
     return <Text>Error: {error.message}</Text>;
   }
 
   return (
     <>
       <FlatList
+        style={styles.flatList}
+        contentContainerStyle={styles.flatListContent}
         data={data?.pages.flatMap(page => page.content) || []}
         renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaContent} onLongPress={onLongPress} />}
         keyExtractor={(item, index) => `${item.vocaId}-${index}`}
@@ -48,6 +57,14 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
         }}
         onEndReachedThreshold={0.5}
         ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.GREEN]}
+            tintColor={colors.GREEN}
+          />
+        }
       />
     </>
   );
@@ -57,7 +74,7 @@ const VocaItem = ({ item, onPress, onLongPress }: { item: Voca; onPress: (id: nu
   <TouchableOpacity
     style={styles.list__item}
     onPress={() => {
-      console.log('VOCACONTENT로 이동 vocaId:', item.vocaId);
+      console.log('VocaList - VOCACONTENT로 이동 vocaId:', item.vocaId);
       onPress(item.vocaId);
     }}
     onLongPress={() => onLongPress(item.vocaId, item.vocaTitle)}>
@@ -92,6 +109,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.M20,
     width: '100%',
     alignItems: 'center',
+  },
+  flatList: {
+    flex: 1,
+  },
+  flatListContent: {
+    flexGrow: 1,
   },
 });
 

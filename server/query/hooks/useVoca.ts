@@ -63,14 +63,31 @@ export const useUserVocas = ({ userId, page = 0, size = 10, search = '' }: UserV
 };
 
 export function useInfiniteVoca(userId: string | number, searchText: string) {
+  console.log('useInfiniteVoca 호출 - userId:', userId, 'searchText:', searchText, 'BASE_URL:', BASE_URL);
+  
   return useInfiniteQuery<VocaResponse, Error>({
     queryKey: ['vocas', userId, searchText],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`${BASE_URL}/vocas/user/${userId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch vocabulary list');
+      const url = `${BASE_URL}/vocas/user/${userId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`;
+      console.log('useInfiniteVoca - 요청 URL:', url);
+      
+      try {
+        const response = await fetch(url);
+        console.log('useInfiniteVoca - 응답 상태:', response.status, response.statusText);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log('useInfiniteVoca - 에러 응답:', errorText);
+          throw new Error('Failed to fetch vocabulary list');
+        }
+        
+        const data = await response.json();
+        console.log('useInfiniteVoca - 성공 응답:', data);
+        return data as VocaResponse;
+      } catch (error) {
+        console.log('useInfiniteVoca - 네트워크 에러:', error);
+        throw error;
       }
-      return response.json() as Promise<VocaResponse>;
     },
     getNextPageParam: (lastPage) => {
       const nextPage = lastPage.number + 1;

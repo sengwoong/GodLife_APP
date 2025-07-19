@@ -29,6 +29,7 @@ const VocaScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); 
   const [newVocaName, setNewVocaName] = useState(''); 
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const [refreshing, setRefreshing] = useState(false);
   const [contextMenu, setContextMenu] = useState({
     isVisible: false,
     selectedVocaId: null as number | null,
@@ -65,8 +66,9 @@ const VocaScreen = () => {
     },
   });
 
-  const navigateToVocaGame = (vocaId: number) => {
-    navigation.navigate(VocaNavigations.VOCAGAME, { vocaId });
+  const navigateToVocaContent = (vocaId: number) => {
+    console.log('VocaScreen - VOCACONTENT로 네비게이션 vocaId:', vocaId);
+    navigation.navigate(VocaNavigations.VOCACONTENT, { vocaId });
   };
 
   const handleAddVoca = () => {
@@ -82,6 +84,19 @@ const VocaScreen = () => {
       selectedVocaId: vocaId,
       selectedVocaTitle: vocaTitle,
     });
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // 단어장 데이터를 다시 가져오기
+      await queryClient.invalidateQueries({ queryKey: ['vocas', userId] });
+      console.log('단어장 데이터 새로고침 완료');
+    } catch (error) {
+      console.error('새로고침 중 오류 발생:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -120,11 +135,15 @@ const VocaScreen = () => {
 
       <VocaSearch />
       
-      <VocaList
-        userId={userId!}
-        navigateToVocaContent={navigateToVocaGame}
-        onLongPress={handleLongPress}
-      />
+      <View style={styles.listContainer}>
+        <VocaList
+          userId={userId!}
+          navigateToVocaContent={navigateToVocaContent}
+          onLongPress={handleLongPress}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      </View>
       
       <FAB onPress={() => setIsModalVisible(true)} />
 
@@ -302,6 +321,9 @@ const styles = StyleSheet.create({
     color: colors.WHITE,
     ...getFontStyle('title', 'medium', 'bold'),
   } as TextStyle,
+  listContainer: {
+    flex: 1,
+  },
 });
 
 export default VocaScreen;

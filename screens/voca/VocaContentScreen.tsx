@@ -12,6 +12,7 @@ import { getFontStyle } from '../../constants';
 import { colors } from '../../constants';
 import VocaContentList from '../../components/voca/VocaContentList';
 import VocaContentSearch from '../../components/voca/VocaContentSearch';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<VocaStackParamList>,
@@ -22,7 +23,11 @@ function VocaContentScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<RouteProp<VocaStackParamList, 'VOCACONTENT'>>();
   const { vocaId } = route.params;
+  const [refreshing, setRefreshing] = useState(false);
+  const queryClient = useQueryClient();
+  
   console.log('VocaContentScreen vocaId:', vocaId);
+  
   const navigateToVocaUpdateWord = (wordId: number) => {
     navigation.navigate(VocaNavigations.WORDEDIT, { vocaId, wordId });
   };
@@ -33,6 +38,19 @@ function VocaContentScreen() {
 
   const navigateToAIGenerate = () => {
     navigation.navigate(VocaNavigations.VOCAAIGENERATE);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // 단어 데이터를 다시 가져오기
+      await queryClient.invalidateQueries({ queryKey: ['words', vocaId] });
+      console.log('단어 데이터 새로고침 완료');
+    } catch (error) {
+      console.error('새로고침 중 오류 발생:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -46,7 +64,12 @@ function VocaContentScreen() {
       <VocaContentSearch />
       <Margin size={'M4'} />
       <View style={styles.content}>
-        <VocaContentList vocaIndex={vocaId} navigateToWordDetail={navigateToVocaUpdateWord} />
+        <VocaContentList 
+          vocaIndex={vocaId} 
+          navigateToWordDetail={navigateToVocaUpdateWord}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
       </View>
       
       {/* 기존 FAB */}

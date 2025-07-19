@@ -1,12 +1,12 @@
 export interface Comment {
-  id: number;
+  commentId: number;
   content: string;
   userName: string;
   createdAt: string;
 }
 
 export interface PostItem {
-  id: number;
+  postItemId: number;
   title: string;
   content: string;
 }
@@ -42,7 +42,7 @@ export interface Post extends BasePost {
 }
 
 export interface PostAd {
-  id: number;
+  postAdId: number;
   postId: number;
   title: string;
   status: boolean;
@@ -52,7 +52,7 @@ export interface PostAd {
 }
 
 export interface PostComment {
-  id: number;
+  postCommentId: number;
   postId: number;
   postTitle: string;
   content: string;
@@ -62,7 +62,7 @@ export interface PostComment {
 }
 
 export interface SharedPost {
-  id: number;
+  sharedPostId: number;
   postId: number;
   title: string;
   recipient: string;

@@ -1,5 +1,5 @@
 export interface YouTubePlaylist {
-  id: string;
+  playlistId: string;
   title: string;
   description: string;
   thumbnailUrl: string;
@@ -7,7 +7,7 @@ export interface YouTubePlaylist {
 }
 
 export interface YouTubePlaylistItem {
-  id: string;
+  playlistItemId: string;
   title: string;
   videoId: string;
   thumbnailUrl: string;

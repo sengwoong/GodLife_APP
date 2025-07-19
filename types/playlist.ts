@@ -1,5 +1,5 @@
 export interface Playlist {
-    id: number;
+    playlistId: number;
     playlistTitle: string;
     imageUrl: string;
     createdAt: string;

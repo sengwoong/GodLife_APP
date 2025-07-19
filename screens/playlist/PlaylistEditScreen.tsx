@@ -29,9 +29,6 @@ export default function PlaylistEditScreen() {
   const { data: playlistData } = usePlayList(playListIndex);
   
   const userId = useUserId();
-//   if (!userId) {
-//     throw new Error('User ID is undefined');
-//   }
 
   const createPlaylistMutation = useCreatePlayList();
   const updatePlaylistMutation = useUpdatePlayList();
@@ -46,20 +43,24 @@ export default function PlaylistEditScreen() {
   const handleSubmit = async () => {
     try {
       const playlistData = {
+        playlistId: 0,
         playlistTitle: title,
         description,
         imageUrl: '',
+        isShared: false,
       };
 
       if (playListIndex) {
         await updatePlaylistMutation.mutateAsync({
           playlistId: playListIndex,
-          ...playlistData,
+          playlistTitle: title,
+          description,
+          imageUrl: '',
           userId,
         });
       } else {
         await createPlaylistMutation.mutateAsync({
-          playlistData,
+          playlistData, 
           userId,
         });
       }

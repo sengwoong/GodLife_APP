@@ -9,7 +9,9 @@ import {
   TouchableOpacity, 
   TouchableWithoutFeedback, 
   Keyboard, 
-  TextStyle 
+  TextStyle,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { colors, getFontStyle, spacing } from '../../constants';
@@ -22,8 +24,8 @@ export default function WordEditScreen() {
   const route = useRoute<RouteProp<VocaStackParamList, 'WORDEDIT'>>();
   const { vocaId, wordId } = route.params;
   const userId = useAuthStore(state => state.user?.id);
-  const [english, setEnglish] = useState('');
-  const [korean, setKorean] = useState('');
+  const [word, setWord] = useState('');
+  const [meaning, setMeaning] = useState('');
 
   const { data: wordData, isLoading } = wordId !== undefined ? useWord(vocaId, wordId) : { data: null, isLoading: false };
 
@@ -34,12 +36,17 @@ export default function WordEditScreen() {
 
   useEffect(() => {
     if (wordData) {
-      setEnglish(wordData.english);
-      setKorean(wordData.korean);
+      setWord(wordData.word);
+      setMeaning(wordData.meaning);
     }
   }, [wordData]);
 
   const handleSubmit = async () => {
+    if (!word.trim() || !meaning.trim()) {
+      Alert.alert('입력 오류', '영어 단어와 한글 뜻을 모두 입력해주세요.');
+      return;
+    }
+
     try {
       if (wordId !== undefined && wordData) {
         if (!userId) {
@@ -49,8 +56,8 @@ export default function WordEditScreen() {
         await updateWordMutation.mutateAsync({
           wordId: wordData.id,
           data: {
-            english,
-            korean,
+            word: word.trim(),
+            meaning: meaning.trim(),
           },
           userId: userId,
         });
@@ -63,22 +70,39 @@ export default function WordEditScreen() {
           queryKey: ['word', vocaId, wordId]
         });
 
+        Alert.alert('성공', '단어가 성공적으로 수정되었습니다.');
       } else {
         await createWordMutation.mutateAsync({
-          english,
-          korean,
+          word: word.trim(),
+          meaning: meaning.trim(),
           vocaId,
         });
 
         queryClient.invalidateQueries({ 
           queryKey: ['words', vocaId]
         });
+
+        Alert.alert('성공', '단어가 성공적으로 추가되었습니다.');
       }
       navigation.goBack();
     } catch (error) {
       console.error('Error saving word:', error);
+      Alert.alert('오류', '단어 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.GREEN} />
+          <Text style={styles.loadingText}>단어 정보를 불러오는 중...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const isSubmitting = createWordMutation.isPending || updateWordMutation.isPending;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -92,26 +116,33 @@ export default function WordEditScreen() {
         <TextInput
           style={styles.form__input}
           placeholder={'영어 단어'}
-          value={english}
-          onChangeText={setEnglish}
+          value={word}
+          onChangeText={setWord}
+          editable={!isSubmitting}
         />
         <Margin size={'M4'} />
 
         <TextInput
           style={[styles.form__input, styles.form__textarea]}
           placeholder="한글 뜻"
-          value={korean}
-          onChangeText={setKorean}
+          value={meaning}
+          onChangeText={setMeaning}
           multiline
+          editable={!isSubmitting}
         />
 
         <Margin size={'M8'} />
   
         <TouchableOpacity 
-          style={styles.button} 
+          style={[styles.button, isSubmitting && styles.button__disabled]} 
           onPress={handleSubmit}
+          disabled={isSubmitting}
         >
-          <Text style={styles.button__text}>등록하기</Text>
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color={colors.WHITE} />
+          ) : (
+            <Text style={styles.button__text}>{wordId ? '수정하기' : '등록하기'}</Text>
+          )}
         </TouchableOpacity>
       </SafeAreaView>
     </TouchableWithoutFeedback>
@@ -148,8 +179,21 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
   },
+  button__disabled: {
+    backgroundColor: colors.GRAY,
+  },
   button__text: {
     color: colors.WHITE,
     ...getFontStyle('titleBody', 'small', 'bold'),
+  } as TextStyle,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: spacing.M12,
+    ...getFontStyle('titleBody', 'medium', 'regular'),
+    color: colors.BLACK,
   } as TextStyle,
 });
