@@ -1,15 +1,15 @@
 import React from 'react';
 import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle, RefreshControl } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { useInfiniteWords } from '../../server/query/hooks/useWord';
+import { useInfiniteWords, Word } from '../../server/query/hooks/useWord';
 import { useSearchStore } from '../../store/useSearchStore';
-import { useRoute } from '@react-navigation/native';
 
-interface Word {
-  id: number;
-  word: string;
-  meaning: string;
-  vocaId: number;
+interface WordResponse {
+  content: Word[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
 }
 
 interface VocaContentListProps {
@@ -20,11 +20,10 @@ interface VocaContentListProps {
 }
 
 const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void }) => {
-  console.log('WordItem - rendering item:', item);
   return (
     <TouchableOpacity
       style={styles.list__item}
-      onPress={() => onPress(item.id)}>
+      onPress={() => onPress(item.wordId)}>
       <View style={styles.list__content}>
         <Text style={styles.list__title}>{item.word}</Text>
         <Text style={styles.list__meaning}>{item.meaning}</Text>
@@ -45,37 +44,45 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateTo
     isFetchingNextPage,
   } = useInfiniteWords(vocaIndex, searchText);
 
-  console.log('VocaContentList - vocaIndex:', vocaIndex, 'searchText:', searchText);
-  console.log('VocaContentList - isLoading:', isLoading, 'error:', error);
-  console.log('VocaContentList - data:', data);
-  console.log('VocaContentList - pages length:', data?.pages?.length);
+  // 데이터가 변경될 때마다 로그 출력
+  React.useEffect(() => {
+    if ((data as any)?.pages) {
+      const totalWords = (data as any).pages.flatMap((page: any) => page.content).length;
+      console.log('📝 단어 목록 업데이트:', totalWords, '개');
+    }
+  }, [data]);
   
-  if (data?.pages) {
-    data.pages.forEach((page, index) => {
-      console.log(`VocaContentList - page ${index}:`, page);
-      console.log(`VocaContentList - page ${index} content:`, page.content);
-      console.log(`VocaContentList - page ${index} content length:`, page.content?.length);
-    });
-  }
-  
-  console.log('VocaContentList - flatMap result:', data?.pages.flatMap(page => page.content) || []);
-
   if (isLoading) {
-    return <ActivityIndicator size="large" color={colors.GREEN} />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.GREEN} />
+        <Text style={styles.loadingText}>단어를 불러오는 중...</Text>
+      </View>
+    );
   }
 
   if (error) {
-    return <Text>Error: {error.message}</Text>;
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {(error as any).message}</Text>
+        <Text style={styles.errorSubText}>아래로 당겨서 다시 시도해보세요</Text>
+      </View>
+    );
   }
 
-  const words = data?.pages.flatMap(page => page.content) || [];
+  const words = (data as any)?.pages?.flatMap((page: any) => page.content) || [];
   console.log('VocaContentList - words array:', words);
   console.log('VocaContentList - words array length:', words.length);
   
   // 빈 배열인지 확인
   if (words.length === 0) {
     console.log('VocaContentList - words array is empty!');
-    return <Text style={styles.emptyText}>단어장에 단어가 없습니다.</Text>;
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>단어장에 단어가 없습니다.</Text>
+        <Text style={styles.emptySubText}>새 단어를 추가해보세요!</Text>
+      </View>
+    );
   }
 
   return (
@@ -84,7 +91,7 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ vocaIndex, navigateTo
       contentContainerStyle={styles.flatListContent}
       data={words}
       renderItem={({ item }) => <WordItem item={item} onPress={navigateToWordDetail} />}
-      keyExtractor={(item, index) => `${item.id}-${index}`}
+      keyExtractor={(item, index) => `${item.wordId}-${index}`}
       onEndReached={() => {
         if (hasNextPage) {
           fetchNextPage();
@@ -132,6 +139,43 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     paddingVertical: spacing.M24,
+    color: colors.GRAY,
+    ...getFontStyle('body', 'medium', 'regular'),
+  } as TextStyle,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: spacing.M24,
+  },
+  loadingText: {
+    marginTop: spacing.M16,
+    color: colors.GRAY,
+    ...getFontStyle('body', 'medium', 'regular'),
+  } as TextStyle,
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: spacing.M24,
+  },
+  errorText: {
+    color: colors.RED,
+    ...getFontStyle('body', 'medium', 'bold'),
+  } as TextStyle,
+  errorSubText: {
+    marginTop: spacing.M16,
+    color: colors.GRAY,
+    ...getFontStyle('body', 'medium', 'regular'),
+  } as TextStyle,
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: spacing.M24,
+  },
+  emptySubText: {
+    marginTop: spacing.M16,
     color: colors.GRAY,
     ...getFontStyle('body', 'medium', 'regular'),
   } as TextStyle,

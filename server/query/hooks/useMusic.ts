@@ -150,7 +150,7 @@ export function useDeleteMusic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ musicId, userId }: { musicId: number, userId: number }) => {
+    mutationFn: async ({ musicId, userId, playlistId }: { musicId: number, userId: number, playlistId: number }) => {
       const response = await fetch(`${BASE_URL}/musics/music/${musicId}/user/${userId}`, {
         method: 'DELETE',
       });
@@ -159,8 +159,8 @@ export function useDeleteMusic() {
         throw new Error('음악 삭제에 실패했습니다');
       }
     },
-    onSuccess: (_, { musicId }) => {
-      queryClient.invalidateQueries({ queryKey: ['musicList'] });
+    onSuccess: (_, { playlistId }) => {
+      queryClient.invalidateQueries({ queryKey: ['musicList', playlistId] });
     },
   });
 }

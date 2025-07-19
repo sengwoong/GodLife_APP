@@ -1,11 +1,9 @@
 import React from 'react';
 import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle, RefreshControl } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
+import { useUserVocas } from '../../server/query/hooks/useVoca';
 import { useSearchStore } from '../../store/useSearchStore';
 import { Voca } from '../../types/voca';
-
-
 
 interface VocaListProps {
   userId: number;
@@ -15,25 +13,38 @@ interface VocaListProps {
   refreshing?: boolean;
 }
 
-
 const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLongPress, onRefresh, refreshing = false }) => {
   
   const searchText = useSearchStore(state => state.searchText);
-  console.log('VocaList - userId:', userId, 'searchText:', searchText);
   
   const {
     data,
     isLoading,
     error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteVoca(userId!, searchText);
-  
-  console.log('VocaList - isLoading:', isLoading, 'error:', error, 'data:', data);
+    refetch,
+    isFetching,
+  } = useUserVocas(userId, searchText, 0, 10);
+
+  // 데이터가 변경될 때마다 로그 출력
+  React.useEffect(() => {
+    if (data) {
+      console.log('📚 단어장 목록 업데이트:', data.content?.length, '개');
+    }
+  }, [data]);
+
+  // refetch 함수를 개선
+  const handleRefresh = React.useCallback(async () => {
+    try {
+      await refetch();
+    } catch (error) {
+      console.error('❌ 단어장 목록 refetch 실패:', error);
+    }
+  }, [refetch]);
+
+  // onRefresh가 제공되면 그것을 사용, 아니면 내부 refetch 사용
+  const refreshHandler = onRefresh || handleRefresh;
 
   if (isLoading) {
-    console.log('VocaList - 로딩 중...');
     return (
       <FlatList
         style={styles.flatList}
@@ -47,10 +58,10 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
           </View>
         }
         refreshControl={
-          onRefresh ? (
+          refreshHandler ? (
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
+              onRefresh={refreshHandler}
               colors={[colors.GREEN]}
               tintColor={colors.GREEN}
             />
@@ -61,7 +72,6 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
   }
 
   if (error) {
-    console.log('VocaList - 에러 발생:', error.message);
     return (
       <FlatList
         style={styles.flatList}
@@ -70,15 +80,15 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
         renderItem={() => null}
         ListEmptyComponent={
           <View style={styles.errorView}>
-            <Text style={styles.errorText}>Error: {error.message}</Text>
+            <Text style={styles.errorText}>Error: {(error as any).message}</Text>
             <Text style={styles.errorSubText}>아래로 당겨서 다시 시도해보세요</Text>
           </View>
         }
         refreshControl={
-          onRefresh ? (
+          refreshHandler ? (
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
+              onRefresh={refreshHandler}
               colors={[colors.GREEN]}
               tintColor={colors.GREEN}
             />
@@ -93,21 +103,19 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
       <FlatList
         style={styles.flatList}
         contentContainerStyle={styles.flatListContent}
-        data={data?.pages.flatMap(page => page.content) || []}
+        data={data?.content || []}
         renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaContent} onLongPress={onLongPress} />}
         keyExtractor={(item, index) => `${item.vocaId}-${index}`}
-        onEndReached={() => {
-          if (hasNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
+        ListEmptyComponent={
+          <View style={styles.errorView}>
+            <Text style={styles.errorSubText}>단어장이 없습니다. 새 단어장을 만들어보세요!</Text>
+          </View>
+        }
         refreshControl={
-          onRefresh ? (
+          refreshHandler ? (
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
+              onRefresh={refreshHandler}
               colors={[colors.GREEN]}
               tintColor={colors.GREEN}
             />
@@ -122,7 +130,6 @@ const VocaItem = ({ item, onPress, onLongPress }: { item: Voca; onPress: (id: nu
   <TouchableOpacity
     style={styles.list__item}
     onPress={() => {
-      console.log('VocaList - VOCACONTENT로 이동 vocaId:', item.vocaId);
       onPress(item.vocaId);
     }}
     onLongPress={() => onLongPress(item.vocaId, item.vocaTitle)}>
@@ -180,7 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.M8,
   } as TextStyle,
   errorSubText: {
-    color: colors.GRAY,
+    color: colors.BLACK,
     ...getFontStyle('body', 'small', 'regular'),
     textAlign: 'center',
   } as TextStyle,

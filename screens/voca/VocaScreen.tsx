@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity, View, TextStyle, TextInput, ActivityIndicator, GestureResponderEvent, Alert } from 'react-native';
-import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
@@ -12,17 +12,16 @@ import Margin from '../../components/division/Margin';
 import VocaList from '../../components/voca/VocaList'; 
 import VocaSearch from '../../components/voca/VocaSearch';
 import useAuthStore from '../../store/useAuthStore';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BASE_URL } from '../../server/common/types/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import SelectButton from '../../components/SelectButton';
 import Icon from 'react-native-vector-icons/AntDesign';
+import { useCreateVoca, useDeleteVoca } from '../../server/query/hooks/useVoca';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<VocaStackParamList>,
   DrawerNavigationProp<MainDrawerParamList>
 >;
-
 
 const VocaScreen = () => {
   const navigation = useNavigation<Navigation>(); 
@@ -37,53 +36,88 @@ const VocaScreen = () => {
 
   const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
   const userId = useAuthStore(state => state.user?.id);
-  console.log('VocaScreen userId:', userId); // 14가 찍혀야 정상
 
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
 
+  // 화면 포커스 시 자동으로 refetch
+  useFocusEffect(
+    React.useCallback(() => {
+      const autoRefresh = async () => {
+        try {
+          await queryClient.invalidateQueries({ 
+            queryKey: ['userVocas'], 
+            exact: false 
+          });
+        } catch (error) {
+          console.error('❌ 자동 refetch 실패:', error);
+        }
+      };
+      autoRefresh();
+    }, [queryClient, userId])
+  );
+
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await queryClient.invalidateQueries({ queryKey: ['vocas', userId] });
+      await queryClient.invalidateQueries({ 
+        queryKey: ['userVocas'], 
+        exact: false 
+      });
+    } catch (error) {
+      console.error('❌ 수동 refetch 실패:', error);
     } finally {
       setRefreshing(false);
     }
   };
 
-  const { mutate: createVoca } = useMutation({
-    mutationFn: async (newVocaName: string) => {
-      const url = `${BASE_URL}/vocas/user/${userId}`;
-      console.log('createVoca 요청 URL:', url, 'userId:', userId);
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ vocaTitle: newVocaName, languages: selectedLanguage }),
-      });
-      if (!response.ok) {
-        const errText = await response.text();
-        console.log('createVoca fetch error:', errText);
-        throw new Error('Failed to create new voca');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vocas', userId]});
-      console.log('단어장 추가 성공');
-    },
-  });
+  const createVocaMutation = useCreateVoca();
+  const deleteVocaMutation = useDeleteVoca();
 
   const navigateToVocaGame = (vocaId: number) => {
     navigation.navigate(VocaNavigations.VOCAGAME, { vocaId });
   };
 
-  const handleAddVoca = () => {
-    if (!newVocaName.trim()) return;
-    createVoca(newVocaName); 
-    setIsModalVisible(false);
-    setNewVocaName('');
+  const handleAddVoca = async () => {
+    if (!newVocaName.trim() || !userId) {
+      Alert.alert('오류', '단어장 이름을 입력해주세요.');
+      return;
+    }
+
+    try {
+      await createVocaMutation.mutateAsync({
+        userId: userId,
+        vocaTitle: newVocaName.trim(),
+        languages: selectedLanguage,
+      });
+      
+      setIsModalVisible(false);
+      setNewVocaName('');
+      Alert.alert('성공', '단어장이 성공적으로 생성되었습니다.');
+    } catch (error) {
+      console.error('❌ 단어장 생성 실패:', error);
+      Alert.alert('오류', '단어장 생성에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleDeleteVoca = async () => {
+    if (!contextMenu.selectedVocaId || !userId) {
+      Alert.alert('오류', '삭제할 단어장을 선택해주세요.');
+      return;
+    }
+
+    try {
+      await deleteVocaMutation.mutateAsync({
+        vocaId: contextMenu.selectedVocaId,
+        userId: userId,
+      });
+      
+      setContextMenu(prev => ({ ...prev, isVisible: false }));
+      Alert.alert('성공', '단어장이 성공적으로 삭제되었습니다.');
+    } catch (error) {
+      console.error('❌ 단어장 삭제 실패:', error);
+      Alert.alert('오류', '단어장 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleLongPress = (vocaId: number, vocaTitle: string) => {
@@ -110,7 +144,7 @@ const VocaScreen = () => {
               style={styles.header__button} 
               onPress={() => navigation.navigate(VocaNavigations.VOCAAIGENERATE)}
             >
-              <Icon name="aliwangwang" size={20} color={colors.BLUE} />
+              {React.createElement(Icon as any, { name: "aliwangwang", size: 20, color: colors.BLUE })}
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.header__button} 
@@ -118,7 +152,7 @@ const VocaScreen = () => {
                 Alert.alert('도움말', '단어장 사용법에 대한 도움말입니다.');
               }}
             >
-              <Icon name="info-circle" size={20} color={colors.YELLOW} />
+              {React.createElement(Icon as any, { name: "questioncircle", size: 20, color: colors.YELLOW })}
             </TouchableOpacity>
      
           </View>
@@ -205,10 +239,7 @@ const VocaScreen = () => {
             <CompoundOption.Divider />
             <CompoundOption.Button
               isDanger
-              onPress={() => {
-                console.log('삭제:', contextMenu.selectedVocaId);
-                setContextMenu(prev => ({ ...prev, isVisible: false }));
-              }}>
+              onPress={handleDeleteVoca}>
               삭제하기
             </CompoundOption.Button>
           </CompoundOption.Container>

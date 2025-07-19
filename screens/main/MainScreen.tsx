@@ -231,7 +231,7 @@ function MainScreen() {
           <View style={[styles.section__content, { position: 'relative' }]}>
             {!isLoadingRecommend && recommendContent && (
               <>
-                {getContentByType().map((item, index) => (
+                {getContentByType().map((item: any, index: number) => (
                   <TouchableOpacity
                     key={item.id}
                     style={{ 

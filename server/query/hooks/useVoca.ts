@@ -26,18 +26,12 @@ interface UpdateVocaData {
 }
 
 // 단일 단어장 조회
-export function useVoca(vocaId: number) {
-  return useQuery({
-    queryKey: ['voca', vocaId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/vocas/voca/${vocaId}`);
-      if (!response.ok) {
-        throw new Error('단어장을 찾을 수 없습니다');
-      }
-      return response.json();
-    },
-    enabled: vocaId !== undefined && vocaId > 0,
-  });
+export async function fetchVoca(vocaId: number) {
+  const response = await fetch(`${BASE_URL}/vocas/voca/${vocaId}`);
+  if (!response.ok) {
+    throw new Error('단어장을 찾을 수 없습니다');
+  }
+  return response.json();
 }
 
 // 사용자 단어장 목록 조회 (페이지네이션)
@@ -59,9 +53,16 @@ export function useUserVocas(userId: string | number, search?: string, page: num
       if (!response.ok) {
         throw new Error('단어장 목록을 불러올 수 없습니다');
       }
-      return response.json();
+      const data = await response.json();
+      console.log('📚 단어장 목록 조회:', data.content?.length, '개');
+      return data;
     },
     enabled: userId !== undefined,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 }
 
@@ -83,8 +84,16 @@ export function useCreateVoca() {
       }
       return response.json();
     },
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
+    onSuccess: async (_, { userId }) => {
+      console.log('✅ 단어장 생성 완료');
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: ['userVocas', userId],
+          exact: false,
+        });
+      } catch (error) {
+        console.error('❌ 단어장 생성 후 쿼리 무효화 실패:', error);
+      }
     }
   });
 }
@@ -107,9 +116,19 @@ export function useUpdateVoca() {
       }
       return response.json();
     },
-    onSuccess: (_, { vocaId, userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['voca', vocaId] });
-      queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
+    onSuccess: async (data, { vocaId, userId }) => {
+      console.log('✅ 단어장 수정 완료:', vocaId);
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: ['userVocas'],
+          exact: false,
+        });
+      } catch (error) {
+        console.error('❌ 단어장 수정 후 쿼리 무효화 실패:', error);
+      }
+    },
+    onError: (error, variables) => {
+      console.error('❌ 단어장 수정 실패:', error);
     }
   });
 }
@@ -127,8 +146,69 @@ export function useDeleteVoca() {
         throw new Error('단어장 삭제에 실패했습니다');
       }
     },
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
+    onSuccess: async (_, { userId }) => {
+      console.log('✅ 단어장 삭제 완료');
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: ['userVocas'],
+          exact: false,
+        });
+      } catch (error) {
+        console.error('❌ 단어장 삭제 후 쿼리 무효화 실패:', error);
+      }
+    },
+    onError: (error, variables) => {
+      console.error('❌ 단어장 삭제 실패:', error);
     }
   });
-} 
+}
+
+// 단어장 검색 (기존 useUserVocas와 유사하지만 검색 전용)
+export function useSearchVocas(userId: string | number, search: string, page: number = 0, size: number = 10) {
+  return useQuery({
+    queryKey: ['searchVocas', userId, search, page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: 'createdAt,desc'
+      });
+      
+      if (search) {
+        params.append('search', search);
+      }
+      
+      const response = await fetch(`${BASE_URL}/vocas/user/${userId}?${params}`);
+      if (!response.ok) {
+        throw new Error('단어장 검색에 실패했습니다');
+      }
+      const data = await response.json();
+      console.log('🔍 단어장 검색 결과:', data.content?.length, '개');
+      return data;
+    },
+    enabled: userId !== undefined && search !== undefined,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  });
+}
+
+// 단어장 통계 정보 조회
+export function useVocaStats(userId: string | number) {
+  return useQuery({
+    queryKey: ['vocaStats', userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/vocas/user/${userId}/stats`);
+      if (!response.ok) {
+        throw new Error('단어장 통계를 불러올 수 없습니다');
+      }
+      const data = await response.json();
+      console.log('📊 단어장 통계 조회 완료');
+      return data;
+    },
+    enabled: userId !== undefined,
+    staleTime: 5 * 60 * 1000, // 5분
+  });
+}

@@ -15,10 +15,10 @@ import {
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
-import { useVoca, useUpdateVoca } from '../../server/query/hooks/useVoca';
-import { useQueryClient } from '@tanstack/react-query';
+import { fetchVoca, useUpdateVoca } from '../../server/query/hooks/useVoca';
 import useAuthStore from '../../store/useAuthStore';
 import SelectButton from '../../components/SelectButton';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function VocaEditScreen() {
   const route = useRoute<RouteProp<VocaStackParamList, 'VOCAEDIT'>>();
@@ -27,31 +27,40 @@ export default function VocaEditScreen() {
   const userId = user?.id;
   const [title, setTitle] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
+  const [isLoading, setIsLoading] = useState(true);
+
   const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
 
-  const { data: vocaData, isLoading } = useVoca(vocaId);
   const updateVocaMutation = useUpdateVoca();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    console.log('VocaEditScreen - vocaId:', vocaId);
-    console.log('VocaEditScreen - vocaData:', vocaData);
-    console.log('VocaEditScreen - isLoading:', isLoading);
-    
-    if (vocaData) {
-      console.log('VocaEditScreen - Setting data from vocaData');
-      setTitle(vocaData.vocaTitle);
-      setSelectedLanguage(vocaData.languages || 'English');
-    } else {
-      console.log('VocaEditScreen - No vocaData available');
+    const loadVocaData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchVoca(vocaId);
+        console.log('📚 단어장 데이터 로드 완료:', vocaId);
+
+        if (data) {
+          setTitle(data.vocaTitle);
+          setSelectedLanguage(data.languages || 'English');
+        }
+      } catch (error) {
+        console.error('❌ 단어장 데이터 로드 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (vocaId) {
+      loadVocaData();
     }
-  }, [vocaData, vocaId, isLoading]);
+  }, [vocaId]);
 
   const handleSubmit = async () => {
     try {
       if (!userId ) {
-        console.log('User not found:', userId);  
         throw new Error('User ID is not available');
       }
 
@@ -64,17 +73,9 @@ export default function VocaEditScreen() {
         },
       });
 
-      // 단어장 목록과 개별 단어장 쿼리 모두 무효화
-      await queryClient.invalidateQueries({ 
-        queryKey: ['vocas']
-      });
-      await queryClient.invalidateQueries({ 
-        queryKey: ['voca', vocaId]
-      });
-
       navigation.goBack();
     } catch (error) {
-      console.error('Error updating voca:', error);
+      console.error('❌ 단어장 수정 실패:', error);
     }
   };
 

@@ -40,6 +40,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <TextInput
         style={styles.search__input}
         placeholder="검색어를 입력해주세요."
+        placeholderTextColor={colors.BLACK}
         value={searchText}
         onChangeText={handleSearchChange}
         onBlur={handleBlur}

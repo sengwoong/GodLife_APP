@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
 // 타입 정의
@@ -72,6 +72,35 @@ export function useWordsByVoca(vocaId: number, search?: string, page: number = 0
         throw new Error('단어 목록을 불러올 수 없습니다');
       }
       return response.json();
+    },
+    enabled: vocaId !== undefined,
+  });
+}
+
+// 단어장별 단어 목록 조회 (무한 스크롤)
+export function useInfiniteWords(vocaId: number, search?: string, size: number = 10) {
+  return useInfiniteQuery<WordResponse, Error, WordResponse, (string | number | undefined)[], number>({
+    queryKey: ['infiniteWords', vocaId, search],
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
+      const params = new URLSearchParams({
+        page: pageParam.toString(),
+        size: size.toString(),
+        sort: 'createdAt,desc'
+      });
+      
+      if (search) {
+        params.append('search', search);
+      }
+      
+      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?${params}`);
+      if (!response.ok) {
+        throw new Error('단어 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage.number < lastPage.totalPages - 1 ? lastPage.number + 1 : undefined;
     },
     enabled: vocaId !== undefined,
   });
