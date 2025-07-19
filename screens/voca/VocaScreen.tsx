@@ -44,14 +44,10 @@ const VocaScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       const autoRefresh = async () => {
-        try {
-          await queryClient.invalidateQueries({ 
-            queryKey: ['userVocas'], 
-            exact: false 
-          });
-        } catch (error) {
-          console.error('❌ 자동 refetch 실패:', error);
-        }
+        await queryClient.invalidateQueries({ 
+          queryKey: ['userVocas'], 
+          exact: false 
+        });
       };
       autoRefresh();
     }, [queryClient, userId])
@@ -59,16 +55,11 @@ const VocaScreen = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    try {
-      await queryClient.invalidateQueries({ 
-        queryKey: ['userVocas'], 
-        exact: false 
-      });
-    } catch (error) {
-      console.error('❌ 수동 refetch 실패:', error);
-    } finally {
-      setRefreshing(false);
-    }
+    await queryClient.invalidateQueries({ 
+      queryKey: ['userVocas'], 
+      exact: false 
+    });
+    setRefreshing(false);
   };
 
   const createVocaMutation = useCreateVoca();

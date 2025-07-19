@@ -37,20 +37,12 @@ export default function VocaEditScreen() {
 
   useEffect(() => {
     const loadVocaData = async () => {
-      try {
-        setIsLoading(true);
-        const data = await fetchVoca(vocaId);
-        console.log('📚 단어장 데이터 로드 완료:', vocaId);
+      setIsLoading(true);
+      const data = await fetchVoca(vocaId);
 
-        if (data) {
-          setTitle(data.vocaTitle);
-          setSelectedLanguage(data.languages || 'English');
-        }
-      } catch (error) {
-        console.error('❌ 단어장 데이터 로드 실패:', error);
-      } finally {
-        setIsLoading(false);
-      }
+      setTitle(data.vocaTitle);
+      setSelectedLanguage(data.languages || 'English');
+      setIsLoading(false);
     };
 
     if (vocaId) {
@@ -59,24 +51,20 @@ export default function VocaEditScreen() {
   }, [vocaId]);
 
   const handleSubmit = async () => {
-    try {
-      if (!userId ) {
-        throw new Error('User ID is not available');
-      }
-
-      await updateVocaMutation.mutateAsync({
-        vocaId: vocaId,
-        userId,
-        data: {
-          vocaTitle: title,
-          languages: selectedLanguage,
-        },
-      });
-
-      navigation.goBack();
-    } catch (error) {
-      console.error('❌ 단어장 수정 실패:', error);
+    if (!userId ) {
+      throw new Error('User ID is not available');
     }
+
+    await updateVocaMutation.mutateAsync({
+      vocaId: vocaId,
+      userId,
+      data: {
+        vocaTitle: title,
+        languages: selectedLanguage,
+      },
+    });
+
+    navigation.goBack();
   };
 
   if (isLoading) {
