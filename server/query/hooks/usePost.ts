@@ -1,6 +1,22 @@
-import { useMutation, useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { MusicPost, Post, PostAd, PostComment, SharedPost, VocaPost } from '../../../types/post';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
+
+interface Post {
+  postId: number;
+  title: string;
+  postContent: string;
+  postImage: string;
+  imageUrl: string;
+  likeCount: number;
+  price: number;
+  sale: boolean;
+  type: 'MUSIC' | 'NORMAL' | 'VOCA';
+  rating: number;
+  advertisement: boolean;
+  shared: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface PostResponse {
   content: Post[];
@@ -8,191 +24,313 @@ interface PostResponse {
   totalElements: number;
   size: number;
   number: number;
-  last: boolean;
 }
 
 interface BestPostsResponse {
   posts: Post[];
 }
 
-interface PostAdResponse {
-  content: PostAd[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
+interface BestUserResponse {
+  users: {
+    id: number;
+    nickName: string;
+    sales: number;
+    phoneNumber: string;
+    address: string;
+    email: string;
+    createdAt: string;
+  }[];
 }
 
-interface PostCommentResponse {
-  content: PostComment[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
+interface CreatePostData {
+  title: string;
+  postContent?: string;
+  postImage?: string;
+  imageUrl?: string;
+  price?: number;
+  sale?: boolean;
+  type: 'MUSIC' | 'NORMAL' | 'VOCA';
+  musicIds?: number[];
+  vocaIds?: number[];
+  advertisement?: boolean;
+  shared?: boolean;
 }
 
-interface SharedPostResponse {
-  content: SharedPost[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
+interface UpdatePostData {
+  title: string;
+  postContent?: string;
+  postImage?: string;
+  imageUrl?: string;
+  price?: number;
+  sale?: boolean;
+  type: 'MUSIC' | 'NORMAL' | 'VOCA';
+  musicIds?: number[];
+  vocaIds?: number[];
+  advertisement?: boolean;
+  shared?: boolean;
 }
 
-// Read
-export const usePost = (category: string, search: string = '', page: number = 0) => {
-  return useQuery<PostResponse>({
-    queryKey: ['posts', category, search, page],
-    queryFn: async () => {
-      const url = new URL(`${BASE_URL}/posts/category/${category}`);
-      url.searchParams.append('search', search);
-      url.searchParams.append('page', page.toString());
-      
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    },
-  });
-};
-
-export const useInfinitePosts = (searchText: string, category: string = 'post') => {
-  return useInfiniteQuery<PostResponse>({
-    queryKey: ['posts', searchText, category],
-    initialPageParam: 0,
-    queryFn: ({ pageParam }) => 
-      fetch(`${BASE_URL}/posts/category/${category}?search=${encodeURIComponent(searchText)}&page=${pageParam}`).then(res => res.json()),
-    getNextPageParam: (lastPage: PostResponse) => {
-      if (!lastPage.last) return lastPage.number + 1;
-      return undefined;
-    },
-  });
-};
-
-export const useSinglePost = (postId: string) => {
-  return useQuery<MusicPost | Post | VocaPost | undefined>({
+// 단일 게시글 조회
+export const usePost = (postId: number) => {
+  return useQuery<Post>({
     queryKey: ['post', postId],
     queryFn: async () => {
       const response = await fetch(`${BASE_URL}/posts/${postId}`);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('게시글을 찾을 수 없습니다');
       }
-      const data = await response.json();
-      
-      if (!['music', 'normal', 'voca'].includes(data.type)) {
-        throw new Error('Invalid post type');
-      }
-      if(data.type === 'music'){
-        return data as MusicPost;
-      }else if(data.type === 'normal'){
-        return data as Post;
-      }else if(data.type === 'voca'){
-        return data as VocaPost;
-      }
-      return undefined;
+      return response.json();
     },
+    enabled: postId !== undefined,
   });
 };
 
-export const useUserPosts = ({ userId, page = 0, size = 10}: UserPostsParams) => {
+// 사용자 게시글 목록 조회
+export const useUserPosts = (userId: number, page: number = 0, size: number = 10) => {
   return useQuery<PostResponse>({
     queryKey: ['userPosts', userId, page, size],
     queryFn: async () => {
-      const response = await fetch(
-        `${BASE_URL}/posts/user/${userId}?page=${page}&size=${size}`
-      );
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString()
+      });
+      
+      const response = await fetch(`${BASE_URL}/posts/user/${userId}?${params}`);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('사용자 게시글 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+    enabled: userId !== undefined,
+  });
+};
+
+// 타입별 게시글 목록 조회
+export const usePostsByType = (type: 'MUSIC' | 'NORMAL' | 'VOCA', page: number = 0, size: number = 10) => {
+  return useQuery<PostResponse>({
+    queryKey: ['postsByType', type, page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString()
+      });
+      
+      const response = await fetch(`${BASE_URL}/posts/type/${type}?${params}`);
+      if (!response.ok) {
+        throw new Error('게시글 목록을 불러올 수 없습니다');
       }
       return response.json();
     },
   });
 };
 
+// 공유된 게시글 목록 조회
+export const useSharedPosts = (page: number = 0, size: number = 10) => {
+  return useQuery<PostResponse>({
+    queryKey: ['sharedPosts', page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString()
+      });
+      
+      const response = await fetch(`${BASE_URL}/posts/shared?${params}`);
+      if (!response.ok) {
+        throw new Error('공유 게시글 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+  });
+};
+
+// 광고 게시글 목록 조회
+export const useAdvertisementPosts = (page: number = 0, size: number = 10) => {
+  return useQuery<PostResponse>({
+    queryKey: ['advertisementPosts', page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString()
+      });
+      
+      const response = await fetch(`${BASE_URL}/posts/advertisements?${params}`);
+      if (!response.ok) {
+        throw new Error('광고 게시글 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+  });
+};
+
+// 베스트 게시글 목록 조회
 export const useBestPosts = () => {
   return useQuery<BestPostsResponse>({
     queryKey: ['bestPosts'],
     queryFn: async () => {
       const response = await fetch(`${BASE_URL}/posts/best`);
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('베스트 게시글 목록을 불러올 수 없습니다');
       }
       return response.json();
     },
   });
 };
 
-export const useMyPostAds = (userId: number) => {
-  return useQuery<PostAdResponse>({
-    queryKey: ['myPostAds', userId],
+// 베스트 사용자 목록 조회
+export const useBestUsers = () => {
+  return useQuery<BestUserResponse>({
+    queryKey: ['bestUsers'],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/posts/ads/user/${userId}`);
+      const response = await fetch(`${BASE_URL}/users/best`);
       if (!response.ok) {
-        throw new Error('광고 목록 조회 실패');
+        throw new Error('베스트 사용자 목록을 불러올 수 없습니다');
       }
       return response.json();
     },
   });
 };
 
-export const useMyComments = (userId: number) => {
-  return useQuery<PostCommentResponse>({
-    queryKey: ['myComments', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/posts/comments/user/${userId}`);
-      if (!response.ok) {
-        throw new Error('댓글 목록 조회 실패');
-      }
-      return response.json();
-    },
-  });
-};
-
-export const useSharedPosts = (userId: number) => {
-  return useQuery<SharedPostResponse>({
-    queryKey: ['sharedPosts', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/posts/shared/user/${userId}`);
-      if (!response.ok) {
-        throw new Error('공유 포스트 목록 조회 실패');
-      }
-      return response.json();
-    },
-  });
-};
-
-// Update
-export const useTogglePostAd = () => {
+// 게시글 생성
+export const useCreatePost = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
-    mutationFn: async (adId: number) => {
-      const response = await fetch(`${BASE_URL}/posts/ads/${adId}/toggle`, {
+    mutationFn: async ({ userId, postData }: { userId: number, postData: CreatePostData }) => {
+      const response = await fetch(`${BASE_URL}/posts/user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      });
+      if (!response.ok) {
+        throw new Error('게시글 생성에 실패했습니다');
+      }
+      return response.json();
+    },
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userPosts', userId] });
+    },
+  });
+};
+
+// 게시글 수정
+export const useUpdatePost = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ postId, userId, postData }: { postId: number, userId: number, postData: UpdatePostData }) => {
+      const response = await fetch(`${BASE_URL}/posts/${postId}/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      });
+      if (!response.ok) {
+        throw new Error('게시글 수정에 실패했습니다');
+      }
+      return response.json();
+    },
+    onSuccess: (_, { postId, userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts', userId] });
+    },
+  });
+};
+
+// 게시글 삭제
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ postId, userId }: { postId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/posts/${postId}/user/${userId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('게시글 삭제에 실패했습니다');
+      }
+    },
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userPosts', userId] });
+    },
+  });
+};
+
+// 게시글 공유 토글
+export const useTogglePostShare = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ postId, userId }: { postId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/posts/${postId}/share?user_id=${userId}`, {
         method: 'PUT',
       });
       if (!response.ok) {
-        throw new Error('광고 상태 변경 실패');
+        throw new Error('게시글 공유 상태 변경에 실패했습니다');
       }
       return response.json();
+    },
+    onSuccess: (_, { postId, userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts', userId] });
+      queryClient.invalidateQueries({ queryKey: ['sharedPosts'] });
     },
   });
 };
 
-// Create
-export const useLikePost = () => {
+// 게시글 좋아요 추가
+export const useAddPostLike = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: async ({ postId, userId }: { postId: number, userId: number }) => {
-      const response = await fetch(`${BASE_URL}/posts/${postId}/like/user/${userId}`);
+      const response = await fetch(`${BASE_URL}/posts/${postId}/likes?user_id=${userId}`, {
+        method: 'POST',
+      });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('좋아요 추가에 실패했습니다');
       }
       return response.json();
+    },
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
     },
   });
 };
 
-export interface UserPostsParams {
-  userId: string | number;
-  page?: number;
-  size?: number;
-  search?: string;
-}
+// 게시글 좋아요 삭제
+export const useRemovePostLike = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ postId, userId }: { postId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/posts/${postId}/likes?user_id=${userId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('좋아요 삭제에 실패했습니다');
+      }
+      return response.json();
+    },
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+    },
+  });
+};
+
+// 게시글 좋아요 상태 확인
+export const usePostLikeStatus = (postId: number, userId: number) => {
+  return useQuery<boolean>({
+    queryKey: ['postLikeStatus', postId, userId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/posts/${postId}/likes/check?user_id=${userId}`);
+      if (!response.ok) {
+        throw new Error('좋아요 상태를 확인할 수 없습니다');
+      }
+      return response.json();
+    },
+    enabled: postId !== undefined && userId !== undefined,
+  });
+};

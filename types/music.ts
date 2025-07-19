@@ -1,5 +1,5 @@
 export interface Music {
-    id: string;
+    musicId: number;
     musicTitle: string;
     musicUrl: string;
     color: string;

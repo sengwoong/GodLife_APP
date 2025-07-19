@@ -1,12 +1,17 @@
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
 // 타입 정의
 export interface Word {
-  id: number;
+  wordId: number;
   word: string;
   meaning: string;
-  vocaId: number;
+  voca: {
+    vocaId: number;
+    vocaTitle: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface WordResponse {
@@ -32,60 +37,47 @@ interface UpdateWordData {
   };
 }
 
-// Read 작업
-// 단어 목록 조회 (무한 스크롤)
-export function useInfiniteWords(vocaId: number, searchText: string) {
-  console.log('useInfiniteWords vocaId:', vocaId, 'searchText:', searchText); // 추가
-  return useInfiniteQuery<WordResponse, Error>({
-    queryKey: ['words', vocaId, searchText],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch words');
-      }
-      return response.json() as Promise<WordResponse>;
-    },
-    getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.number + 1;
-      return nextPage < lastPage.totalPages ? nextPage : undefined;
-    },
-    initialPageParam: 0,
-  });
-}
-
 // 단일 단어 조회
-export function useWord(vocaId: number, wordIndex: number) {
+export function useWord(wordId: number) {
   return useQuery<Word, Error>({
-    queryKey: ['word', vocaId, wordIndex],
+    queryKey: ['word', wordId],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?index=${wordIndex}`);
+      const response = await fetch(`${BASE_URL}/words/word/${wordId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch word');
-      }
-      const data = await response.json();
-      return data.content[0];
-    },
-    enabled: wordIndex !== undefined,
-  });
-}
-
-// 단어장의 모든 단어 조회
-export function useWords(vocaId: number, page = 0, size = 10, search = '') {
-  return useQuery<WordResponse, Error>({
-    queryKey: ['words', vocaId, page, size, search],
-    queryFn: async () => {
-      const response = await fetch(
-        `${BASE_URL}/words/voca/${vocaId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch words');
+        throw new Error('단어를 찾을 수 없습니다');
       }
       return response.json();
     },
+    enabled: wordId !== undefined && wordId > 0,
   });
 }
 
-// Create 작업
+// 단어장별 단어 목록 조회 (페이지네이션)
+export function useWordsByVoca(vocaId: number, search?: string, page: number = 0, size: number = 10) {
+  return useQuery<WordResponse, Error>({
+    queryKey: ['words', vocaId, search, page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: 'createdAt,desc'
+      });
+      
+      if (search) {
+        params.append('search', search);
+      }
+      
+      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?${params}`);
+      if (!response.ok) {
+        throw new Error('단어 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+    enabled: vocaId !== undefined,
+  });
+}
+
+// 단어 생성
 export function useCreateWord() {
   const queryClient = useQueryClient();
   
@@ -99,7 +91,7 @@ export function useCreateWord() {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('Failed to create word');
+        throw new Error('단어 생성에 실패했습니다');
       }
       return response.json();
     },
@@ -109,12 +101,12 @@ export function useCreateWord() {
   });
 }
 
-// Update 작업
+// 단어 수정
 export function useUpdateWord() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ wordId, data, userId }: UpdateWordData) => {
+    mutationFn: async ({ wordId, userId, data }: UpdateWordData) => {
       const response = await fetch(`${BASE_URL}/words/word/${wordId}/user/${userId}`, {
         method: 'PUT',
         headers: {
@@ -123,32 +115,32 @@ export function useUpdateWord() {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('Failed to update word');
+        throw new Error('단어 수정에 실패했습니다');
       }
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['words', data.vocaId] });
-      queryClient.invalidateQueries({ queryKey: ['word', data.vocaId] });
+      queryClient.invalidateQueries({ queryKey: ['word', data.wordId] });
+      queryClient.invalidateQueries({ queryKey: ['words', data.voca.vocaId] });
     },
   });
 }
 
-// Delete 작업
+// 단어 삭제
 export function useDeleteWord() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ wordId, userId, vocaId }: { wordId: number; userId: number; vocaId: number }) => {
+    mutationFn: async ({ wordId, userId }: { wordId: number; userId: number }) => {
       const response = await fetch(`${BASE_URL}/words/word/${wordId}/user/${userId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('Failed to delete word');
+        throw new Error('단어 삭제에 실패했습니다');
       }
     },
-    onSuccess: (_, { vocaId }) => {
-      queryClient.invalidateQueries({ queryKey: ['words', vocaId] });
+    onSuccess: (_, { wordId }) => {
+      queryClient.invalidateQueries({ queryKey: ['word', wordId] });
     },
   });
 }

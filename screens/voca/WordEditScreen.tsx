@@ -27,7 +27,7 @@ export default function WordEditScreen() {
   const [word, setWord] = useState('');
   const [meaning, setMeaning] = useState('');
 
-  const { data: wordData, isLoading } = wordId !== undefined ? useWord(vocaId, wordId) : { data: null, isLoading: false };
+  const { data: wordData, isLoading } = wordId !== undefined ? useWord(wordId) : { data: null, isLoading: false };
 
   const navigation = useNavigation();
   const createWordMutation = useCreateWord();
@@ -35,11 +35,19 @@ export default function WordEditScreen() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    console.log('WordEditScreen - vocaId:', vocaId);
+    console.log('WordEditScreen - wordId:', wordId);
+    console.log('WordEditScreen - wordData:', wordData);
+    console.log('WordEditScreen - isLoading:', isLoading);
+    
     if (wordData) {
+      console.log('WordEditScreen - Setting data from wordData');
       setWord(wordData.word);
       setMeaning(wordData.meaning);
+    } else {
+      console.log('WordEditScreen - No wordData available');
     }
-  }, [wordData]);
+  }, [wordData, vocaId, wordId, isLoading]);
 
   const handleSubmit = async () => {
     if (!word.trim() || !meaning.trim()) {
@@ -54,7 +62,7 @@ export default function WordEditScreen() {
         }
 
         await updateWordMutation.mutateAsync({
-          wordId: wordData.id,
+          wordId: wordData.wordId,
           data: {
             word: word.trim(),
             meaning: meaning.trim(),
@@ -67,7 +75,7 @@ export default function WordEditScreen() {
         });
 
         queryClient.invalidateQueries({ 
-          queryKey: ['word', vocaId, wordId]
+          queryKey: ['word', wordId]
         });
 
         Alert.alert('성공', '단어가 성공적으로 수정되었습니다.');

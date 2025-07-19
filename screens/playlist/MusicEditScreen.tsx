@@ -15,7 +15,7 @@ import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
-import { useSingleMusic, useCreateMusic, useUpdateMusic } from '../../server/query/hooks/useMusic';
+import { useMusicList, useCreateMusic, useUpdateMusic } from '../../server/query/hooks/useMusic';
 import useAuthStore from '../../store/useAuthStore';
 import useUserId from '../../server/query/hooks/useUserId';
 
@@ -31,15 +31,18 @@ export default function MusicEditScreen() {
   if (!userId) {
     throw new Error('User ID is undefined');
   }
-  const { data: musicData, isLoading } = musicIndex !== undefined ? useSingleMusic(musicIndex) : { data: null, isLoading: false };
+  const { data: musicData, isLoading } = musicIndex !== undefined ? useMusicList(playListIndex, 0, 10) : { data: null, isLoading: false };
   
   const createMusicMutation = useCreateMusic();
   const updateMusicMutation = useUpdateMusic();
 
   useEffect(() => {
-    if (musicIndex && musicData) {
-      setTitle(musicData.musicTitle);
-      setURL(musicData.musicUrl);
+    if (musicIndex && musicData?.content) {
+      const music = musicData.content.find(m => m.musicId === musicIndex);
+      if (music) {
+        setTitle(music.musicTitle);
+        setURL(music.musicUrl);
+      }
     }
   }, [musicIndex, musicData]);
 
@@ -55,14 +58,17 @@ export default function MusicEditScreen() {
       if (musicIndex) {
         await updateMusicMutation.mutateAsync({
           musicId: musicIndex,
-          ...newMusicData,
-          playlistId: playListIndex,
           userId: userId,
+          data: newMusicData,
         });
       } else {
         await createMusicMutation.mutateAsync({
-          ...newMusicData,
           playlistId: playListIndex,
+          userId: userId,
+          musicData: {
+            ...newMusicData,
+            playlistId: playListIndex,
+          },
         });
       }
       navigation.goBack();

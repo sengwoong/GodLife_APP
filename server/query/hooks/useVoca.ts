@@ -10,18 +10,10 @@ interface VocaResponse {
   number: number;
 }
 
-export interface UserVocaParams {
-  userId: string | number;
-  page?: number;
-  size?: number;
-  search?: string;
-}
-
 interface CreateVocaData {
   userId: string | number;
   vocaTitle: string;
   languages: string;
-  description?: string;
 }
 
 interface UpdateVocaData {
@@ -30,136 +22,74 @@ interface UpdateVocaData {
   data: {
     vocaTitle: string;
     languages: string;
-    description?: string;
   };
 }
 
+// 단일 단어장 조회
 export function useVoca(vocaId: number) {
   return useQuery({
     queryKey: ['voca', vocaId],
     queryFn: async () => {
       const response = await fetch(`${BASE_URL}/vocas/voca/${vocaId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch vocabulary');
+        throw new Error('단어장을 찾을 수 없습니다');
       }
       return response.json();
     },
+    enabled: vocaId !== undefined && vocaId > 0,
   });
 }
 
-export const useUserVocas = ({ userId, page = 0, size = 10, search = '' }: UserVocaParams) => {
-  return useQuery<VocaResponse>({
-    queryKey: ['userVocas', userId, page, size, search],
+// 사용자 단어장 목록 조회 (페이지네이션)
+export function useUserVocas(userId: string | number, search?: string, page: number = 0, size: number = 10) {
+  return useQuery({
+    queryKey: ['userVocas', userId, search, page, size],
     queryFn: async () => {
-      const response = await fetch(
-        `${BASE_URL}/vocas/user/${userId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}&sort=asc`
-      );
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    },
-  });
-};
-
-export function useInfiniteVoca(userId: string | number, searchText: string) {
-  console.log('useInfiniteVoca 호출 - userId:', userId, 'searchText:', searchText, 'BASE_URL:', BASE_URL);
-  
-  return useInfiniteQuery<VocaResponse, Error>({
-    queryKey: ['vocas', userId, searchText],
-    queryFn: async ({ pageParam = 0 }) => {
-      const url = `${BASE_URL}/vocas/user/${userId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`;
-      console.log('useInfiniteVoca - 요청 URL:', url);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: 'createdAt,desc'
+      });
       
-      try {
-        const response = await fetch(url);
-        console.log('useInfiniteVoca - 응답 상태:', response.status, response.statusText);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.log('useInfiniteVoca - 에러 응답:', errorText);
-          throw new Error('Failed to fetch vocabulary list');
-        }
-        
-        const data = await response.json();
-        console.log('useInfiniteVoca - 성공 응답:', data);
-        return data as VocaResponse;
-      } catch (error) {
-        console.log('useInfiniteVoca - 네트워크 에러:', error);
-        throw error;
+      if (search) {
+        params.append('search', search);
       }
-    },
-    getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.number + 1;
-      return nextPage < lastPage.totalPages ? nextPage : undefined;
-    },
-    initialPageParam: 0,
-  });
-}
-
-export function useMyVocas(userId: string | number) {
-  return useQuery({
-    queryKey: ['myVocas', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/vocas/my/${userId}`);
+      
+      const response = await fetch(`${BASE_URL}/vocas/user/${userId}?${params}`);
       if (!response.ok) {
-        throw new Error('내 단어장을 불러오는데 실패했습니다');
+        throw new Error('단어장 목록을 불러올 수 없습니다');
       }
       return response.json();
     },
+    enabled: userId !== undefined,
   });
 }
 
-export function usePurchasedVocas(userId: string | number) {
-  return useQuery({
-    queryKey: ['purchasedVocas', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/vocas/purchased/${userId}`);
-      if (!response.ok) {
-        throw new Error('구매한 단어장을 불러오는데 실패했습니다');
-      }
-      return response.json();
-    },
-  });
-}
-
-export function useStudyVocas(userId: string | number) {
-  return useQuery({
-    queryKey: ['studyVocas', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/vocas/study/${userId}`);
-      if (!response.ok) {
-        throw new Error('학습중인 단어장을 불러오는데 실패했습니다');
-      }
-      return response.json();
-    },
-  });
-}
-
+// 단어장 생성
 export function useCreateVoca() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ userId, vocaTitle, languages, description }: CreateVocaData) => {
+    mutationFn: async ({ userId, vocaTitle, languages }: CreateVocaData) => {
       const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ vocaTitle, languages, description }),
+        body: JSON.stringify({ vocaTitle, languages }),
       });
       if (!response.ok) {
-        throw new Error('Failed to create new voca');
+        throw new Error('단어장 생성에 실패했습니다');
       }
       return response.json();
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
-      queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
     }
   });
 }
 
+// 단어장 수정
 export function useUpdateVoca() {
   const queryClient = useQueryClient();
   
@@ -173,49 +103,18 @@ export function useUpdateVoca() {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('Failed to update voca');
+        throw new Error('단어장 수정에 실패했습니다');
       }
       return response.json();
     },
     onSuccess: (_, { vocaId, userId }) => {
       queryClient.invalidateQueries({ queryKey: ['voca', vocaId] });
       queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
-      queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
     }
   });
 }
 
-export function useUpdateVocaShare() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ 
-      vocaId, 
-      userId, 
-      isShared 
-    }: { 
-      vocaId: number;
-      userId: string | number;
-      isShared: boolean;
-    }) => {
-      const response = await fetch(`${BASE_URL}/vocas/share/${vocaId}/user/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isShared }),
-      });
-      if (!response.ok) {
-        throw new Error('단어장 공유 상태 업데이트에 실패했습니다');
-      }
-      return response.json();
-    },
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
-    },
-  });
-}
-
+// 단어장 삭제
 export function useDeleteVoca() {
   const queryClient = useQueryClient();
   
@@ -225,26 +124,11 @@ export function useDeleteVoca() {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('Failed to delete voca');
+        throw new Error('단어장 삭제에 실패했습니다');
       }
     },
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
-      queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
     }
   });
-}
-
-export const useVocaWords = (vocaId: number) => {
-  return useQuery({
-    queryKey: ['vocaWords', vocaId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch words');
-      }
-      const data = await response.json();
-      return data.content;
-    },
-  });
-}; 
+} 

@@ -29,7 +29,6 @@ const VocaScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); 
   const [newVocaName, setNewVocaName] = useState(''); 
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
-  const [refreshing, setRefreshing] = useState(false);
   const [contextMenu, setContextMenu] = useState({
     isVisible: false,
     selectedVocaId: null as number | null,
@@ -41,6 +40,16 @@ const VocaScreen = () => {
   console.log('VocaScreen userId:', userId); // 14가 찍혀야 정상
 
   const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await queryClient.invalidateQueries({ queryKey: ['vocas', userId] });
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const { mutate: createVoca } = useMutation({
     mutationFn: async (newVocaName: string) => {
@@ -66,9 +75,8 @@ const VocaScreen = () => {
     },
   });
 
-  const navigateToVocaContent = (vocaId: number) => {
-    console.log('VocaScreen - VOCACONTENT로 네비게이션 vocaId:', vocaId);
-    navigation.navigate(VocaNavigations.VOCACONTENT, { vocaId });
+  const navigateToVocaGame = (vocaId: number) => {
+    navigation.navigate(VocaNavigations.VOCAGAME, { vocaId });
   };
 
   const handleAddVoca = () => {
@@ -86,19 +94,6 @@ const VocaScreen = () => {
     });
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      // 단어장 데이터를 다시 가져오기
-      await queryClient.invalidateQueries({ queryKey: ['vocas', userId] });
-      console.log('단어장 데이터 새로고침 완료');
-    } catch (error) {
-      console.error('새로고침 중 오류 발생:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
 
@@ -108,7 +103,7 @@ const VocaScreen = () => {
         <View style={styles.header__content}>
           <View>
             <Text style={styles.header__title}>단어장</Text>
-            <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
+            <Text style={styles.header__subtitle}>학습할 단어장asdasd을 선택하세요</Text>
           </View>
           <View style={styles.header__buttons}>
             <TouchableOpacity 
@@ -120,7 +115,6 @@ const VocaScreen = () => {
             <TouchableOpacity 
               style={styles.header__button} 
               onPress={() => {
-                // 물음표 버튼 기능 (도움말 또는 정보)
                 Alert.alert('도움말', '단어장 사용법에 대한 도움말입니다.');
               }}
             >
@@ -135,15 +129,13 @@ const VocaScreen = () => {
 
       <VocaSearch />
       
-      <View style={styles.listContainer}>
-        <VocaList
-          userId={userId!}
-          navigateToVocaContent={navigateToVocaContent}
-          onLongPress={handleLongPress}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-        />
-      </View>
+      <VocaList
+        userId={userId!}
+        navigateToVocaContent={navigateToVocaGame}
+        onLongPress={handleLongPress}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+      />
       
       <FAB onPress={() => setIsModalVisible(true)} />
 
@@ -194,7 +186,7 @@ const VocaScreen = () => {
       >
         <CompoundOption.Background>
           <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedVocaTitle}번의 단어장 수정하기</CompoundOption.Title>
+            <CompoundOption.Title>"{contextMenu.selectedVocaTitle}" 단어장</CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
                 navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaId: contextMenu.selectedVocaId! });
@@ -321,9 +313,6 @@ const styles = StyleSheet.create({
     color: colors.WHITE,
     ...getFontStyle('title', 'medium', 'bold'),
   } as TextStyle,
-  listContainer: {
-    flex: 1,
-  },
 });
 
 export default VocaScreen;

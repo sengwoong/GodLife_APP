@@ -12,11 +12,11 @@ import {
 import { colors, spacing } from '../../constants';
 import CustomButton from '../../components/CustomButton';
 import Margin from '../../components/division/Margin';
-import { useVocaWords } from '../../server/query/hooks/useVoca';
+import { useWordsByVoca } from '../../server/query/hooks/useWord';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import useAuthStore from '../../store/useAuthStore';
-import axios from 'axios';
+import { BASE_URL } from '../../server/common/types/constants';
 
 const { width } = Dimensions.get('window');
 
@@ -40,14 +40,14 @@ export function VocaGameScreen() {
   const [gameWords, setGameWords] = useState<GameWord[]>([]);
   const [isSavingScore, setIsSavingScore] = useState(false);
 
-  const { data: vocaWords, isLoading } = useVocaWords(vocaId);
+  const { data: vocaWords, isLoading } = useWordsByVoca(vocaId);
 
   useEffect(() => {
     if (vocaWords) {
-      const words: GameWord[] = vocaWords.map((word: { id: number; word: string; meaning: string; wrongMeanings: string[] }) => ({
-        id: word.id,
+      const words: GameWord[] = vocaWords.content.map((word: any) => ({
+        id: word.id || word.wordId,
         word: word.word,
-        meanings: [word.meaning, ...word.wrongMeanings].sort(() => Math.random() - 0.5),
+        meanings: [word.meaning, ...(word.wrongMeanings || [])].sort(() => Math.random() - 0.5),
         correct: word.meaning
       }));
       setGameWords(words);
@@ -59,18 +59,27 @@ export function VocaGameScreen() {
 
     try {
       setIsSavingScore(true);
-      const response = await axios.post('http://localhost:3000/api/points/voca-game', {
-        userId: user.id,
-        vocaId,
-        score,
-        totalWords: gameWords.length,
+      const response = await fetch(`${BASE_URL}/points/voca-game`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          vocaId,
+          score,
+          totalWords: gameWords.length,
+        }),
       });
 
-      if (response.data.success) {
+      if (response.ok) {
+        const result = await response.json();
         Alert.alert(
           '게임 종료!', 
-          `획득한 포인트: ${response.data.data.pointsEarned}\n최종 점수: ${score}/${gameWords.length}`
+          `획득한 포인트: ${result.data?.pointsEarned || 0}\n최종 점수: ${score}/${gameWords.length}`
         );
+      } else {
+        throw new Error('점수 저장에 실패했습니다');
       }
     } catch (error) {
       console.error('점수 저장 실패:', error);

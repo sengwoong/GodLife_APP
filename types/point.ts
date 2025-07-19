@@ -1,5 +1,5 @@
 export interface Point {
-  id: number;
+  pointId: number;
   title: string;
   content: string;
   points: number;

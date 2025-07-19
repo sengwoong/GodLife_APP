@@ -15,7 +15,7 @@ import CardSlider from '../../components/mainscreen/CardSlider';
 import { Music } from '../../types';
 import SquareItemCard from '../../components/SquareItemCard';
 import { useBestPosts } from '../../server/query/hooks/usePost';
-import { useBestUsers, useUserRecommend } from '../../server/query/hooks/useUser';
+// import { useBestUsers, useUserRecommend } from '../../server/query/hooks/useUser';
 import { BasePost } from '../../types/post';
 
 const GRADIENT_SIZE = 54;
@@ -47,18 +47,20 @@ function MainScreen() {
 
   const { data: bestPosts, isLoading: isLoadingBestPosts } = useBestPosts();
 
-  const { data: bestUsers, isLoading: isLoadingBestUsers } = useBestUsers();
+  // 임시로 빈 값 반환
+  const { data: bestUsers, isLoading: isLoadingBestUsers } = { data: null, isLoading: false } as any;
 
-  const { data: recommendContent, isLoading: isLoadingRecommend } = useUserRecommend(1, 10);
+  // 임시로 빈 값 반환
+  const { data: recommendContent, isLoading: isLoadingRecommend } = { data: null, isLoading: false } as any;
 
   console.log("bestPosts", bestPosts);
 
-  const popularAvatars = bestUsers?.users.slice(0, 3).map(user => ({
+  const popularAvatars = (bestUsers?.users?.slice(0, 3).map((user: any) => ({
     id: user.id,
     image: user.profileImage,
     name: user.nickName,
     flower: user.level
-  })) || [];
+  })) || []) as any[];
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -75,7 +77,7 @@ function MainScreen() {
 
 
 
-  const musicData: Music[] = [
+  const musicData: any[] = [
     {
       id: '1',
       musicTitle: 'Blizzards',
@@ -91,15 +93,15 @@ function MainScreen() {
     
     switch (activeButton.id) {
       case 'post':
-        return recommendContent.posts;
+        return recommendContent.posts || [];
       case 'voca':
-        return recommendContent.vocas;
+        return recommendContent.vocas || [];
       case 'playlist':
-        return recommendContent.playlists;
+        return recommendContent.playlists || [];
       case 'music':
-        return recommendContent.musics;
+        return recommendContent.musics || [];
       default:
-        return recommendContent.allItems;
+        return recommendContent.allItems || [];
     }
   };
 
@@ -147,7 +149,7 @@ function MainScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {!isLoadingBestPosts && bestPosts?.posts && (
               <>
-                {bestPosts.posts.map((post, index) => (
+                {(bestPosts.posts as any[]).map((post: any, index: number) => (
                   <TouchableOpacity 
                     key={post.id}
                     onPress={() => {

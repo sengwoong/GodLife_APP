@@ -23,8 +23,8 @@ const PlaylistItem = ({
 }) => (
   <TouchableOpacity
     style={styles.list__item}
-    onPress={() => onPress(item.id)}
-    onLongPress={() => onLongPress(item.id, item.playlistTitle)}
+    onPress={() => onPress(item.playlistId)}
+    onLongPress={() => onLongPress(item.playlistId, item.playlistTitle)}
   >
     <View style={styles.list__content}>
       <Text style={styles.list__title}>{item.playlistTitle}</Text>
@@ -58,7 +58,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
           onLongPress={onLongPress}
         />
       )}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item) => item.playlistId.toString()}
       onEndReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
           fetchNextPage();

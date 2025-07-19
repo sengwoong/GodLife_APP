@@ -1,6 +1,14 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
-import { Playlist } from '../../../types/playlist';
+
+interface Playlist {
+  playlistId: number;
+  playlistTitle: string;
+  imageUrl: string;
+  shared: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface PlaylistResponse {
   content: Playlist[];
@@ -10,11 +18,61 @@ interface PlaylistResponse {
   number: number;
 }
 
-// Create
-export function useCreatePlayList() {
+interface CreatePlaylistData {
+  playListTitle: string;
+}
+
+interface UpdatePlaylistData {
+  playListTitle: string;
+}
+
+// 사용자 플레이리스트 목록 조회 (페이지네이션)
+export function useUserPlaylists(userId: number, page: number = 0, size: number = 10) {
+  return useQuery<PlaylistResponse>({
+    queryKey: ['userPlaylists', userId, page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: 'createdAt,desc'
+      });
+      
+      const response = await fetch(`${BASE_URL}/playlists/user/${userId}?${params}`);
+      if (!response.ok) {
+        throw new Error('플레이리스트 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+    enabled: userId !== undefined,
+  });
+}
+
+// 공유된 플레이리스트 목록 조회
+export function useSharedPlaylists(page: number = 0, size: number = 10) {
+  return useQuery<PlaylistResponse>({
+    queryKey: ['sharedPlaylists', page, size],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: 'createdAt,desc'
+      });
+      
+      const response = await fetch(`${BASE_URL}/playlists/shared?${params}`);
+      if (!response.ok) {
+        throw new Error('공유 플레이리스트 목록을 불러올 수 없습니다');
+      }
+      return response.json();
+    },
+  });
+}
+
+// 플레이리스트 생성
+export function useCreatePlaylist() {
   const queryClient = useQueryClient();
+  
   return useMutation({
-    mutationFn: async ({playlistData, userId}: {playlistData: Omit<Playlist, 'id' | 'createdAt'>, userId: number}) => {
+    mutationFn: async ({ playlistData, userId }: { playlistData: CreatePlaylistData, userId: number }) => {
       const response = await fetch(`${BASE_URL}/playlists/user/${userId}`, {
         method: 'POST',
         headers: {
@@ -23,131 +81,92 @@ export function useCreatePlayList() {
         body: JSON.stringify(playlistData),
       });
       if (!response.ok) {
-        throw new Error('Failed to create playlist');
+        throw new Error('플레이리스트 생성에 실패했습니다');
       }
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userPlaylists', userId] });
     },
   });
 }
 
-// Update
-export function useUpdatePlayList() {
+// 플레이리스트 수정
+export function useUpdatePlaylist() {
   const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: async ({ 
       playlistId, 
-      playlistTitle,
-      description,
-      imageUrl,
-      userId
+      userId,
+      data
     }: {
       playlistId: number;
-      playlistTitle: string;
-      description: string;
-      imageUrl: string;
       userId: number;
+      data: UpdatePlaylistData;
     }) => {
       const response = await fetch(`${BASE_URL}/playlists/playlist/${playlistId}/user/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ playlistTitle, description, imageUrl }),
+        body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('Failed to update playlist');
+        throw new Error('플레이리스트 수정에 실패했습니다');
       }
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userPlaylists', userId] });
     },
   });
 }
 
-export function useUpdatePlaylistShare() {
+// 플레이리스트 공유 토글
+export function useTogglePlaylistShare() {
   const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: async ({ 
       playlistId, 
-      userId, 
-      isShared 
+      userId
     }: { 
       playlistId: number;
-      userId: string | number;
-      isShared: boolean;
+      userId: number;
     }) => {
-      const response = await fetch(`${BASE_URL}/playlists/share/${playlistId}/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}/playlists/${playlistId}/share?user_id=${userId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isShared }),
       });
       if (!response.ok) {
-        throw new Error('플레이리스트 공유 상태 업데이트에 실패했습니다');
+        throw new Error('플레이리스트 공유 상태 변경에 실패했습니다');
       }
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userPlaylists'] });
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userPlaylists', userId] });
+      queryClient.invalidateQueries({ queryKey: ['sharedPlaylists'] });
     },
   });
 }
 
-// Delete
-export function useDeletePlayList() {
+// 플레이리스트 삭제
+export function useDeletePlaylist() {
   const queryClient = useQueryClient();
+  
   return useMutation({
-    mutationFn: async (playlistId: number) => {
-      const response = await fetch(`${BASE_URL}/playlists/${playlistId}`, {
+    mutationFn: async ({ playlistId, userId }: { playlistId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/playlists/playlist/${playlistId}/user/${userId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('Failed to delete playlist');
+        throw new Error('플레이리스트 삭제에 실패했습니다');
       }
-      return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userPlaylists', userId] });
     },
   });
-}
-
-// Read
-export function useUserPlaylist({ userId, searchText = '', page = 0, size = 10 }: UserPlaylistParams) {
-  return useInfiniteQuery<PlaylistResponse, Error>({
-    queryKey: ['userPlaylist', userId, searchText, page, size],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`${BASE_URL}/playlists/user/${userId}?page=${pageParam}&size=${size}&search=${encodeURIComponent(searchText)}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch playlists');
-      }
-      return response.json() as Promise<PlaylistResponse>;
-    },
-    getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.number + 1;
-      return nextPage < lastPage.totalPages ? nextPage : undefined;
-    },
-    initialPageParam: 0,
-  });
-}
-
-export function usePlayList(playListIndex: number) {
-  return useQuery({
-    queryKey: ['playlists', playListIndex],
-    queryFn: () => fetch(`${BASE_URL}/playlists/${playListIndex}`).then(res => res.json()),
-  });
-}
-
-export interface UserPlaylistParams {
-  userId: string | number;
-  searchText?: string;
-  page?: number;
-  size?: number;
 }
 
 

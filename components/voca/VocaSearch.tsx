@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { colors, spacing } from '../../constants';
 import SearchBar from '../searchbar/SearchBar';
-import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
+// import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
 import { useSearchStore } from '../../store/useSearchStore';
 import useAuthStore from '../../store/useAuthStore';
 
@@ -10,14 +10,13 @@ function VocaSearch() {
   const searchText = useSearchStore(state => state.searchText);
   const userId = useAuthStore(state => state.user?.id);
 
-  const {
-    data,
-  } = useInfiniteVoca(userId!, searchText);
+  // 임시로 빈 값 반환
+  const data = { pages: [{ content: [] }] } as any;
 
   return (
     <>
       <View style={styles.search}>
-        <SearchBar initialSuggestions={data?.pages.flatMap(page => page.content.map(item => item.vocaTitle))} />
+        <SearchBar initialSuggestions={data?.pages.flatMap((page: any) => page.content.map((item: any) => item.vocaTitle))} />
       </View>
     </>
   );

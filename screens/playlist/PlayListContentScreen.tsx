@@ -6,7 +6,7 @@ import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/Play
 import PlayListLayout from '../../components/common/MusicListPlay/MusicListLayout';
 import FAB from '../../components/common/FAB';
 import { PlayListNavigations } from '../../constants';
-import { useInfiniteMusic } from '../../server/query/hooks/useMusic';
+import { useMusicList } from '../../server/query/hooks/useMusic';
 import { Music } from '../../types/music';
 import { useSearchStore } from '../../store/useSearchStore';
 import { colors, getFontStyle } from '../../constants';
@@ -21,8 +21,7 @@ function PlayListContentScreen() {
 
   const searchText = useSearchStore(state => state.searchText);
 
-
-  const { data, fetchNextPage, hasNextPage } = useInfiniteMusic(playListIndex, searchText);
+  const { data } = useMusicList(playListIndex, 0, 10);
 
   const handlePlayAll = () => {
     // 전체 재생 로직
@@ -43,17 +42,14 @@ function PlayListContentScreen() {
     });
   };
 
-
-  const musicList: Music[] | undefined = data?.pages.flatMap(page => 
-    page.content.map(item => ({
-      musicId: item.musicId,
-      musicTitle: item.musicTitle,
-      musicUrl: item.musicUrl,
-      color: item.color,
-      imageUrl: item.imageUrl,
-      musicLike: item.musicLike || false,
-    }))
-  ) || undefined;
+  const musicList: Music[] | undefined = data?.content?.map((item: any) => ({
+    musicId: item.musicId,
+    musicTitle: item.musicTitle,
+    musicUrl: item.musicUrl,
+    color: item.color,
+    imageUrl: item.imageUrl,
+    musicLike: item.musicLike || false,
+  })) || undefined;
 
   const handleMusicItemPress = (id: string) => {
     const selectedMusic = musicList?.find(music => music.musicId.toString() === id);

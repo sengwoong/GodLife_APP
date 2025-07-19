@@ -15,7 +15,7 @@ import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
-import { useCreatePlayList, usePlayList, useUpdatePlayList } from '../../server/query/hooks/usePlayList';
+import { useCreatePlaylist, useUserPlaylists, useUpdatePlaylist } from '../../server/query/hooks/usePlayList';
 import useAuthStore from '../../store/useAuthStore';
 import useUserId from '../../server/query/hooks/useUserId';
 
@@ -26,41 +26,38 @@ export default function PlaylistEditScreen() {
 
   const route = useRoute<RouteProp<PlayListStackParamList, 'PlaylistEdit'>>();
   const { playListIndex } = route.params;
-  const { data: playlistData } = usePlayList(playListIndex);
-  
   const userId = useUserId();
+  
+  const { data: playlistData } = useUserPlaylists(userId, 0, 10);
 
-  const createPlaylistMutation = useCreatePlayList();
-  const updatePlaylistMutation = useUpdatePlayList();
+  const createPlaylistMutation = useCreatePlaylist();
+  const updatePlaylistMutation = useUpdatePlaylist();
 
   useEffect(() => {
-    if (playlistData) {
-      setTitle(playlistData.playlistTitle);
-      setDescription(playlistData.description || '');
+    if (playlistData?.content && playListIndex !== undefined) {
+      const playlist = playlistData.content[playListIndex];
+      if (playlist) {
+        setTitle(playlist.playlistTitle);
+        setDescription('');
+      }
     }
-  }, [playlistData]);
+  }, [playlistData, playListIndex]);
 
   const handleSubmit = async () => {
     try {
-      const playlistData = {
-        playlistId: 0,
-        playlistTitle: title,
-        description,
-        imageUrl: '',
-        isShared: false,
-      };
-
       if (playListIndex) {
         await updatePlaylistMutation.mutateAsync({
           playlistId: playListIndex,
-          playlistTitle: title,
-          description,
-          imageUrl: '',
           userId,
+          data: {
+            playListTitle: title,
+          },
         });
       } else {
         await createPlaylistMutation.mutateAsync({
-          playlistData, 
+          playlistData: {
+            playListTitle: title,
+          },
           userId,
         });
       }

@@ -34,12 +34,58 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
 
   if (isLoading) {
     console.log('VocaList - 로딩 중...');
-    return <ActivityIndicator size="large" color={colors.GREEN} />;
+    return (
+      <FlatList
+        style={styles.flatList}
+        contentContainerStyle={[styles.flatListContent, styles.errorContainer]}
+        data={[]}
+        renderItem={() => null}
+        ListEmptyComponent={
+          <View style={styles.errorView}>
+            <ActivityIndicator size="large" color={colors.GREEN} />
+            <Text style={styles.errorSubText}>단어장을 불러오는 중...</Text>
+          </View>
+        }
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.GREEN]}
+              tintColor={colors.GREEN}
+            />
+          ) : undefined
+        }
+      />
+    );
   }
 
   if (error) {
     console.log('VocaList - 에러 발생:', error.message);
-    return <Text>Error: {error.message}</Text>;
+    return (
+      <FlatList
+        style={styles.flatList}
+        contentContainerStyle={[styles.flatListContent, styles.errorContainer]}
+        data={[]}
+        renderItem={() => null}
+        ListEmptyComponent={
+          <View style={styles.errorView}>
+            <Text style={styles.errorText}>Error: {error.message}</Text>
+            <Text style={styles.errorSubText}>아래로 당겨서 다시 시도해보세요</Text>
+          </View>
+        }
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.GREEN]}
+              tintColor={colors.GREEN}
+            />
+          ) : undefined
+        }
+      />
+    );
   }
 
   return (
@@ -58,12 +104,14 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
         onEndReachedThreshold={0.5}
         ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.GREEN]}
-            tintColor={colors.GREEN}
-          />
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.GREEN]}
+              tintColor={colors.GREEN}
+            />
+          ) : undefined
         }
       />
     </>
@@ -116,6 +164,26 @@ const styles = StyleSheet.create({
   flatListContent: {
     flexGrow: 1,
   },
+  errorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  errorView: {
+    alignItems: 'center',
+    padding: spacing.M20,
+  },
+  errorText: {
+    color: colors.RED,
+    ...getFontStyle('body', 'medium', 'bold'),
+    textAlign: 'center',
+    marginBottom: spacing.M8,
+  } as TextStyle,
+  errorSubText: {
+    color: colors.GRAY,
+    ...getFontStyle('body', 'small', 'regular'),
+    textAlign: 'center',
+  } as TextStyle,
 });
 
 export default VocaList; 

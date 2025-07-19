@@ -21,25 +21,32 @@ import useAuthStore from '../../store/useAuthStore';
 import SelectButton from '../../components/SelectButton';
 
 export default function VocaEditScreen() {
-  const route = useRoute<RouteProp<VocaStackParamList, 'VocaContentEdit'>>();
-  const { vocaIndex } = route.params;
+  const route = useRoute<RouteProp<VocaStackParamList, 'VOCAEDIT'>>();
+  const { vocaId } = route.params;
   const user = useAuthStore(state => state.user);
   const userId = user?.id;
   const [title, setTitle] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
   const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
 
-  const { data: vocaData, isLoading } = useVoca(vocaIndex);
+  const { data: vocaData, isLoading } = useVoca(vocaId);
   const updateVocaMutation = useUpdateVoca();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    console.log('VocaEditScreen - vocaId:', vocaId);
+    console.log('VocaEditScreen - vocaData:', vocaData);
+    console.log('VocaEditScreen - isLoading:', isLoading);
+    
     if (vocaData) {
+      console.log('VocaEditScreen - Setting data from vocaData');
       setTitle(vocaData.vocaTitle);
       setSelectedLanguage(vocaData.languages || 'English');
+    } else {
+      console.log('VocaEditScreen - No vocaData available');
     }
-  }, [vocaData]);
+  }, [vocaData, vocaId, isLoading]);
 
   const handleSubmit = async () => {
     try {
@@ -49,7 +56,7 @@ export default function VocaEditScreen() {
       }
 
       await updateVocaMutation.mutateAsync({
-        vocaId: vocaIndex,
+        vocaId: vocaId,
         userId,
         data: {
           vocaTitle: title,
@@ -57,8 +64,12 @@ export default function VocaEditScreen() {
         },
       });
 
-      queryClient.invalidateQueries({ 
-        queryKey: ['vocas', userId]
+      // 단어장 목록과 개별 단어장 쿼리 모두 무효화
+      await queryClient.invalidateQueries({ 
+        queryKey: ['vocas']
+      });
+      await queryClient.invalidateQueries({ 
+        queryKey: ['voca', vocaId]
       });
 
       navigation.goBack();

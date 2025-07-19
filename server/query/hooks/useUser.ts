@@ -1,115 +1,45 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
-import { BasePost } from '../../../types/post';
-import { Voca } from '../../../types/voca';
-import { Playlist } from '../../../types/playlist';
-import { Music } from '../../../types/music';
 
 interface UserResponse {
-  id: string | number;
-  email: string;
+  id: number;
   nickName: string;
+  sales: number;
   phoneNumber: string;
   address: string;
-  profileImage: string;
-  bio: string;
-  level: number;
-  followers: number;
-  following: number;
-}
-
-interface UserPostsResponse {
-  id: string | number;
-  posts: (BasePost & { type: 'post' })[];
-  vocas: (Voca & { type: 'voca' })[];
-  playlists: (Playlist & { type: 'playlist' })[];
-  allItems: (BasePost | Voca | Playlist & { type: string })[];
-  totalPages: number;
-  size: number;
-}
-
-interface BestUserResponse {
-  users: UserResponse[];
-}
-
-interface RecommendContentResponse {
-  posts: (BasePost & { type: 'post' })[];
-  vocas: (Voca & { type: 'voca' })[];
-  playlists: (Playlist & { type: 'playlist' })[];
-  musics: (Music & { type: 'music' })[];
-  allItems: (BasePost | Voca | Playlist | Music & { type: string })[];
-  totalPages: number;
-  size: number;
+  email: string;
+  createdAt: string;
 }
 
 interface CreateUserData {
   email: string;
   password: string;
   nickName: string;
-  phoneNumber?: string;
-  address?: string;
 }
 
 interface UpdateUserData {
-  nickName?: string;
-  phoneNumber?: string;
-  address?: string;
-  profileImage?: string;
-  bio?: string;
+  nickName: string;
+  phoneNumber: string;
+  address: string;
+  email: string;
 }
 
-export const useUser = (userId: string) => {
+// 사용자 정보 조회
+export const useUser = (userId: number) => {
   return useQuery<UserResponse>({
     queryKey: ['user', userId],
     queryFn: async () => {
       const response = await fetch(`${BASE_URL}/users/user/${userId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch user');
+        throw new Error('사용자를 찾을 수 없습니다');
       }
       return response.json();
     },
+    enabled: userId !== undefined,
   });
 };
 
-export const useUserAllPosts = (userId: string, page: number, pageSize: number) => {
-  return useQuery<UserPostsResponse>({
-    queryKey: ['userAllPosts', userId, page, pageSize],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/users/user/${userId}/posts?page=${page}&size=${pageSize}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch user posts');
-      }
-      return response.json();
-    },
-  });
-};
-
-export const useBestUsers = () => {
-  return useQuery<BestUserResponse>({
-    queryKey: ['bestUsers'],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/users/best`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch best users');
-      }
-      return response.json();
-    },
-  });
-};
-
-export const useUserRecommend = (page: number, pageSize: number) => {
-  return useQuery<RecommendContentResponse>({
-    queryKey: ['userRecommend', page, pageSize],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/users/recommend?page=${page}&size=${pageSize}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch recommended content');
-      }
-      return response.json();
-    },
-  });
-};
-
+// 사용자 생성
 export const useCreateUser = () => {
   return useMutation({
     mutationFn: async (userData: CreateUserData) => {
@@ -121,18 +51,19 @@ export const useCreateUser = () => {
         body: JSON.stringify(userData),
       });
       if (!response.ok) {
-        throw new Error('Failed to create user');
+        throw new Error('사용자 생성에 실패했습니다');
       }
       return response.json();
     },
   });
 };
 
+// 사용자 정보 수정
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ userId, userData }: { userId: string, userData: UpdateUserData }) => {
+    mutationFn: async ({ userId, userData }: { userId: number, userData: UpdateUserData }) => {
       const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'PUT',
         headers: {
@@ -141,7 +72,7 @@ export const useUpdateUser = () => {
         body: JSON.stringify(userData),
       });
       if (!response.ok) {
-        throw new Error('Failed to update user');
+        throw new Error('사용자 정보 수정에 실패했습니다');
       }
       return response.json();
     },
@@ -151,14 +82,15 @@ export const useUpdateUser = () => {
   });
 };
 
+// 사용자 삭제
 export const useDeleteUser = () => {
   return useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async (userId: number) => {
       const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('Failed to delete user');
+        throw new Error('사용자 삭제에 실패했습니다');
       }
     },
   });
