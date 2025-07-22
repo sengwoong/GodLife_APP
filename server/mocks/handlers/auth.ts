@@ -4,9 +4,10 @@ import { LoginRequest } from '../../common/types/serverType'
 
 export const authHandlers = [
   http.post(`${BASE_URL}/login`, async ({ request }) => {
-
+    console.log('/login 백엔드 호출')
     const { email, password } = await request.json() as LoginRequest
-
+    console.log('email', email)
+    console.log('password', password)
     if (email === 'test@test.com' && password === 'password') {
       return HttpResponse.json({
         success: true,

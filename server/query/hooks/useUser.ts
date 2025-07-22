@@ -1,57 +1,116 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
+import { BasePost } from '../../../types/post';
+import { Voca } from '../../../types/voca';
+import { Playlist } from '../../../types/playlist';
+import { Music } from '../../../types/music';
 
 interface UserResponse {
-  id: number;
+  id: string | number;
+  email: string;
   nickName: string;
-  sales: number;
   phoneNumber: string;
   address: string;
-  email: string;
-  createdAt: string;
+  profileImage: string;
+  bio: string;
+  level: number;
+  followers: number;
+  following: number;
+}
+
+interface UserPostsResponse {
+  id: string | number;
+  posts: (BasePost & { type: 'post' })[];
+  vocas: (Voca & { type: 'voca' })[];
+  playlists: (Playlist & { type: 'playlist' })[];
+  allItems: (BasePost | Voca | Playlist & { type: string })[];
+  totalPages: number;
+  size: number;
+}
+
+interface BestUserResponse {
+  users: UserResponse[];
+}
+
+interface RecommendContentResponse {
+  posts: (BasePost & { type: 'post' })[];
+  vocas: (Voca & { type: 'voca' })[];
+  playlists: (Playlist & { type: 'playlist' })[];
+  musics: (Music & { type: 'music' })[];
+  allItems: (BasePost | Voca | Playlist | Music & { type: string })[];
+  totalPages: number;
+  size: number;
 }
 
 interface CreateUserData {
   email: string;
   password: string;
   nickName: string;
+  phoneNumber?: string;
+  address?: string;
 }
 
 interface UpdateUserData {
-  nickName: string;
-  phoneNumber: string;
-  address: string;
-  email: string;
+  nickName?: string;
+  phoneNumber?: string;
+  address?: string;
+  profileImage?: string;
+  bio?: string;
 }
 
-interface UserStats {
-  totalVocas: number;
-  totalWords: number;
-  totalPoints: number;
-  studyStreak: number;
-}
-
-// 사용자 정보 조회
-export const useUser = (userId: number) => {
+export const useUser = (userId: string) => {
   return useQuery<UserResponse>({
     queryKey: ['user', userId],
     queryFn: async () => {
       const response = await fetch(`${BASE_URL}/users/user/${userId}`);
       if (!response.ok) {
-        throw new Error('사용자를 찾을 수 없습니다');
+        throw new Error('Failed to fetch user');
       }
-      const data = await response.json();
-      return data;
+      return response.json();
     },
-    enabled: userId !== undefined,
-    staleTime: 5 * 60 * 1000, // 5분
   });
 };
 
-// 사용자 생성
+export const useUserAllPosts = (userId: string, page: number, pageSize: number) => {
+  return useQuery<UserPostsResponse>({
+    queryKey: ['userAllPosts', userId, page, pageSize],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/users/user/${userId}/posts?page=${page}&size=${pageSize}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch user posts');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useBestUsers = () => {
+  return useQuery<BestUserResponse>({
+    queryKey: ['bestUsers'],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/users/best`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch best users');
+      }
+      return response.json();
+    },
+  });
+};
+
+export const useUserRecommend = (page: number, pageSize: number) => {
+  return useQuery<RecommendContentResponse>({
+    queryKey: ['userRecommend', page, pageSize],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/users/recommend?page=${page}&size=${pageSize}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommended content');
+      }
+      return response.json();
+    },
+  });
+};
+
 export const useCreateUser = () => {
-  const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (userData: CreateUserData) => {
       const response = await fetch(`${BASE_URL}/users`, {
@@ -62,23 +121,18 @@ export const useCreateUser = () => {
         body: JSON.stringify(userData),
       });
       if (!response.ok) {
-        throw new Error('사용자 생성에 실패했습니다');
+        throw new Error('Failed to create user');
       }
-      const data = await response.json();
-      return data;
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData(['user', data.id], data);
+      return response.json();
     },
   });
 };
 
-// 사용자 정보 수정
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ userId, userData }: { userId: number, userData: UpdateUserData }) => {
+    mutationFn: async ({ userId, userData }: { userId: string, userData: UpdateUserData }) => {
       const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'PUT',
         headers: {
@@ -87,102 +141,25 @@ export const useUpdateUser = () => {
         body: JSON.stringify(userData),
       });
       if (!response.ok) {
-        throw new Error('사용자 정보 수정에 실패했습니다');
+        throw new Error('Failed to update user');
       }
-      const data = await response.json();
-      return data;
+      return response.json();
     },
-    onSuccess: (data, { userId }) => {
+    onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({ queryKey: ['user', userId] });
-      queryClient.setQueryData(['user', userId], data);
     },
-    onError: (error, variables) => {
-    
-    }
   });
 };
 
-// 사용자 삭제
 export const useDeleteUser = () => {
-  const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: async (userId: number) => {
+    mutationFn: async (userId: string) => {
       const response = await fetch(`${BASE_URL}/users/user/${userId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('사용자 삭제에 실패했습니다');
+        throw new Error('Failed to delete user');
       }
     },
-    onSuccess: (_, userId) => {
-      queryClient.removeQueries({ queryKey: ['user', userId] });
-    },
-  });
-};
-
-// 사용자 통계 정보 조회
-export const useUserStats = (userId: number) => {
-  return useQuery<UserStats>({
-    queryKey: ['userStats', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/users/user/${userId}/stats`);
-      if (!response.ok) {
-        throw new Error('사용자 통계를 불러올 수 없습니다');
-      }
-      const data = await response.json();
-
-      return data;
-    },
-    enabled: userId !== undefined,
-    staleTime: 10 * 60 * 1000, // 10분
-  });
-};
-
-// 사용자 프로필 이미지 업로드
-export const useUploadUserProfile = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ userId, imageFile }: { userId: number, imageFile: FormData }) => {
-      const response = await fetch(`${BASE_URL}/users/user/${userId}/profile-image`, {
-        method: 'POST',
-        body: imageFile,
-      });
-      if (!response.ok) {
-        throw new Error('프로필 이미지 업로드에 실패했습니다');
-      }
-      const data = await response.json();
-
-      return data;
-    },
-    onSuccess: (data, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['user', userId] });
-    },
-
-  });
-};
-
-// 사용자 비밀번호 변경
-export const useChangePassword = () => {
-  return useMutation({
-    mutationFn: async ({ userId, currentPassword, newPassword }: { 
-      userId: number, 
-      currentPassword: string, 
-      newPassword: string 
-    }) => {
-      const response = await fetch(`${BASE_URL}/users/user/${userId}/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-      if (!response.ok) {
-        throw new Error('비밀번호 변경에 실패했습니다');
-      }
-
-    },
-
   });
 };    

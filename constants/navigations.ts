@@ -2,7 +2,7 @@ const authNavigations = {
   HOME: 'Home',
   LOGIN: 'Login',
   SIGNUP: 'Signup',
-} as const;
+  } as const;
 
 const drawerNavigations = {
   PLAYLIST: 'PlayList',
@@ -12,16 +12,13 @@ const drawerNavigations = {
   MAIN: 'Main',
   POST: 'Post'
 } as const;
-  
+
 const VocaNavigations = {
-  VOCAAIGENERATE: 'VOCAAIGENERATE',
-  VOCA: 'VOCA',
-  VOCACONTENT: 'VOCACONTENT',
-  VOCACONTENTEDIT: 'VOCACONTENTEDIT',
-  VOCAEDIT: 'VOCAEDIT',
-  WORDEDIT: 'WORDEDIT',
-  VOCAGAME: 'VOCAGAME',
-} as const;
+    VOCAMAIN: 'VocaMainMain',
+    VOCACONTENT: 'VocaContent',
+    WORDCONTENTEDIT: 'WordContentEdit',
+    VOCACONTENTEDIT: 'VocaContentEdit',
+    } as const;
   
 const CalendarNavigations = {
     CALENDAR: 'CalendarMain',
@@ -29,16 +26,14 @@ const CalendarNavigations = {
     } as const;
 
 const PlayListNavigations = {
-    PLAYLIST: 'PlayList',
+    PLAYLIST: 'PlayListMain',
     PLAYLISTCONTENT: 'PlayListContent',
-    PLAYLISTEDIT: 'PlaylistEdit',
     MUSICEDIT: 'MusicEdit',
-    NOW_PLAYING: 'NowPlaying',
-} as const;
+    PLAYLISTEDIT: 'PlaylistEdit',
+    } as const;
     
 const MainNavigations = {
-  MAIN: 'Main',
-  POST_DETAIL: 'PostDetail'
+  MAIN: 'MainPage',
 } as const;
 
 const PostNavigations = {

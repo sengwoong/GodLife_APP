@@ -7,7 +7,7 @@ import { Point } from '../../../types/point';
 import { formatDate } from '../../../utils/dateUtils';
 
 function PointHistoryScreen() {
-  
+  const userId = 1; // 실제 사용시에는 로그인된 사용자 ID를 사용
   const { 
     data, 
     fetchNextPage, 

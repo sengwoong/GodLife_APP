@@ -8,9 +8,6 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { colors, spacing } from '../../constants';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { PostNavigations } from '../../constants/navigations';
 
 import CustomButton from '../../components/CustomButton';
 import ItemCard from '../../components/ItemCard';
@@ -24,12 +21,6 @@ import { Voca } from '../../types/voca';
 import { BasePost } from '../../types/post';
 import { Playlist } from '../../types/playlist';
 import SquareItemCard from '../../components/SquareItemCard';
-
-type PostStackParamList = {
-  [PostNavigations.POSTDETAIL]: { postId: number };
-};
-
-type NavigationProp = NativeStackNavigationProp<PostStackParamList>;
 
 const CATEGORY_BUTTONS = [
   { label: '전체보기', id: 'all' },
@@ -74,23 +65,15 @@ const ItemInfo = ({ item }: { item: BasePost | Voca | Playlist }) => {
 };
 
 export const PostAvatarScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
   const [activeCategory, setActiveCategory] = useState('전체보기');
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
 
   const { data: userData } = useUser('1');
   const { data: userAllPosts } = useUserAllPosts('1', currentPage, pageSize);
-  const { data: userVocas } = useUserVocas({userId: '1', page: currentPage, size: pageSize});
-  const { data: userPlaylists } = useUserPlaylist({userId: '1', searchText: '', page: currentPage, size: pageSize});
-  const { data: userPosts } = useUserPosts({userId: '1', page: currentPage, size: pageSize});
-
-  const playlistContent = userPlaylists?.pages[0]?.content || [];
-  const playlistTotalPages = userPlaylists?.pages[0]?.totalPages || 0;
-
-  const handleItemPress = (item: BasePost | Voca | Playlist) => {
-    navigation.navigate(PostNavigations.POSTDETAIL, { postId: item.id });
-  };
+  const {data: userVocas} = useUserVocas({userId: '1', page: currentPage, size: pageSize});
+  const {data: userPlaylists} = useUserPlaylist({userId: '1', searchText: '', page: currentPage, size: pageSize});
+  const {data: userPosts} = useUserPosts({userId: '1', page: currentPage, size: pageSize});
 
   const renderItems = () => {
     switch (activeCategory) {
@@ -99,53 +82,37 @@ export const PostAvatarScreen = () => {
           return <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>데이터가 없습니다.</Text></View>;
         }
         return userAllPosts.allItems.map((item, index) => (
-          <TouchableOpacity 
-            key={`all-${index}`} 
-            style={styles.content__item}
-            onPress={() => handleItemPress(item)}
-          >
+          <View key={`all-${index}`} style={styles.content__item}>
             <ItemCard item={item} type="post" />
             <ItemInfo item={item} />
-          </TouchableOpacity>
+          </View>
         ));
       
       case '단어장':
         if (!userVocas?.content) return null;
         return userVocas.content.map((voca, index) => (
-          <TouchableOpacity 
-            key={`voca-${index}`} 
-            style={styles.content__item}
-            onPress={() => handleItemPress(voca)}
-          >
+          <View key={`voca-${index}`} style={styles.content__item}>
             <ItemCard item={voca} type="voca" />
             <ItemInfo item={voca} />
-          </TouchableOpacity>
+          </View>
         ));
       
       case '재생목록':
-        if (!playlistContent.length) return null;
-        return playlistContent.map((playlist, index) => (
-          <TouchableOpacity 
-            key={`playlist-${index}`} 
-            style={styles.content__item}
-            onPress={() => handleItemPress(playlist)}
-          >
+        if (!userPlaylists?.content) return null;
+        return userPlaylists.content.map((playlist, index) => (
+          <View key={`playlist-${index}`} style={styles.content__item}>
             <ItemCard item={playlist} type="playlist" />
             <ItemInfo item={playlist} />
-          </TouchableOpacity>
+          </View>
         ));
       
       case '포스트':
         if (!userPosts?.content) return null;
         return userPosts.content.map((post, index) => (
-          <TouchableOpacity 
-            key={`post-${index}`} 
-            style={styles.content__item}
-            onPress={() => handleItemPress(post)}
-          >
+          <View key={`post-${index}`} style={styles.content__item}>
             <ItemCard item={post} type="post" />
             <ItemInfo item={post} />
-          </TouchableOpacity>
+          </View>
         ));
       
       default:
@@ -160,7 +127,7 @@ export const PostAvatarScreen = () => {
       case '단어장':
         return userVocas?.totalPages || 0;
       case '재생목록':
-        return playlistTotalPages;
+        return userPlaylists?.totalPages || 0;
       case '포스트':
         return userPosts?.totalPages || 0;
       default:

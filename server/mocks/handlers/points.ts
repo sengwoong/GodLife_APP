@@ -110,46 +110,4 @@ export const pointHandlers = [
 
     return HttpResponse.json(summary);
   }),
-
-  // 단어 게임 점수 저장
-  http.post(`${BASE_URL}/points/voca-game`, async ({ request }) => {
-    try {
-      const body = await request.json();
-      const { userId, vocaId, score, totalWords } = body;
-      
-      const pointsToAdd = Math.floor((score / totalWords) * 100);
-      
-      return new HttpResponse(
-        JSON.stringify({
-          success: true,
-          message: '단어 게임 점수가 저장되었습니다.',
-          data: {
-            pointsEarned: pointsToAdd,
-            gameScore: score,
-            totalWords: totalWords
-          }
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    } catch (error) {
-      return new HttpResponse(
-        JSON.stringify({
-          success: false,
-          message: '점수 저장에 실패했습니다.',
-          error: error.message
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    }
-  }),
 ]; 

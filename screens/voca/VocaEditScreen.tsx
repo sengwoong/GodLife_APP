@@ -15,56 +15,56 @@ import {
 import { VocaStackParamList } from '../../navigations/stack/beforeLogin/VocaStackNavigator';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
-import { fetchVoca, useUpdateVoca } from '../../server/query/hooks/useVoca';
+import { useVoca, useUpdateVoca } from '../../server/query/hooks/useVoca';
+import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '../../store/useAuthStore';
 import SelectButton from '../../components/SelectButton';
-import { useQueryClient } from '@tanstack/react-query';
 
 export default function VocaEditScreen() {
-  const route = useRoute<RouteProp<VocaStackParamList, 'VOCAEDIT'>>();
-  const { vocaId } = route.params;
+  const route = useRoute<RouteProp<VocaStackParamList, 'VocaContentEdit'>>();
+  const { vocaIndex } = route.params;
   const user = useAuthStore(state => state.user);
   const userId = user?.id;
   const [title, setTitle] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('English');
-  const [isLoading, setIsLoading] = useState(true);
-
   const languages = ['English', '日本語', 'Tiếng Việt', '中文', 'Русский'];
 
+  const { data: vocaData, isLoading } = useVoca(vocaIndex);
   const updateVocaMutation = useUpdateVoca();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const loadVocaData = async () => {
-      setIsLoading(true);
-      const data = await fetchVoca(vocaId);
-
-      setTitle(data.vocaTitle);
-      setSelectedLanguage(data.languages || 'English');
-      setIsLoading(false);
-    };
-
-    if (vocaId) {
-      loadVocaData();
+    if (vocaData) {
+      setTitle(vocaData.vocaTitle);
+      setSelectedLanguage(vocaData.languages || 'English');
     }
-  }, [vocaId]);
+  }, [vocaData]);
 
   const handleSubmit = async () => {
-    if (!userId ) {
-      throw new Error('User ID is not available');
+    try {
+      if (!userId ) {
+        console.log('User not found:', userId);  
+        throw new Error('User ID is not available');
+      }
+
+      await updateVocaMutation.mutateAsync({
+        vocaId: vocaIndex,
+        userId,
+        data: {
+          vocaTitle: title,
+          languages: selectedLanguage,
+        },
+      });
+
+      queryClient.invalidateQueries({ 
+        queryKey: ['vocas', userId]
+      });
+
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error updating voca:', error);
     }
-
-    await updateVocaMutation.mutateAsync({
-      vocaId: vocaId,
-      userId,
-      data: {
-        vocaTitle: title,
-        languages: selectedLanguage,
-      },
-    });
-
-    navigation.goBack();
   };
 
   if (isLoading) {

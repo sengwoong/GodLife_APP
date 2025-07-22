@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
-interface Schedule {
-  scheduleId: number;
-  scheduleTitle: string;
-  startTime: string;
-  endTime: string;
-  createdAt: string;
-  updatedAt: string;
+
+
+// UI 표시용 타입
+export interface Schedule {
+  id: number;
+  title: string;
+  content: string;
+  time: string;
+  day: string;
 }
 
 interface ScheduleResponse {
@@ -18,39 +20,50 @@ interface ScheduleResponse {
   number: number;
 }
 
-interface CreateScheduleData {
-  scheduleTitle: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface UpdateScheduleData {
-  scheduleTitle: string;
-  startTime: string;
-  endTime: string;
-}
-
-// 사용자 일정 목록 조회 (페이지네이션)
-export function useUserSchedules(userId: number, page: number = 0, size: number = 10) {
+// Read 작업
+export function useSchedules(userId: number, year: number, month: number, day: number) {
+  const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
+  
   return useQuery<ScheduleResponse>({
-    queryKey: ['userSchedules', userId, page, size],
+    queryKey: ['schedules', userId, yearMonth],
     queryFn: async () => {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        size: size.toString()
-      });
-      
-      const response = await fetch(`${BASE_URL}/schedules/user/${userId}?${params}`);
+      const response = await fetch(
+        `${BASE_URL}/schedules/user/${userId}?year=${year}&month=${month}&day=${day}`
+      );
       if (!response.ok) {
-        throw new Error('일정 목록을 불러올 수 없습니다');
+        throw new Error('일정 조회 실패');
       }
-      return response.json();
+      const data = await response.json();
+      return data;
     },
-    enabled: userId !== undefined,
   });
 }
 
-// 일정 생성
+// 단일 일정 조회
+export function useSchedule(scheduleId: number, userId: number) {
+  return useQuery<Schedule>({
+    queryKey: ['schedule', scheduleId, userId],
+    queryFn: async () => {
+      const response = await fetch(
+        `${BASE_URL}/schedules/schedule/${scheduleId}/user/${userId}`
+      );
+      if (!response.ok) {
+        throw new Error('일정 조회 실패');
+      }
+      return response.json();
+    },
+  });
+}
+
+// 스케줄 생성 시 필요한 데이터 타입
+export interface CreateScheduleData {
+  scheduleTitle: string;
+  content: string;
+  startTime: string;
+  endTime: string;
+}
+
+// Create 작업
 export function useCreateSchedule() {
   const queryClient = useQueryClient();
   
@@ -67,17 +80,17 @@ export function useCreateSchedule() {
         body: JSON.stringify(scheduleData),
       });
       if (!response.ok) {
-        throw new Error('일정 생성에 실패했습니다');
+        throw new Error('일정 생성 실패');
       }
       return response.json();
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['userSchedules', userId] });
+      queryClient.invalidateQueries({ queryKey: ['schedules', userId] });
     },
   });
 }
 
-// 일정 수정
+// Update 작업
 export function useUpdateSchedule() {
   const queryClient = useQueryClient();
 
@@ -89,7 +102,7 @@ export function useUpdateSchedule() {
     }: {
       scheduleId: number;
       userId: number;
-      scheduleData: UpdateScheduleData;
+      scheduleData: Partial<Omit<Schedule, 'id' | 'userId'>>;
     }) => {
       const response = await fetch(`${BASE_URL}/schedules/schedule/${scheduleId}/user/${userId}`, {
         method: 'PUT',
@@ -99,17 +112,18 @@ export function useUpdateSchedule() {
         body: JSON.stringify(scheduleData),
       });
       if (!response.ok) {
-        throw new Error('일정 수정에 실패했습니다');
+        throw new Error('일정 수정 실패');
       }
       return response.json();
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['userSchedules', userId] });
+      queryClient.invalidateQueries({ queryKey: ['schedules', userId] });
+      queryClient.invalidateQueries({ queryKey: ['schedule'] });
     },
   });
 }
 
-// 일정 삭제
+// Delete 작업
 export function useDeleteSchedule() {
   const queryClient = useQueryClient();
 
@@ -119,11 +133,11 @@ export function useDeleteSchedule() {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('일정 삭제에 실패했습니다');
+        throw new Error('일정 삭제 실패');
       }
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['userSchedules', userId] });
+      queryClient.invalidateQueries({ queryKey: ['schedules', userId] });
     },
   });
 } 

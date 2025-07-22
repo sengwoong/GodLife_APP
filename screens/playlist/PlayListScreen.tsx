@@ -11,9 +11,8 @@ import { CompoundOption } from '../../components/Modal';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
 import PlaylistSearch from '../../components/playlist/PlaylistSearch';
 import PlaylistList from '../../components/playlist/PlaylistList';
-import { useCreatePlaylist, useDeletePlaylist } from '../../server/query/hooks/usePlayList';
+import { useCreatePlayList, useDeletePlayList } from '../../server/query/hooks/usePlayList';
 import useAuthStore from '../../store/useAuthStore';
-import useUserId from '../../server/query/hooks/useUserId';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<PlayListStackParamList>,
@@ -30,23 +29,17 @@ function PlayListScreen() {
     selectedPlaylistTitle: null as string | null,
   });
 
-  const { mutate: deletePlayList } = useDeletePlaylist();
-  const { mutate: createPlayList } = useCreatePlaylist();
+  const { mutate: deletePlayList } = useDeletePlayList();
+  const { mutate: createPlayList } = useCreatePlayList();
 
-  const navigateToNowPlaying = (playlistId: number) => {
-    navigation.navigate(PlayListNavigations.NOW_PLAYING, { 
-      playListId: playlistId,
-    });
-  };
-
-  const navigateToMusicManagement = (playlistId: number) => {
-    navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, {
+  const navigateToPlayListContent = (playlistId: number) => {
+    navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
       playListIndex: playlistId,
     });
   };
 
   // const userId = useAuthStore(state => state.user?.id);
-  const userId = useUserId();
+  const userId = 1;
 
   if (!userId) {
     throw new Error('User ID is undefined');
@@ -56,7 +49,8 @@ function PlayListScreen() {
     // 리엑트쿼리 플레이리스트 추가 요청 
     createPlayList({
       playlistData: {
-        playListTitle: newPlaylistName,
+        playlistTitle: newPlaylistName,
+        imageUrl: '',
       },
       userId: userId,
     });
@@ -80,7 +74,7 @@ function PlayListScreen() {
       <Margin size={'M12'} />
       <PlaylistSearch />
       <PlaylistList
-        navigateToPlayListContent={navigateToNowPlaying}
+        navigateToPlayListContent={navigateToPlayListContent}
         onLongPress={handleLongPress}
       />
       
@@ -125,33 +119,20 @@ function PlayListScreen() {
       >
         <CompoundOption.Background>
           <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 옵션</CompoundOption.Title>
+            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 수정하기</CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
                 navigation.navigate(PlayListNavigations.PLAYLISTEDIT, { playListIndex: contextMenu.selectedPlaylistId! });
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>
-              플레이 리스트 타이틀 수정하기
-            </CompoundOption.Button>
-            <CompoundOption.Divider />
-            <CompoundOption.Button
-              onPress={() => {
-                if (contextMenu.selectedPlaylistId !== null) {
-                  navigateToMusicManagement(contextMenu.selectedPlaylistId);
-                }
-                setContextMenu(prev => ({ ...prev, isVisible: false }));
-              }}>
-              뮤직 관리하기
+              수정하기
             </CompoundOption.Button>
             <CompoundOption.Divider />
             <CompoundOption.Button
               isDanger
               onPress={() => {
                 if (contextMenu.selectedPlaylistId) {
-                  deletePlayList({
-                    playlistId: contextMenu.selectedPlaylistId,
-                    userId: userId,
-                  });
+                  deletePlayList(contextMenu.selectedPlaylistId);
                 }
                 setContextMenu(prev => ({ ...prev, isVisible: false }));
               }}>

@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, Text, TextStyle, View, Alert } from 'react-na
 import InputField from '../../components/InputField';
 import CustomButton from '../../components/CustomButton';
 import { TextInput } from 'react-native-gesture-handler';
-import useForm from '../../components/hooks/useForm';
+import useForm from '../../hooks/useForm';
 import { validateLogin, validateSignup } from '../../utils/validateLogin';
 import { colors, getFontStyle } from '../../constants';
 import SelectButton from '../../components/SelectButton';
@@ -47,6 +47,8 @@ function SignScreen() {
         email: login.values.email,
         nickName: login.values.nickname,
         password: login.values.password,
+        phoneNumber: '', 
+        address: '',
         age: ageMap[login.values.age] || 0, 
       });
       
@@ -122,9 +124,9 @@ function SignScreen() {
           options={['10대', '20대', '30대', '40대', '50대 이상']}
           selectedOption={login.values.age}
           onSelect={(value) => {
-           
+            console.log('Selected age:', value);
             login.setFieldValue('age', value);
-          
+            console.log('Updated form values:', login.values);
           }}
         />
         

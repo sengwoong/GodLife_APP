@@ -3,8 +3,7 @@ import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, 
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useSearchStore } from '../../store/useSearchStore';
 import { Playlist } from '../../types/playlist';
-import { useUserPlaylists } from '../../server/query/hooks/usePlayList';
-import useUserId from '../../server/query/hooks/useUserId';
+import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
 
 
 
@@ -24,8 +23,8 @@ const PlaylistItem = ({
 }) => (
   <TouchableOpacity
     style={styles.list__item}
-    onPress={() => onPress(item.playlistId)}
-    onLongPress={() => onLongPress(item.playlistId, item.playlistTitle)}
+    onPress={() => onPress(item.id)}
+    onLongPress={() => onLongPress(item.id, item.playlistTitle)}
   >
     <View style={styles.list__content}>
       <Text style={styles.list__title}>{item.playlistTitle}</Text>
@@ -39,8 +38,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
 }) => {
 
   const searchText = useSearchStore(state => state.searchText);
-  const userId = useUserId();
-  const { data, isLoading, error } = useUserPlaylists(userId || 1, searchText || '', 0, 10);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useUserPlaylist({ userId: '1', searchText });
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;
@@ -52,7 +50,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
 
   return (
     <FlatList
-      data={data?.content || []}
+      data={data?.pages.flatMap(page => page.content) || []}
       renderItem={({ item }) => (
         <PlaylistItem 
           item={item} 
@@ -60,8 +58,14 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
           onLongPress={onLongPress}
         />
       )}
-      keyExtractor={(item) => item.playlistId.toString()}
+      keyExtractor={(item) => item.id.toString()}
+      onEndReached={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
       onEndReachedThreshold={0.5}
+      ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
     />
   );
 };

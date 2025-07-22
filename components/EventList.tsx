@@ -6,6 +6,10 @@ import { colors, getFontStyle, spacing } from '../constants/index';
 function EventList({ posts,onChangePressItem }: { posts: any[],onChangePressItem: (itmeIndex: number) => void }) {
   const styles = styling();
   const insets = useSafeAreaInsets();
+  console.log("EventList");
+  console.log("EventList");
+  console.log("posts");
+  console.log(posts);
   const handlePressItem = (itmeIndex: number) => {
     onChangePressItem(itmeIndex);
   };

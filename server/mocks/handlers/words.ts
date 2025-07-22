@@ -8,10 +8,6 @@ const generateWords = (vocaId: string | number, count = 100) => {
     id: i + 1,
     word: `Word ${i + 1}`,
     meaning: `Meaning for word ${i + 1}`,
-    wrongMeanings: [
-      `Wrong meaning 1 for word ${i + 1}`,
-      `Wrong meaning 2 for word ${i + 1}`
-    ],
     vocaId: Number(vocaId),
   }));
 };
@@ -27,7 +23,7 @@ export const wordHandlers = [
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = parseInt(url.searchParams.get('size') || '10', 10);
 
-    const words = generateWords(vocaId as string);
+    const words = generateWords(Number(vocaId));
     
     // 특정 인덱스의 단어만 반환
     if (index !== null) {

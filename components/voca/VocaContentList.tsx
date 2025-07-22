@@ -1,47 +1,38 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle, RefreshControl } from 'react-native';
+import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { useInfiniteWords, Word } from '../../server/query/hooks/useWord';
+import { useInfiniteWords } from '../../server/query/hooks/useWord';
 import { useSearchStore } from '../../store/useSearchStore';
+import { useRoute } from '@react-navigation/native';
 
-interface WordResponse {
-  content: Word[];
-  totalPages: number;
-  totalElements: number;
-  size: number;
-  number: number;
+interface Word {
+  id: number;
+  word: string;
+  meaning: string;
+  vocaId: number;
 }
 
 interface VocaContentListProps {
-  vocaIndex: number;
   navigateToWordDetail: (wordId: number) => void;
-  onRefresh?: () => void;
-  refreshing?: boolean;
-  onAddWord?: () => void;
 }
 
-const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void }) => {
-  return (
-    <TouchableOpacity
-      style={styles.list__item}
-      onPress={() => onPress(item.wordId)}>
-      <View style={styles.list__content}>
-        <Text style={styles.list__title}>{item.word}</Text>
-        <Text style={styles.list__meaning}>{item.meaning}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
+const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void }) => (
+  <TouchableOpacity
+    style={styles.list__item}
+    onPress={() => onPress(item.id)}>
+    <View style={styles.list__content}>
+      <Text style={styles.list__title}>{item.word}</Text>
+      <Text style={styles.list__meaning}>{item.meaning}</Text>
+    </View>
+  </TouchableOpacity>
+);
 
-const VocaContentList: React.FC<VocaContentListProps> = ({ 
-  vocaIndex, 
-  navigateToWordDetail, 
-  onRefresh, 
-  refreshing = false,
-  onAddWord 
-}) => {
+const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail }) => {
   const searchText = useSearchStore(state => state.searchText);
   
+  const route = useRoute();
+  const { vocaIndex } = route.params as { vocaIndex: number };
+
   const {
     data,
     isLoading,
@@ -51,57 +42,19 @@ const VocaContentList: React.FC<VocaContentListProps> = ({
     isFetchingNextPage,
   } = useInfiniteWords(vocaIndex, searchText);
 
-  // 데이터가 변경될 때마다 로그 출력
-  React.useEffect(() => {
-    if ((data as any)?.pages) {
-      const totalWords = (data as any).pages.flatMap((page: any) => page.content).length;
-      console.log('📝 단어 목록 업데이트:', totalWords, '개');
-    }
-  }, [data]);
-
   if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.GREEN} />
-        <Text style={styles.loadingText}>단어를 불러오는 중...</Text>
-      </View>
-    );
+    return <ActivityIndicator size="large" color={colors.GREEN} />;
   }
 
   if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {(error as any).message}</Text>
-        <Text style={styles.errorSubText}>아래로 당겨서 다시 시도해보세요</Text>
-      </View>
-    );
-  }
-
-  const words = (data as any)?.pages?.flatMap((page: any) => page.content) || [];
-  
-  // 빈 배열인지 확인
-  if (words.length === 0) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>단어장에 단어가 없습니다.</Text>
-        <Text style={styles.emptySubText}>새 단어를 추가해보세요!</Text>
-        <TouchableOpacity 
-          style={styles.addWordButton}
-          onPress={onAddWord || (() => navigateToWordDetail(0))}
-        >
-          <Text style={styles.addWordButtonText}>단어 추가하기</Text>
-        </TouchableOpacity>
-      </View>
-    );
+    return <Text>Error: {error.message}</Text>;
   }
 
   return (
     <FlatList
-      style={styles.flatList}
-      contentContainerStyle={styles.flatListContent}
-      data={words}
+      data={data?.pages.flatMap(page => page.content) || []}
       renderItem={({ item }) => <WordItem item={item} onPress={navigateToWordDetail} />}
-      keyExtractor={(item, index) => `${item.wordId}-${index}`}
+      keyExtractor={(item, index) => `${item.id}-${index}`}
       onEndReached={() => {
         if (hasNextPage) {
           fetchNextPage();
@@ -109,14 +62,6 @@ const VocaContentList: React.FC<VocaContentListProps> = ({
       }}
       onEndReachedThreshold={0.5}
       ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={[colors.GREEN]}
-          tintColor={colors.GREEN}
-        />
-      }
     />
   );
 };
@@ -137,68 +82,8 @@ const styles = StyleSheet.create({
     ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
   list__meaning: {
-    color: colors.BLACK,
+    color: colors.GRAY,
     ...getFontStyle('body', 'small', 'regular'),
-  } as TextStyle,
-  flatList: {
-    flex: 1,
-  },
-  flatListContent: {
-    flexGrow: 1,
-  },
-  emptyText: {
-    textAlign: 'center',
-    paddingVertical: spacing.M24,
-    color: colors.BLACK,
-    ...getFontStyle('body', 'medium', 'regular'),
-  } as TextStyle,
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.M24,
-  },
-  loadingText: {
-    marginTop: spacing.M16,
-    color: colors.GRAY,
-    ...getFontStyle('body', 'medium', 'regular'),
-  } as TextStyle,
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.M24,
-  },
-  errorText: {
-    color: colors.RED,
-    ...getFontStyle('body', 'medium', 'bold'),
-  } as TextStyle,
-  errorSubText: {
-    marginTop: spacing.M16,
-    color: colors.GRAY,
-    ...getFontStyle('body', 'medium', 'regular'),
-  } as TextStyle,
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.M24,
-  },
-  emptySubText: {
-    marginTop: spacing.M16,
-    color: colors.GRAY,
-    ...getFontStyle('body', 'medium', 'regular'),
-  } as TextStyle,
-  addWordButton: {
-    marginTop: spacing.M24,
-    backgroundColor: colors.GREEN,
-    paddingVertical: spacing.M16,
-    paddingHorizontal: spacing.M32,
-    borderRadius: 8,
-  },
-  addWordButtonText: {
-    color: colors.WHITE,
-    ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
 });
 

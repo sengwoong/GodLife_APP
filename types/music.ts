@@ -1,9 +1,14 @@
 export interface Music {
-    musicId: number;
+    id: string;
     musicTitle: string;
     musicUrl: string;
     color: string;
     imageUrl: string;
-    musicLike: boolean;
 } 
+
+export interface MusicLike {
+    id: string;
+    musicId: string;
+    userId: string;
+}
   

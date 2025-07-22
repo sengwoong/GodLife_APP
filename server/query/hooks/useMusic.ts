@@ -1,137 +1,22 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
-import { YouTubeTrack } from '../../../types/player';
+import { Music } from '../../../types/music';
 
 interface MusicResponse {
-  musicId: number;
-  musicTitle: string;
-  musicUrl: string;
-  imageUrl: string;
-  color: string;
-  playlist: {
-    playlistId: number;
-    title: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface MusicListResponse {
-  content: MusicResponse[];
+  content: Music[];
   totalPages: number;
   totalElements: number;
   size: number;
   number: number;
 }
 
-interface CreateMusicData {
-  musicTitle: string;
-  musicUrl: string;
-  imageUrl?: string;
-  color?: string;
-  playlistId: number;
-}
-
-interface UpdateMusicData {
-  musicTitle: string;
-  musicUrl: string;
-  imageUrl?: string;
-  color?: string;
-}
-
-// 플레이리스트 음악 목록 조회 (무한 스크롤)
-export function useInfiniteMusic(playlistId: number, search?: string, size: number = 10) {
-  return useInfiniteQuery<MusicListResponse, Error, MusicListResponse, (string | number | undefined)[], number>({
-    queryKey: ['infiniteMusic', playlistId, search],
-    initialPageParam: 0,
-    queryFn: async ({ pageParam }: { pageParam: number }) => {
-      const params = new URLSearchParams({
-        page: pageParam.toString(),
-        size: size.toString(),
-        sort: 'createdAt,desc'
-      });
-      
-      if (search) {
-        params.append('search', search);
-      }
-      
-      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}?${params}`);
-      if (!response.ok) {
-        throw new Error('음악 목록을 불러올 수 없습니다');
-      }
-      return response.json();
-    },
-    getNextPageParam: (lastPage) => {
-      return lastPage.number < lastPage.totalPages - 1 ? lastPage.number + 1 : undefined;
-    },
-    enabled: playlistId !== undefined,
-  });
-}
-
-// 플레이리스트 음악 목록 조회 (페이지네이션)
-export function useMusicList(playlistId: number, page: number = 0, size: number = 10) {
-  return useQuery<MusicListResponse>({
-    queryKey: ['musicList', playlistId, page, size],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        size: size.toString(),
-        sort: 'createdAt,desc'
-      });
-      
-      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}?${params}`);
-      if (!response.ok) {
-        throw new Error('음악 목록을 불러올 수 없습니다');
-      }
-      return response.json();
-    },
-    enabled: playlistId !== undefined,
-  });
-}
-
-// 사용자 좋아요 음악 목록 조회
-export function useLikedMusics(userId: number, page: number = 0, size: number = 10) {
-  return useQuery<MusicListResponse>({
-    queryKey: ['likedMusics', userId, page, size],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        size: size.toString(),
-        sort: 'createdAt,desc'
-      });
-      
-      const response = await fetch(`${BASE_URL}/musicLikes/user/${userId}?${params}`);
-      if (!response.ok) {
-        throw new Error('좋아요한 음악 목록을 불러올 수 없습니다');
-      }
-      return response.json();
-    },
-    enabled: userId !== undefined,
-  });
-}
-
-// 음악 좋아요 여부 확인
-export function useMusicLikeStatus(musicId: number, userId: number) {
-  return useQuery<boolean>({
-    queryKey: ['musicLikeStatus', musicId, userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/musicLikes/check/music/${musicId}/user/${userId}`);
-      if (!response.ok) {
-        throw new Error('좋아요 상태를 확인할 수 없습니다');
-      }
-      return response.json();
-    },
-    enabled: musicId !== undefined && userId !== undefined,
-  });
-}
-
-// 플레이리스트에 음악 추가
+// Create
 export function useCreateMusic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ playlistId, userId, musicData }: { playlistId: number, userId: number, musicData: CreateMusicData }) => {
-      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}/user/${userId}`, {
+    mutationFn: async ({ playlistId, ...musicData }: Partial<Music> & { playlistId: number }) => {
+      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,100 +25,99 @@ export function useCreateMusic() {
       });
 
       if (!response.ok) {
-        throw new Error('음악 추가에 실패했습니다');
+        throw new Error('Failed to create music');
       }
       return response.json();
     },
-    onSuccess: (_, { playlistId }) => {
-      queryClient.invalidateQueries({ queryKey: ['musicList', playlistId] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['musics', variables.playlistId] });
     },
   });
 }
 
-// 음악 정보 수정
+// Update
 export function useUpdateMusic() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ musicId, userId, data }: { musicId: number, userId: number, data: UpdateMusicData }) => {
-      const response = await fetch(`${BASE_URL}/musics/music/${musicId}/user/${userId}`, {
+    mutationFn: async ({ playlistId, musicId, userId, ...musicData }: Partial<Music> & { playlistId: number, musicId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}/music/${musicId}/user/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(musicData),
       });
 
       if (!response.ok) {
-        throw new Error('음악 수정에 실패했습니다');
+        throw new Error('Failed to update music');
       }
       return response.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['musicList', data.playlist.playlistId] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['music', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['musics'] });
     },
   });
 }
 
-// 음악 삭제
-export function useDeleteMusic() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ musicId, userId, playlistId }: { musicId: number, userId: number, playlistId: number }) => {
-      const response = await fetch(`${BASE_URL}/musics/music/${musicId}/user/${userId}`, {
-        method: 'DELETE',
-      });
-
+// Read
+export function useInfiniteMusic(playlistId: number, searchText: string) {
+  return useInfiniteQuery<MusicResponse, Error>({
+    queryKey: ['musics', playlistId, searchText],
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
       if (!response.ok) {
-        throw new Error('음악 삭제에 실패했습니다');
+        throw new Error('Failed to fetch musics');
       }
+      return response.json() as Promise<MusicResponse>;
     },
-    onSuccess: (_, { playlistId }) => {
-      queryClient.invalidateQueries({ queryKey: ['musicList', playlistId] });
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.number + 1;
+      return nextPage < lastPage.totalPages ? nextPage : undefined;
     },
+    initialPageParam: 0,
   });
 }
 
-// 음악 좋아요 추가
-export function useAddMusicLike() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ musicId, userId }: { musicId: number, userId: number }) => {
-      const response = await fetch(`${BASE_URL}/musicLikes/music/${musicId}/user/${userId}`, {
-        method: 'POST',
-      });
-
+export function useMusic(playlistId: number, musicId: number) {
+  return useQuery<Music, Error>({
+    queryKey: ['music', playlistId, musicId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/musics/playlist/${playlistId}?id=${musicId}`);
       if (!response.ok) {
-        throw new Error('좋아요 추가에 실패했습니다');
+        throw new Error('Failed to fetch music');
+      }
+      const data = await response.json();
+      return data.content[0];
+    },
+    enabled: musicId !== undefined,
+  });
+}
+
+export function useSingleMusic(musicId: number) {
+  return useQuery<Music, Error>({
+    queryKey: ['music', musicId],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/musics/${musicId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch music');
       }
       return response.json();
     },
-    onSuccess: (_, { musicId, userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['musicLikeStatus', musicId, userId] });
-      queryClient.invalidateQueries({ queryKey: ['likedMusics', userId] });
-    },
+    enabled: !!musicId,
   });
 }
 
-// 음악 좋아요 삭제
-export function useRemoveMusicLike() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ musicId, userId }: { musicId: number, userId: number }) => {
-      const response = await fetch(`${BASE_URL}/musicLikes/music/${musicId}/user/${userId}`, {
-        method: 'DELETE',
-      });
-
+export function useLikedMusics({ userId, page = 0, size = 10 }: { userId: string | number, page?: number, size?: number }) {
+  return useQuery<MusicResponse>({
+    queryKey: ['likedMusics', userId, page, size],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/musics/liked/${userId}?page=${page}&size=${size}`);
       if (!response.ok) {
-        throw new Error('좋아요 삭제에 실패했습니다');
+        throw new Error('좋아요 표시된 음악을 불러오는데 실패했습니다');
       }
-    },
-    onSuccess: (_, { musicId, userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['musicLikeStatus', musicId, userId] });
-      queryClient.invalidateQueries({ queryKey: ['likedMusics', userId] });
+      return response.json();
     },
   });
-}
+} 

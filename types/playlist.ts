@@ -1,9 +1,9 @@
 export interface Playlist {
-    playlistId: number;
+    id: number;
     playlistTitle: string;
     imageUrl: string;
     createdAt: string;
-    shared: boolean;
+    isShared: boolean;
   }
   
 export interface PlaylistShareRequest {

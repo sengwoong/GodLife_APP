@@ -1,41 +1,43 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { MainNavigations } from '../../../constants';
+
 import HomeHeaderLeft from '../HomeHeaderLeft';
 import MainScreen from '../../../screens/main/MainScreen';
-import { PostDetailScreen } from '../../../screens/post/PostDetailScreen';
 
 export type mainStackParamList = {
   [MainNavigations.MAIN]: undefined;
-  [MainNavigations.POST_DETAIL]: { postId: number };
 };
 
-const Stack = createNativeStackNavigator<mainStackParamList>();
+const Stack = createStackNavigator<mainStackParamList>();
 
 function MainStackNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        cardStyle: {
+          backgroundColor: 'white',
+        },
+        headerStyle: {
+          shadowColor: 'gray',
+          backgroundColor: 'white',
+        },
+        headerTitleStyle: {
+          fontSize: 15,
+        },
+        headerTintColor: 'black',
+      }}
+    >
       <Stack.Screen
         name={MainNavigations.MAIN}
         component={MainScreen}
         options={{
-          headerShown: true,
+          headerTitle: ' ',
           headerLeft: () => <HomeHeaderLeft />,
-          headerTitle: '',
-          headerStyle: {
-            backgroundColor: '#ffffff',
-          },
         }}
       />
-      <Stack.Screen
-        name={MainNavigations.POST_DETAIL}
-        component={PostDetailScreen}
-        options={{
-          headerShown: true,
-          headerTitle: '게시글 상세',
-        }}
-      />
+  
     </Stack.Navigator>
   );
 }

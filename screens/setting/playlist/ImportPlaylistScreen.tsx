@@ -6,7 +6,6 @@ import { colors, spacing, getFontStyle } from '../../../constants';
 import { useUserPlaylist } from '../../../server/query/hooks/usePlayList';
 import { CompoundOption } from '../../../components/Modal';
 import { BASE_URL } from '../../../server/common/types/constants';
-import useUserId from '../../../server/query/hooks/useUserId';
 
 function ImportPlaylistScreen() {
   const navigation = useNavigation();
@@ -15,9 +14,8 @@ function ImportPlaylistScreen() {
   const [playlistUrl, setPlaylistUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const userId = useUserId();
   const { data: playlistResponse, isLoading: playlistLoading } = useUserPlaylist({ 
-    userId: userId, // 임시 userId
+    userId: 1, // 임시 userId
     size: 20 
   });
 
@@ -35,7 +33,7 @@ function ImportPlaylistScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: userId,
+          userId: 1,
           playlistUrl: playlistUrl.trim()
         }),
       });
@@ -76,7 +74,7 @@ function ImportPlaylistScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: userId, 
+          userId: 1, 
           apiKey: apiKey.trim()
         }),
       });

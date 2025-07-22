@@ -14,9 +14,12 @@ const PostContentSearch: React.FC<PostContentSearchProps> = ({ category }) => {
   const {
     data,
   } = useInfinitePosts(searchText,category);
-
+  console.log("PostContentSearch");
+  console.log("data");
+  console.log(data);
   const postSuggestions = data?.pages.flatMap(page => page.content.map(item => item.postContent)) || [];
-
+  console.log("postSuggestions");
+  console.log(postSuggestions);
   return (
     <View style={styles.search}>
       <SearchBar initialSuggestions={postSuggestions} />

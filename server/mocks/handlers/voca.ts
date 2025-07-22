@@ -1,7 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { BASE_URL } from '../../common/types/constants'
 import { VocaRequest } from '../../common/types/serverType'
-import { VocaShareRequest } from '../../../types/voca'
 
 export const vocaHandlers = [
   // Read 작업
@@ -132,7 +131,7 @@ export const vocaHandlers = [
 
   // 단어장 공유 상태 업데이트
   http.put(`${BASE_URL}/vocas/share/:vocaId/user/:userId`, async ({ params, request }) => {
-    const body = await request.json() as VocaShareRequest;
+    const body = await request.json() as {isShared: boolean}
     return HttpResponse.json({
       id: Number(params.vocaId),
       isShared: body.isShared,

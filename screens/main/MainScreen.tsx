@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, ScrollView, Image, TextStyle, ImageStyle, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, getFontStyle, spacing, MainNavigations } from '../../constants';
+import { SafeAreaView, Text, View, StyleSheet, ScrollView, Image, TextStyle, ImageStyle } from 'react-native';
+import { colors, getFontStyle, spacing } from '../../constants';
 import LinearGradient from 'react-native-linear-gradient';
 import ItemCard from '../../components/ItemCard';
 import CustomButton from '../../components/CustomButton';
@@ -15,23 +13,14 @@ import CardSlider from '../../components/mainscreen/CardSlider';
 import { Music } from '../../types';
 import SquareItemCard from '../../components/SquareItemCard';
 import { useBestPosts } from '../../server/query/hooks/usePost';
-// import { useBestUsers, useUserRecommend } from '../../server/query/hooks/useUser';
+import { useBestUsers, useUserRecommend } from '../../server/query/hooks/useUser';
 import { BasePost } from '../../types/post';
 
 const GRADIENT_SIZE = 54;
 const AVATAR_SIZE = 50;
 const MUSIC_PLAYER_WIDTH = "80%";
 
-type mainStackParamList = {
-  [MainNavigations.MAIN]: undefined;
-  [MainNavigations.POST_DETAIL]: { postId: number };
-};
-
-type NavigationProp = NativeStackNavigationProp<mainStackParamList>;
-
 function MainScreen() {
-  const navigation = useNavigation<NavigationProp>();
-
   const CategoryButtons = [
     { label: '전체보기', id: 'post' },
     { label: '단어장', id: 'voca' },
@@ -47,18 +36,18 @@ function MainScreen() {
 
   const { data: bestPosts, isLoading: isLoadingBestPosts } = useBestPosts();
 
-  // 임시로 빈 값 반환
-  const { data: bestUsers, isLoading: isLoadingBestUsers } = { data: null, isLoading: false } as any;
+  const { data: bestUsers, isLoading: isLoadingBestUsers } = useBestUsers();
 
-  // 임시로 빈 값 반환
-  const { data: recommendContent, isLoading: isLoadingRecommend } = { data: null, isLoading: false } as any;
+  const { data: recommendContent, isLoading: isLoadingRecommend } = useUserRecommend(1, 10);
 
-  const popularAvatars = (bestUsers?.users?.slice(0, 3).map((user: any) => ({
+  console.log("bestPosts", bestPosts);
+
+  const popularAvatars = bestUsers?.users.slice(0, 3).map(user => ({
     id: user.id,
     image: user.profileImage,
     name: user.nickName,
     flower: user.level
-  })) || []) as any[];
+  })) || [];
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -75,14 +64,13 @@ function MainScreen() {
 
 
 
-  const musicData: any[] = [
+  const musicData: Music[] = [
     {
       id: '1',
       musicTitle: 'Blizzards',
       musicUrl: "https://example.com/com",
       color: colors.BLUE,
       imageUrl: 'https://example.com/avatar1.png',
-      musicLike: false
     }
   ]  
    
@@ -91,22 +79,16 @@ function MainScreen() {
     
     switch (activeButton.id) {
       case 'post':
-        return recommendContent.posts || [];
+        return recommendContent.posts;
       case 'voca':
-        return recommendContent.vocas || [];
+        return recommendContent.vocas;
       case 'playlist':
-        return recommendContent.playlists || [];
+        return recommendContent.playlists;
       case 'music':
-        return recommendContent.musics || [];
+        return recommendContent.musics;
       default:
-        return recommendContent.allItems || [];
+        return recommendContent.allItems;
     }
-  };
-
-  const handlePostPress = (postId: number) => {
-    navigation.navigate(MainNavigations.POST_DETAIL, {
-      postId: postId
-    });
   };
 
   return (
@@ -146,43 +128,33 @@ function MainScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {!isLoadingBestPosts && bestPosts?.posts && (
               <>
-                {(bestPosts.posts as any[]).map((post: any, index: number) => (
-                  <TouchableOpacity 
-                    key={post.id}
-                    onPress={() => {
-                  
-                      handlePostPress(post.id);
-                    }}
-                    activeOpacity={0.8}
-                    style={{ width: 164, marginRight: spacing.M2 }}
-                  >
-                    <View style={styles.product__container}>
-                      <Image 
-                        source={{ uri: post.postImage }} 
-                        style={styles.product__image as ImageStyle} 
-                      />
-                      <View style={styles.product__info}>
-                        <Text style={styles.product__category}>{post.userName}</Text>
-                        <Text 
-                          style={styles.product__description} 
-                          numberOfLines={2} 
-                          ellipsizeMode="clip" 
-                        >
-                          {post.title}
-                        </Text>
-                        <View style={styles.product__priceContainer}>
-                          {post.sale && (
-                            <Text style={styles.product__price}>
-                              {post.price} 포인트
-                            </Text>
-                          )}
-                        </View>
-                        <View style={styles.product__ratingContainer}>
-                          <Text style={styles.product__tag}>#{post.type}</Text>
-                        </View>
+                {bestPosts.posts.map((post, index) => (
+                  <View key={index} style={styles.product__container}>
+                    <Image 
+                      source={{ uri: post.postImage }} 
+                      style={styles.product__image as ImageStyle} 
+                    />
+                    <View style={styles.product__info}>
+                      <Text style={styles.product__category}>{post.userName}</Text>
+                      <Text 
+                        style={styles.product__description} 
+                        numberOfLines={2} 
+                        ellipsizeMode="clip" 
+                      >
+                        {post.title}
+                      </Text>
+                      <View style={styles.product__priceContainer}>
+                        {post.sale && (
+                          <Text style={styles.product__price}>
+                            {post.price} 포인트
+                          </Text>
+                        )}
+                      </View>
+                      <View style={styles.product__ratingContainer}>
+                        <Text style={styles.product__tag}>#{post.type}</Text>
                       </View>
                     </View>
-                  </TouchableOpacity>
+                  </View>
                 ))}
               </>
             )}
@@ -222,31 +194,17 @@ function MainScreen() {
 
         <Margin size={'M16'} />
 
-        <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={[styles.section, { position: 'relative' }]}>
+        <LinearGradient colors={[colors.BLACK, colors.GREEN]} style={styles.section}>
           <Text style={styles.section__title}>추천 상품</Text>
-          <Margin size={'M8'} />
-          <View style={[styles.section__content, { position: 'relative' }]}>
+          <View style={styles.section__content}>
             {!isLoadingRecommend && recommendContent && (
               <>
-                {getContentByType().map((item: any, index: number) => (
-                  <TouchableOpacity
+                {getContentByType().map((item) => (
+                  <SquareItemCard
                     key={item.id}
-                    style={{ 
-                      width: '100%',
-                      position: 'relative',
-                      zIndex: 1000,
-                    }}
-                    onPress={() => {
-                      handlePostPress(Number(item.id));
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <SquareItemCard
-                      key={item.id}
-                      item={item as BasePost}
-                      type={activeButton.id as 'post' | 'voca' | 'playlist' | 'music'}
-                    />
-                  </TouchableOpacity>
+                    item={item as BasePost}
+                    type={activeButton.id as 'post' | 'voca' | 'playlist' | 'music'}
+                  />
                 ))}
                 {getContentByType().length === 0 && (
                   <Text style={[styles.section__title, { color: colors.WHITE }]}>
@@ -367,7 +325,7 @@ const styles = StyleSheet.create({
 
   product__container: {
     width: 164,
-    marginRight: spacing.M2,
+    marginRight: spacing.M12,
   },
   product__image: {
     width: 164,
@@ -376,7 +334,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.GRAY,
   } as ImageStyle,
   product__info: {
-    padding: spacing.M2,
+    padding: spacing.M8,
   },
   product__category: {
     ...getFontStyle('title', 'small', 'bold'),
@@ -428,15 +386,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: spacing.M16,
     paddingVertical: spacing.M32,
-    position: 'relative',
-    overflow: 'visible',
+    overflow: 'visible', 
   },
   section__title: {
     ...getFontStyle('title', 'medium', 'bold'),
     color: colors.WHITE,
     marginBottom: spacing.M12,
-    position: 'relative',
-    zIndex: 1,
   } as TextStyle,
   section__content: {
     width: "100%",
@@ -444,8 +399,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: spacing.M16,
-    position: 'relative',
-    zIndex: 2,
   },
   section__bubble: {
     height: 320,

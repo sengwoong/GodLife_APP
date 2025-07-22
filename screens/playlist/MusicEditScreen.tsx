@@ -15,9 +15,8 @@ import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import Margin from '../../components/division/Margin';
 import { PlayListStackParamList } from '../../navigations/stack/beforeLogin/PlayListStackNavigator';
-import { useMusicList, useCreateMusic, useUpdateMusic } from '../../server/query/hooks/useMusic';
+import { useSingleMusic, useCreateMusic, useUpdateMusic } from '../../server/query/hooks/useMusic';
 import useAuthStore from '../../store/useAuthStore';
-import useUserId from '../../server/query/hooks/useUserId';
 
 export default function MusicEditScreen() {
   const [title, setTitle] = useState('');
@@ -27,22 +26,19 @@ export default function MusicEditScreen() {
   const route = useRoute<RouteProp<PlayListStackParamList, 'MusicEdit'>>();
   const { playListIndex, musicIndex } = route.params;
   // const userId = useAuthStore(state => state.user?.id);
-  const userId = useUserId();
+  const userId = 1;
   if (!userId) {
     throw new Error('User ID is undefined');
   }
-  const { data: musicData, isLoading } = musicIndex !== undefined ? useMusicList(playListIndex, 0, 10) : { data: null, isLoading: false };
+  const { data: musicData, isLoading } = musicIndex !== undefined ? useSingleMusic(musicIndex) : { data: null, isLoading: false };
   
   const createMusicMutation = useCreateMusic();
   const updateMusicMutation = useUpdateMusic();
 
   useEffect(() => {
-    if (musicIndex && musicData?.content) {
-      const music = musicData.content.find(m => m.musicId === musicIndex);
-      if (music) {
-        setTitle(music.musicTitle);
-        setURL(music.musicUrl);
-      }
+    if (musicIndex && musicData) {
+      setTitle(musicData.musicTitle);
+      setURL(musicData.musicUrl);
     }
   }, [musicIndex, musicData]);
 
@@ -58,17 +54,14 @@ export default function MusicEditScreen() {
       if (musicIndex) {
         await updateMusicMutation.mutateAsync({
           musicId: musicIndex,
+          ...newMusicData,
+          playlistId: playListIndex,
           userId: userId,
-          data: newMusicData,
         });
       } else {
         await createMusicMutation.mutateAsync({
+          ...newMusicData,
           playlistId: playListIndex,
-          userId: userId,
-          musicData: {
-            ...newMusicData,
-            playlistId: playListIndex,
-          },
         });
       }
       navigation.goBack();

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ListRenderItemInfo, TextStyle, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { colors, getFontStyle, PostNavigations, spacing } from '../../constants';
@@ -19,7 +19,7 @@ export const PostScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
   
-  const { data: postsData, isLoading, isError, error } = usePost(activeCategory, searchQuery, page);
+  const { data: postsData, isLoading } = usePost(activeCategory, searchQuery, page);
 
   const CategoryButtons = [
     { label: 'post', id: 'post' },
@@ -44,7 +44,21 @@ export const PostScreen = () => {
     });
   };
 
+  const handlePlayAll = () => {
+    console.log('Play all songs');
+  };
 
+  const handleShuffle = () => {
+    console.log('Shuffle songs');
+  };
+
+  const handleMenu = () => {
+    console.log('Open menu');
+  };
+
+  const handleItemPress = (id: number) => {
+    console.log('Selected song:', id);
+  };
 
   const renderPost = ({ item }: ListRenderItemInfo<Post>) => (
     <TouchableOpacity activeOpacity={1} onPress={() => handlePostPress(item)}>
@@ -77,42 +91,73 @@ export const PostScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.postHeader}>
-        <View style={styles.nav}>
-          {CategoryButtons.map((button) => (
-            <CustomButton
-              key={button.id}
-              label={button.label}
-              color={activeCategory === button.label ? 'BLACK' : 'WHITE'}
-              onPress={() => setActiveCategory(button.label)}
-              style={styles.categoryButton}
-            />
-          ))}
-        </View>
+      <View style={styles.nav}>
+        {CategoryButtons.map((button) => (
+          <CustomButton
+            key={button.id}
+            label={button.label}
+            color={activeCategory === button.label ? 'BLACK' : 'WHITE'}
+            onPress={() => setActiveCategory(button.label)}
+            style={styles.categoryButton}
+          />
+        ))}
+      </View>
         
-        <Margin size={'M12'} />
-        <PostContentSearch category={activeCategory} />
+      <Margin size={'M12'} />
+      <PostContentSearch category={activeCategory} />
       </View>
       <Margin size={'M8'} />
-      
-      {isLoading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={colors.BLACK} />
-        </View>
-      ) : isError ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>데이터를 불러오는데 실패했습니다.</Text>
-          <Text style={styles.errorSubText}>{(error as Error)?.message || '다시 시도해주세요.'}</Text>
-        </View>
-      ) : !postsData?.content?.length ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.emptyText}>게시물이 없습니다.</Text>
-        </View>
-      ) : (
+      {activeCategory === 'post' && (
         <FlatList
           data={postsData?.content || []}
           renderItem={renderPost}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={styles.postContainer}
+          onEndReached={() => {
+            if (postsData && page < postsData.totalPages - 1) {
+              setPage(prev => prev + 1);
+            }
+          }}
+          onEndReachedThreshold={0.5}
+        />
+      )}
+      
+      {activeCategory === 'shop' && (
+        <FlatList
+          data={postsData?.content || []}
+          renderItem={renderPost}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={styles.postContainer}
+          onEndReached={() => {
+            if (postsData && page < postsData.totalPages - 1) {
+              setPage(prev => prev + 1);
+            }
+          }}
+          onEndReachedThreshold={0.5}
+        />
+      )}
+
+      {activeCategory === 'music' && (
+           <FlatList
+           data={postsData?.content || []}
+           renderItem={renderPost}
+           keyExtractor={item => item.id.toString()}
+           contentContainerStyle={styles.postContainer}
+           onEndReached={() => {
+             if (postsData && page < postsData.totalPages - 1) {
+               setPage(prev => prev + 1);
+             }
+           }}
+           onEndReachedThreshold={0.5}
+         />
+      )}
+
+      {activeCategory === 'like' && (
+        <FlatList
+          data={postsData?.content || []}
+          renderItem={renderPost}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={styles.postContainer}
           onEndReached={() => {
             if (postsData && page < postsData.totalPages - 1) {
               setPage(prev => prev + 1);
@@ -207,27 +252,6 @@ const styles = StyleSheet.create({
     borderRadius: spacing.M8,
     paddingHorizontal: spacing.M12,
     marginHorizontal: spacing.M16,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    ...getFontStyle('body', 'large', 'bold'),
-    color: colors.BLACK,
-    marginBottom: spacing.M8,
-  } as TextStyle,
-  errorSubText: {
-    ...getFontStyle('body', 'medium', 'regular'),
-    color: colors.GRAY,
-  } as TextStyle,
-  emptyText: {
-    ...getFontStyle('body', 'large', 'medium'),
-    color: colors.BLACK,
-  } as TextStyle,
-  listContainer: {
-    paddingHorizontal: spacing.M16,
   },
 });
 

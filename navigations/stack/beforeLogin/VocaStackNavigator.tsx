@@ -1,65 +1,73 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { VocaNavigations } from '../../../constants/navigations';
+import {StyleSheet} from 'react-native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {VocaNavigations} from '../../../constants';
 import VocaScreen from '../../../screens/voca/VocaScreen';
-import VocaContentScreen from '../../../screens/voca/VocaContentScreen';
+import HomeHeaderLeft from '../HomeHeaderLeft';
+import WordContentScreen from '../../../screens/voca/VocaContentScreen';
 import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
 import WordEditScreen from '../../../screens/voca/WordEditScreen';
-import VocaGameScreen from '../../../screens/voca/VocaGameScreen';
-import VocaAIGenerateScreen from '../../../screens/voca/VocaAIGenerateScreen';
-
 export type VocaStackParamList = {
-  [VocaNavigations.VOCA]: undefined;
-  [VocaNavigations.VOCACONTENT]: { vocaId: number };
-  [VocaNavigations.VOCACONTENTEDIT]: { vocaId: number };
-  [VocaNavigations.VOCAEDIT]: { vocaId: number };
-  [VocaNavigations.WORDEDIT]: { vocaId: number; wordId?: number };
-  [VocaNavigations.VOCAGAME]: { vocaId: number };
-  [VocaNavigations.VOCAAIGENERATE]: undefined;
+  [VocaNavigations.VOCAMAIN]: undefined;
+  [VocaNavigations.VOCACONTENT]: {vocaIndex: number };
+  [VocaNavigations.WORDCONTENTEDIT]: { vocaIndex: number , wordIndex: number |  undefined};
+  [VocaNavigations.VOCACONTENTEDIT]: { vocaIndex: number };
 };
 
-const Stack = createNativeStackNavigator<VocaStackParamList>();
+const Stack = createStackNavigator<VocaStackParamList>();
 
-const VocaStackNavigator = () => {
+function VocaStackNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        cardStyle: {
+          backgroundColor: 'white',
+        },
+        headerStyle: {
+          shadowColor: 'gray',
+          backgroundColor: 'white',
+        },
+        headerTitleStyle: {
+          fontSize: 15,
+        },
+        headerTintColor: 'black',
+      }}>
       <Stack.Screen
-        name={VocaNavigations.VOCA}
+        name={VocaNavigations.VOCAMAIN}
         component={VocaScreen}
-        options={{ headerShown: false }}
+        options={() => ({
+          headerTitle: '보카',
+          headerLeft: () => HomeHeaderLeft(),
+        })}
       />
       <Stack.Screen
         name={VocaNavigations.VOCACONTENT}
-        component={VocaContentScreen}
-        options={{ headerShown: false }}
+        component={WordContentScreen}
+        options={{
+          headerShown: true,
+          headerTitle: ' ',
+        }}
+      />
+      <Stack.Screen
+        name={VocaNavigations.WORDCONTENTEDIT}
+        component={WordEditScreen}
+        options={{
+          headerShown: true,
+          headerTitle: ' ',
+        }}
       />
       <Stack.Screen
         name={VocaNavigations.VOCACONTENTEDIT}
         component={VocaEditScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name={VocaNavigations.VOCAEDIT}
-        component={VocaEditScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name={VocaNavigations.WORDEDIT}
-        component={WordEditScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name={VocaNavigations.VOCAGAME}
-        component={VocaGameScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name={VocaNavigations.VOCAAIGENERATE}
-        component={VocaAIGenerateScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: true,
+          headerTitle: ' ',
+        }}
       />
     </Stack.Navigator>
   );
-};
+}
+
+const styles = StyleSheet.create({});
 
 export default VocaStackNavigator;
