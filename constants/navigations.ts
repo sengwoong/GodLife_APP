@@ -18,6 +18,7 @@ const VocaNavigations = {
     VOCACONTENT: 'VocaContent',
     WORDCONTENTEDIT: 'WordContentEdit',
     VOCACONTENTEDIT: 'VocaContentEdit',
+    VOCAGAME: 'VocaGame',
     } as const;
   
 const CalendarNavigations = {

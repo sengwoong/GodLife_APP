@@ -7,11 +7,13 @@ import HomeHeaderLeft from '../HomeHeaderLeft';
 import WordContentScreen from '../../../screens/voca/VocaContentScreen';
 import VocaEditScreen from '../../../screens/voca/VocaEditScreen';
 import WordEditScreen from '../../../screens/voca/WordEditScreen';
+import VocaGameScreen from '../../../screens/voca/VocaGameScreen';
 export type VocaStackParamList = {
   [VocaNavigations.VOCAMAIN]: undefined;
   [VocaNavigations.VOCACONTENT]: {vocaIndex: number };
   [VocaNavigations.WORDCONTENTEDIT]: { vocaIndex: number , wordIndex: number |  undefined};
   [VocaNavigations.VOCACONTENTEDIT]: { vocaIndex: number };
+  [VocaNavigations.VOCAGAME]: { vocaIndex: number };
 };
 
 const Stack = createStackNavigator<VocaStackParamList>();
@@ -62,6 +64,13 @@ function VocaStackNavigator() {
         options={{
           headerShown: true,
           headerTitle: ' ',
+        }}
+      />
+      <Stack.Screen
+        name={VocaNavigations.VOCAGAME}
+        component={VocaGameScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

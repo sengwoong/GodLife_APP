@@ -64,11 +64,23 @@ const VocaScreen = () => {
     navigation.navigate(VocaNavigations.VOCACONTENT, { vocaIndex });
   };
 
+  const navigateToVocaGame = (vocaIndex: number) => {
+    navigation.navigate(VocaNavigations.VOCAGAME, { vocaIndex });
+  };
+
   const handleAddVoca = () => {
     if (!newVocaName.trim()) return;
     createVoca(newVocaName); 
     setIsModalVisible(false);
     setNewVocaName('');
+  };
+
+  const handleContextMenuPress = (vocaId: number, vocaTitle: string) => {
+    setContextMenu({
+      isVisible: true,
+      selectedVocaId: vocaId,
+      selectedVocaTitle: vocaTitle,
+    });
   };
 
   const handleLongPress = (vocaId: number, vocaTitle: string) => {
@@ -95,7 +107,7 @@ const VocaScreen = () => {
       
       <VocaList
         userId={userId!}
-        navigateToVocaContent={navigateToVocaContent}
+        navigateToVocaGame={navigateToVocaGame}
         onLongPress={handleLongPress}
       />
       
@@ -152,14 +164,20 @@ const VocaScreen = () => {
       >
         <CompoundOption.Background>
           <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedVocaTitle}번의 단어장 수정하기 </CompoundOption.Title>
+            <CompoundOption.Title>{contextMenu.selectedVocaTitle} 단어장</CompoundOption.Title>
+
+            <Margin size={'M12'} />
             <CompoundOption.Button
               onPress={() => {
                 navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex: contextMenu.selectedVocaId! });
               }}>
-              수정하기
+              단어장 수정하기
             </CompoundOption.Button>
-            <CompoundOption.Divider />
+
+            <CompoundOption.Button
+              onPress={() => navigateToVocaContent(contextMenu.selectedVocaId!)}>
+              단어로 이동
+            </CompoundOption.Button>
             <CompoundOption.Button
               isDanger
               onPress={() => {

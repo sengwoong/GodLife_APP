@@ -10,11 +10,12 @@ import { Voca } from '../../types/voca';
 interface VocaListProps {
   userId: number;
   navigateToVocaContent: (vocaIndex: number) => void;
+  navigateToVocaGame: (vocaIndex: number) => void;
   onLongPress: (id: number, vocaTitle: string) => void;
 }
 
 
-const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLongPress }) => {
+const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, navigateToVocaGame, onLongPress }) => {
   
   const searchText = useSearchStore(state => state.searchText);
   const {
@@ -39,7 +40,7 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, onLo
     <>
       <FlatList
         data={data?.pages.flatMap(page => page.content) || []}
-        renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaContent} onLongPress={onLongPress} />}
+        renderItem={({ item }) => <VocaItem item={item} onPress={navigateToVocaGame} onLongPress={onLongPress} />}
         keyExtractor={(item, index) => `${item.id}-${index}`}
         onEndReached={() => {
           if (hasNextPage) {
