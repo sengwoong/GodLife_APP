@@ -7,12 +7,14 @@ import PlayListContentScreen from '../../../screens/playlist/PlayListContentScre
 import MusicListEditScreen from '../../../screens/playlist/MusicEditScreen';
 import PlayListScreen from '../../../screens/playlist/PlayListScreen';
 import PlaylistEditScreen from '../../../screens/playlist/PlaylistEditScreen';
+import MusicPlayScreen from '../../../screens/playlist/MusicPlayScreen';
 
 export type PlayListStackParamList = {
   [PlayListNavigations.PLAYLIST]:undefined;
   [PlayListNavigations.PLAYLISTCONTENT]: {playListIndex: number };
   [PlayListNavigations.MUSICEDIT]:  {playListIndex: number , musicIndex: number | undefined};
   [PlayListNavigations.PLAYLISTEDIT]: {playListIndex: number };
+  [PlayListNavigations.MUSIC]: {playlistId: number; playlistTitle: string };
 }
 const Stack = createStackNavigator<PlayListStackParamList>();
 
@@ -62,6 +64,13 @@ function PlayListStackNavigator() {
         options={{
           headerShown: true,
           headerTitle: ' ',
+        }}
+      />
+      <Stack.Screen
+        name={PlayListNavigations.MUSIC}
+        component={MusicPlayScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

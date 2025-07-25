@@ -38,6 +38,12 @@ function PlayListScreen() {
     });
   };
 
+  const navigateToMusic = (playlistId: number, playlistTitle: string) => {
+    navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
+      playListIndex: playlistId,
+    });
+  };
+
   // const userId = useAuthStore(state => state.user?.id);
   const userId = 1;
 
@@ -45,12 +51,12 @@ function PlayListScreen() {
     throw new Error('User ID is undefined');
   }
   const handleAddPlaylist = () => {
-    setIsModalVisible(false);
-    // 리엑트쿼리 플레이리스트 추가 요청 
+    setIsModalVisible(false); 
     createPlayList({
       playlistData: {
         playlistTitle: newPlaylistName,
         imageUrl: '',
+        isShared: false,
       },
       userId: userId,
     });
@@ -74,7 +80,7 @@ function PlayListScreen() {
       <Margin size={'M12'} />
       <PlaylistSearch />
       <PlaylistList
-        navigateToPlayListContent={navigateToPlayListContent}
+        navigateToMusic={navigateToMusic}
         onLongPress={handleLongPress}
       />
       
@@ -119,7 +125,7 @@ function PlayListScreen() {
       >
         <CompoundOption.Background>
           <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle}의 플레이리스트 수정하기</CompoundOption.Title>
+            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle} 플레이리스트</CompoundOption.Title>
             <CompoundOption.Button
               onPress={() => {
                 navigation.navigate(PlayListNavigations.PLAYLISTEDIT, { playListIndex: contextMenu.selectedPlaylistId! });
@@ -127,6 +133,17 @@ function PlayListScreen() {
               }}>
               수정하기
             </CompoundOption.Button>
+            <CompoundOption.Divider />
+            <CompoundOption.Button
+              onPress={() => {
+                navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
+                  playListIndex: contextMenu.selectedPlaylistId!,
+                });
+                setContextMenu(prev => ({ ...prev, isVisible: false }));
+              }}>
+              뮤직 플레이
+            </CompoundOption.Button>
+      
             <CompoundOption.Divider />
             <CompoundOption.Button
               isDanger

@@ -8,7 +8,7 @@ import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
 
 
 interface PlaylistListProps {
-  navigateToPlayListContent: (playlistId: number) => void;
+  navigateToMusic: (playlistId: number, playlistTitle: string) => void;
   onLongPress: (playlistId: number, playlistTitle: string) => void;
 }
 
@@ -18,12 +18,12 @@ const PlaylistItem = ({
   onLongPress 
 }: { 
   item: Playlist; 
-  onPress: (id: number) => void;
+  onPress: (id: number, title: string) => void;
   onLongPress: (id: number, title: string) => void;
 }) => (
   <TouchableOpacity
     style={styles.list__item}
-    onPress={() => onPress(item.id)}
+    onPress={() => onPress(item.id, item.playlistTitle)}
     onLongPress={() => onLongPress(item.id, item.playlistTitle)}
   >
     <View style={styles.list__content}>
@@ -33,7 +33,7 @@ const PlaylistItem = ({
 );
 
 const PlaylistList: React.FC<PlaylistListProps> = ({ 
-  navigateToPlayListContent,
+  navigateToMusic,
   onLongPress
 }) => {
 
@@ -54,7 +54,7 @@ const PlaylistList: React.FC<PlaylistListProps> = ({
       renderItem={({ item }) => (
         <PlaylistItem 
           item={item} 
-          onPress={navigateToPlayListContent}
+          onPress={navigateToMusic}
           onLongPress={onLongPress}
         />
       )}
