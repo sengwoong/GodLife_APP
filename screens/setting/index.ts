@@ -18,5 +18,4 @@ export { default as PostShareScreen } from './post/PostShareScreen';
 
 // Words 관련 화면들
 export { default as MyWordsScreen } from './words/MyWordsScreen';
-export { default as PurchasedWordsScreen } from './words/PurchasedWordsScreen';
 export { default as StudyWordsScreen } from './words/StudyWordsScreen'; 
