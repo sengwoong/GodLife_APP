@@ -30,8 +30,11 @@ export interface UpdateUserRequest {
 
 export interface ScheduleRequest {
   scheduleTitle: string
+  content: string
   startTime: string
   endTime: string
+  day: string
+  hasAlarm: boolean
 }
 
 export interface PlaylistRequest {
@@ -43,10 +46,7 @@ export interface MusicRequest {
   musicUrl: string
 }
 
-export interface AlarmRequest {
-  alarmTitle: string
-  alarmContent: string
-}
+
 
 export interface PageResponse<T> {
   content: T[]

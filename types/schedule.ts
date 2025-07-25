@@ -5,5 +5,5 @@ export interface Schedule {
     endTime: string;
     createdAt: string;
     userId: number;
-    alarmId?: number;
+    hasAlarm: boolean;
 }

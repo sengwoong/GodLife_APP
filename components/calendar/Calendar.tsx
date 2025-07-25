@@ -34,7 +34,7 @@ const Calendar: React.FC<CalendarProps> = ({
   const onChangeMonthYear = (year: number, month: number) => {
     setSelectedYear(year);
     setSelectedMonth(month);
-    // onDateChange(year, month, 1);
+    onDateChange(year, month, 1);
   };
 
   const onChangeMonth = (increment: number) => {
@@ -99,6 +99,8 @@ const Calendar: React.FC<CalendarProps> = ({
     const lastDate = new Date(selectedYear, selectedMonth, 0).getDate();
     const firstDOW = new Date(selectedYear, selectedMonth - 1, 1).getDay();
 
+
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDOW; i++) {
       days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
@@ -108,6 +110,8 @@ const Calendar: React.FC<CalendarProps> = ({
     for (let date = 1; date <= lastDate; date++) {
       const dateString = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
       const scheduleCount = schedules.filter(s => s.day === dateString).length;
+      
+
 
       days.push(
         <View key={date} style={styles.dayCell}>

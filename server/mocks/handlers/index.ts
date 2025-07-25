@@ -3,8 +3,7 @@ import { wordHandlers } from './words'
 import { vocaHandlers } from './voca'
 import { userHandlers } from './users'
 import { scheduleHandlers } from './schedules'
-import { playlistHandlers } from './playlists'
-import { alarmHandlers } from './alarms'
+import { playlistHandlers } from './playlists'  
 import { musicHandlers } from './musics'
 import { postHandlers } from './posts'
 import { pointHandlers } from './points'
@@ -18,7 +17,6 @@ export const handlers = [
   ...scheduleHandlers,
   ...playlistHandlers,
   ...musicHandlers,
-  ...alarmHandlers,
   ...postHandlers,
   ...pointHandlers
 ] 

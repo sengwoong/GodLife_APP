@@ -1,16 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
+import { ScheduleRequest } from '../../common/types/serverType';
+import { Schedule } from '../../../types';
 
 
 
-// UI 표시용 타입
-export interface Schedule {
-  id: number;
-  title: string;
-  content: string;
-  time: string;
-  day: string;
-}
 
 interface ScheduleResponse {
   content: Schedule[];
@@ -20,13 +14,42 @@ interface ScheduleResponse {
   number: number;
 }
 
-// Read 작업
-export function useSchedules(userId: number, year: number, month: number, day: number) {
+// 월 단위 스케줄 조회 (캘린더 표시용)
+export function useSchedules(userId: number, year: number, month: number) {
   const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
   
   return useQuery<ScheduleResponse>({
     queryKey: ['schedules', userId, yearMonth],
     queryFn: async () => {
+      // 유저아이티 체크
+      if (!userId) {
+        throw new Error('유저아이티 체크 실패');
+      }
+      const response = await fetch(
+        `${BASE_URL}/schedules/user/${userId}?year=${year}&month=${month}`
+      );
+      if (!response.ok) {
+        throw new Error('일정 조회 실패');
+      }
+      const data = await response.json();
+      return data;
+    },
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 대기
+  });
+}
+
+// 특정 날짜 스케줄 조회 (상세 보기용)
+export function useSchedulesByDay(userId: number, year: number, month: number, day: number) {
+  const yearMonthDay = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  
+  return useQuery<ScheduleResponse>({
+    queryKey: ['schedules', userId, yearMonthDay],
+    queryFn: async () => {
+      // 유저아이티 체크
+      if (!userId) {
+        throw new Error('유저아이티 체크 실패');
+      }
       const response = await fetch(
         `${BASE_URL}/schedules/user/${userId}?year=${year}&month=${month}&day=${day}`
       );
@@ -36,6 +59,8 @@ export function useSchedules(userId: number, year: number, month: number, day: n
       const data = await response.json();
       return data;
     },
+    staleTime: 2 * 60 * 1000, // 2분간 캐시 유지
+    gcTime: 5 * 60 * 1000, // 5분간 가비지 컬렉션 대기
   });
 }
 
@@ -44,6 +69,10 @@ export function useSchedule(scheduleId: number, userId: number) {
   return useQuery<Schedule>({
     queryKey: ['schedule', scheduleId, userId],
     queryFn: async () => {
+      // 유저아이티 체크
+      if (!userId) {
+        throw new Error('유저아이티 체크 실패');
+      }
       const response = await fetch(
         `${BASE_URL}/schedules/schedule/${scheduleId}/user/${userId}`
       );
@@ -61,6 +90,8 @@ export interface CreateScheduleData {
   content: string;
   startTime: string;
   endTime: string;
+  day: string;
+  hasAlarm: boolean;
 }
 
 // Create 작업
@@ -72,6 +103,10 @@ export function useCreateSchedule() {
       userId: number, 
       scheduleData: CreateScheduleData 
     }) => {
+      // 유저아이티 체크
+      if (!userId) {
+        throw new Error('유저아이티 체크 실패');
+      }
       const response = await fetch(`${BASE_URL}/schedules/user/${userId}`, {
         method: 'POST',
         headers: {
@@ -85,6 +120,7 @@ export function useCreateSchedule() {
       return response.json();
     },
     onSuccess: (_, { userId }) => {
+      // 모든 schedules 쿼리를 무효화 (월 단위, 일 단위 모두)
       queryClient.invalidateQueries({ queryKey: ['schedules', userId] });
     },
   });
@@ -102,8 +138,12 @@ export function useUpdateSchedule() {
     }: {
       scheduleId: number;
       userId: number;
-      scheduleData: Partial<Omit<Schedule, 'id' | 'userId'>>;
+      scheduleData: ScheduleRequest;
     }) => {
+      // 유저아이티 체크
+      if (!userId) {
+        throw new Error('유저아이티 체크 실패');
+      }
       const response = await fetch(`${BASE_URL}/schedules/schedule/${scheduleId}/user/${userId}`, {
         method: 'PUT',
         headers: {
@@ -129,6 +169,18 @@ export function useDeleteSchedule() {
 
   return useMutation({
     mutationFn: async ({ scheduleId, userId }: { scheduleId: number; userId: number }) => {
+      // 유저아이티 체크
+      if (!userId) {
+        throw new Error('유저아이티 체크 실패');
+      }
+      // 자신의 일정만 삭제 가능
+      const schedule = await useSchedule(scheduleId, userId);
+      if (!schedule) {
+        throw new Error('일정 조회 실패');
+      }
+      if (schedule.data?.userId !== userId) {
+        throw new Error('자신의 일정만 삭제 가능');
+      }
       const response = await fetch(`${BASE_URL}/schedules/schedule/${scheduleId}/user/${userId}`, {
         method: 'DELETE',
       });
