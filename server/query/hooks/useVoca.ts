@@ -34,6 +34,30 @@ interface UpdateVocaData {
   };
 }
 
+export function useCreateVoca() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, vocaTitle, languages, description }: CreateVocaData) => {
+      const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vocaTitle, languages, description }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create new voca');
+      }
+      return response.json();
+    },
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
+      queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
+    }
+  });
+}
+
 export function useVoca(vocaId: number) {
   return useQuery({
     queryKey: ['voca', vocaId],
@@ -80,18 +104,7 @@ export function useInfiniteVoca(userId: string | number, searchText: string) {
   });
 }
 
-export function useMyVocas(userId: string | number) {
-  return useQuery({
-    queryKey: ['myVocas', userId],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/vocas/my/${userId}`);
-      if (!response.ok) {
-        throw new Error('내 단어장을 불러오는데 실패했습니다');
-      }
-      return response.json();
-    },
-  });
-}
+
 
 export function usePurchasedVocas(userId: string | number) {
   return useQuery({
@@ -116,30 +129,6 @@ export function useStudyVocas(userId: string | number) {
       }
       return response.json();
     },
-  });
-}
-
-export function useCreateVoca() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ userId, vocaTitle, languages, description }: CreateVocaData) => {
-      const response = await fetch(`${BASE_URL}/vocas/user/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ vocaTitle, languages, description }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create new voca');
-      }
-      return response.json();
-    },
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['userVocas', userId] });
-      queryClient.invalidateQueries({ queryKey: ['myVocas', userId] });
-    }
   });
 }
 

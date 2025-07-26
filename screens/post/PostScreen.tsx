@@ -60,6 +60,12 @@ export const PostScreen = () => {
     console.log('Selected song:', id);
   };
 
+  // 카테고리 변경 시 페이지 리셋
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    setPage(0); // 페이지 리셋
+  };
+
   const renderPost = ({ item }: ListRenderItemInfo<Post>) => (
     <TouchableOpacity activeOpacity={1} onPress={() => handlePostPress(item)}>
       <View style={styles.postContainer}>
@@ -97,7 +103,7 @@ export const PostScreen = () => {
             key={button.id}
             label={button.label}
             color={activeCategory === button.label ? 'BLACK' : 'WHITE'}
-            onPress={() => setActiveCategory(button.label)}
+            onPress={() => handleCategoryChange(button.label)}
             style={styles.categoryButton}
           />
         ))}
@@ -107,65 +113,24 @@ export const PostScreen = () => {
       <PostContentSearch category={activeCategory} />
       </View>
       <Margin size={'M8'} />
-      {activeCategory === 'post' && (
-        <FlatList
-          data={postsData?.content || []}
-          renderItem={renderPost}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.postContainer}
-          onEndReached={() => {
-            if (postsData && page < postsData.totalPages - 1) {
-              setPage(prev => prev + 1);
-            }
-          }}
-          onEndReachedThreshold={0.5}
-        />
-      )}
       
-      {activeCategory === 'shop' && (
-        <FlatList
-          data={postsData?.content || []}
-          renderItem={renderPost}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.postContainer}
-          onEndReached={() => {
-            if (postsData && page < postsData.totalPages - 1) {
-              setPage(prev => prev + 1);
-            }
-          }}
-          onEndReachedThreshold={0.5}
-        />
-      )}
-
-      {activeCategory === 'music' && (
-           <FlatList
-           data={postsData?.content || []}
-           renderItem={renderPost}
-           keyExtractor={item => item.id.toString()}
-           contentContainerStyle={styles.postContainer}
-           onEndReached={() => {
-             if (postsData && page < postsData.totalPages - 1) {
-               setPage(prev => prev + 1);
-             }
-           }}
-           onEndReachedThreshold={0.5}
-         />
-      )}
-
-      {activeCategory === 'like' && (
-        <FlatList
-          data={postsData?.content || []}
-          renderItem={renderPost}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.postContainer}
-          onEndReached={() => {
-            if (postsData && page < postsData.totalPages - 1) {
-              setPage(prev => prev + 1);
-            }
-          }}
-          onEndReachedThreshold={0.5}
-        />
-      )}
+      {/* 모든 카테고리에 대해 동일한 FlatList 사용 */}
+      <FlatList
+        data={postsData?.content || []}
+        renderItem={renderPost}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={styles.postContainer}
+        onEndReached={() => {
+          if (postsData && page < postsData.totalPages - 1) {
+            setPage(prev => prev + 1);
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        refreshing={isLoading}
+        onRefresh={() => {
+          setPage(0);
+        }}
+      />
     </View>
   );
 };

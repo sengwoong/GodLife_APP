@@ -1,11 +1,10 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle } from 'react-native';
+import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle, RefreshControl } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useInfiniteVoca } from '../../server/query/hooks/useVoca';
 import { useSearchStore } from '../../store/useSearchStore';
 import { Voca } from '../../types/voca';
-
-
+import { useQueryClient } from '@tanstack/react-query';
 
 interface VocaListProps {
   userId: number;
@@ -13,10 +12,10 @@ interface VocaListProps {
   onLongPress: (id: number, vocaTitle: string) => void;
 }
 
-
 const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaGame, onLongPress }) => {
-  
   const searchText = useSearchStore(state => state.searchText);
+  const queryClient = useQueryClient();
+  
   const {
     data,
     isLoading,
@@ -24,8 +23,15 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaGame, onLongP
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteVoca(userId!, searchText);
-  
+
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    queryClient.invalidateQueries({ queryKey: ['vocas', userId] });
+    queryClient.invalidateQueries({ queryKey: ['words'] });
+    await refetch();
+  };
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;
@@ -48,6 +54,16 @@ const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaGame, onLongP
         }}
         onEndReachedThreshold={0.5}
         ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={handleRefresh}
+            colors={[colors.GREEN]}
+            tintColor={colors.GREEN}
+            title="당겨서 새로고침"
+            titleColor={colors.LIGHT_BLACK}
+          />
+        }
       />
     </>
   );

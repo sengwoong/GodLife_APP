@@ -13,28 +13,6 @@ export const playlistHandlers = [
     })
   }),
 
-  http.put(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, async ({ params, request }) => {
-    const body = await request.json() as PlaylistRequest
-    return HttpResponse.json({
-      id: params.playlist_id,
-      ...body,
-      userId: params.user_id
-    })
-  }),
-
-  http.put(`${BASE_URL}/playlists/share/:playlist_id/user/:user_id`, async ({ params, request }) => {
-    const body = await request.json() as PlaylistShareRequest;
-    return HttpResponse.json({
-      id: Number(params.playlist_id),
-      isShared: body.isShared,
-      userId: Number(params.user_id)
-    });
-  }),
-
-  http.delete(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, () => {
-    return new HttpResponse(null, { status: 200 })
-  }),
-
   http.get(`${BASE_URL}/playlists/user/:user_id`, ({ params, request }) => {
     const url = new URL(request.url);
     const { user_id } = params;
@@ -66,12 +44,40 @@ export const playlistHandlers = [
     });
   }),
 
-  // 단일 플레이리스트 조회 (user_id는 쿼리스트링에서 받거나, 없으면 1로 처리)
   http.get(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, ({ params }) => {
     return HttpResponse.json({
       id: params.playlist_id,
       playlistTitle: `Playlist ${params.playlist_id}`,
       userId: Number(params.user_id)
     })
+  }),
+
+  http.get(`${BASE_URL}/playlists/share/user/:user_id`, ({ params }) => {
+    return HttpResponse.json({
+      id: params.user_id,
+      playlistTitle: `Playlist ${params.user_id}`,
+      userId: Number(params.user_id)
+    })
+  }),
+  http.put(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, async ({ params, request }) => {
+    const body = await request.json() as PlaylistRequest
+    return HttpResponse.json({
+      id: params.playlist_id,
+      ...body,
+      userId: params.user_id
+    })
+  }),
+
+  http.put(`${BASE_URL}/playlists/share/:playlist_id/user/:user_id`, async ({ params, request }) => {
+    const body = await request.json() as PlaylistShareRequest;
+    return HttpResponse.json({
+      id: Number(params.playlist_id),
+      isShared: body.isShared,
+      userId: Number(params.user_id)
+    });
+  }),
+
+  http.delete(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, () => {
+    return new HttpResponse(null, { status: 200 })
   }),
 ]

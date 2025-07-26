@@ -8,6 +8,8 @@ import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigato
 import { SettingStackParamList } from '../../navigations/stack/beforeLogin/SettingStackNavigator';
 import { drawerNavigations, SettingNavigations } from '../../constants';
 import { colors, spacing, getFontStyle } from '../../constants';
+import { PullToRefresh } from '../../components/common/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<SettingStackParamList>,
@@ -16,114 +18,126 @@ type Navigation = CompositeNavigationProp<
 
 function SettingScreen() {
   const navigation = useNavigation<Navigation>();
+  const queryClient = useQueryClient();
+
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 설정 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['points'] });
+    queryClient.invalidateQueries({ queryKey: ['user'] });
+    queryClient.invalidateQueries({ queryKey: ['posts'] });
+    queryClient.invalidateQueries({ queryKey: ['playlists'] });
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>GODLIFE - 설정</Text>
-        </View>
-
-        {/* Points Section */}
-        <View style={styles.pointsContainer}>
-          <View style={styles.pointBox}>
-            <Text style={styles.pointValue}>150p</Text>
-            <Text style={styles.pointLabel}>매일 매뉴</Text>
+    <PullToRefresh onRefresh={handleRefresh}>
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>GODLIFE - 설정</Text>
           </View>
-          <View style={styles.pointBox}>
-            <Text style={styles.pointValue}>100p</Text>
-            <Text style={styles.pointLabel}>서브 매뉴</Text>
+
+          {/* Points Section */}
+          <View style={styles.pointsContainer}>
+            <View style={styles.pointBox}>
+              <Text style={styles.pointValue}>150p</Text>
+              <Text style={styles.pointLabel}>매일 매뉴</Text>
+            </View>
+            <View style={styles.pointBox}>
+              <Text style={styles.pointValue}>100p</Text>
+              <Text style={styles.pointLabel}>서브 매뉴</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Total Points */}
-        <View style={styles.totalPoints}>
-          <Text style={styles.totalPointsLabel}>전체 포인트</Text>
-          <Text style={styles.totalPointsValue}>3,000p</Text>
-        </View>
+          {/* Total Points */}
+          <View style={styles.totalPoints}>
+            <Text style={styles.totalPointsLabel}>전체 포인트</Text>
+            <Text style={styles.totalPointsValue}>3,000p</Text>
+          </View>
 
-        {/* Menu Items */}
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate(SettingNavigations.POINTHISTORY)}
-        >
-          <Text style={styles.menuText}>포인트 적립 내역</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate(SettingNavigations.POINTUSAGE)}
-        >
-          <Text style={styles.menuText}>포인트 사용 내역</Text>
-        </TouchableOpacity>
-
-        {/* Post Management Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>포스트 관리</Text>
+          {/* Menu Items */}
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => navigation.navigate(SettingNavigations.POSTCOMMENTS)}
+            onPress={() => navigation.navigate(SettingNavigations.POINTHISTORY)}
           >
-            <Text style={styles.menuText}>댓글 관리</Text>
+            <Text style={styles.menuText}>포인트 적립 내역</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.menuItem}
-            onPress={() => navigation.navigate(SettingNavigations.POSTADS)}
+            onPress={() => navigation.navigate(SettingNavigations.POINTUSAGE)}
           >
-            <Text style={styles.menuText}>포스트 광고 관리</Text>
+            <Text style={styles.menuText}>포인트 사용 내역</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={() => navigation.navigate(SettingNavigations.POSTSHARE)}
-          >
-            <Text style={styles.menuText}>포스트 공유</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Playlist Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>플레이리스트</Text>
-          <TouchableOpacity 
-            style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.IMPORT)}
-          >
-            <Text style={styles.playlistText}>유튜브 재생목록 가져오기</Text>
-            <Text style={styles.playlistCount}>12곡</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.MYPLAYLIST)}
-          >
-            <Text style={styles.playlistText}>내 플레이리스트</Text>
-            <Text style={styles.playlistCount}>8곡</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.playlistItem}
-            onPress={() => navigation.navigate(SettingNavigations.LIKEDPLAYLIST)}
-          >
-            <Text style={styles.playlistText}>좋아요 표시한 곡</Text>
-            <Text style={styles.playlistCount}>24곡</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Post Management Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>포스트 관리</Text>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(SettingNavigations.POSTCOMMENTS)}
+            >
+              <Text style={styles.menuText}>댓글 관리</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(SettingNavigations.POSTADS)}
+            >
+              <Text style={styles.menuText}>포스트 광고 관리</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(SettingNavigations.POSTSHARE)}
+            >
+              <Text style={styles.menuText}>포스트 공유</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Word List Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>단어 리스트</Text>
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={() => navigation.navigate(SettingNavigations.STUDYWORDS)}
-          >
-            <Text style={styles.menuText}>공부할 단어</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={() => navigation.navigate(SettingNavigations.MYWORDS)}
-          >
-            <Text style={styles.menuText}>나의 단어</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Playlist Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>플레이리스트</Text>
+            <TouchableOpacity 
+              style={styles.playlistItem}
+              onPress={() => navigation.navigate(SettingNavigations.IMPORT)}
+            >
+              <Text style={styles.playlistText}>유튜브 재생목록 가져오기</Text>
+              <Text style={styles.playlistCount}>12곡</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.playlistItem}
+              onPress={() => navigation.navigate(SettingNavigations.MYPLAYLIST)}
+            >
+              <Text style={styles.playlistText}>내 플레이리스트</Text>
+              <Text style={styles.playlistCount}>8곡</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.playlistItem}
+              onPress={() => navigation.navigate(SettingNavigations.LIKEDPLAYLIST)}
+            >
+              <Text style={styles.playlistText}>좋아요한 플레이리스트</Text>
+              <Text style={styles.playlistCount}>5곡</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Words Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>단어장</Text>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(SettingNavigations.MYWORDS)}
+            >
+              <Text style={styles.menuText}>내 단어장</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(SettingNavigations.STUDYWORDS)}
+            >
+              <Text style={styles.menuText}>학습한 단어</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </PullToRefresh>
   );
 }
 

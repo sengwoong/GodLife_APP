@@ -15,6 +15,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../server/common/types/constants';
 import SelectButton from '../../components/SelectButton';
+import { PullToRefresh } from '../../components/common/PullToRefresh';
 
 // 네비게이션 타입 정의
 type Navigation = CompositeNavigationProp<
@@ -48,7 +49,6 @@ const VocaScreen = () => {
         },
         body: JSON.stringify({ vocaTitle: newVocaName, languages: selectedLanguage }),
       });
-      console.log(response);
       if (!response.ok) {
         throw new Error('Failed to create new voca');
       }
@@ -56,7 +56,6 @@ const VocaScreen = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vocas', userId]});
-      console.log('단어장 추가 성공');
     },
   });
 
@@ -91,104 +90,108 @@ const VocaScreen = () => {
     });
   };
 
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 단어장 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['vocas', userId] });
+    queryClient.invalidateQueries({ queryKey: ['words'] });
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <PullToRefresh onRefresh={handleRefresh} isFlatList={true}>
+      <SafeAreaView style={styles.container}>
+        <Margin size={'M16'} />
 
-      <Margin size={'M16'} />
+        <View style={styles.header}>
+          <Text style={styles.header__title}>단어장</Text>
+          <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
+        </View>
 
-      <View style={styles.header}>
-        <Text style={styles.header__title}>단어장</Text>
-        <Text style={styles.header__subtitle}>학습할 단어장을 선택하세요</Text>
-      </View>
+        <Margin size={'M12'} />
 
-      <Margin size={'M12'} />
+        <VocaSearch />
+        
+        <VocaList
+          userId={userId!}
+          navigateToVocaGame={navigateToVocaGame}
+          onLongPress={handleLongPress}
+        />
+        
+        <FAB onPress={() => setIsModalVisible(true)} /> 
 
-      <VocaSearch />
-      
-      <VocaList
-        userId={userId!}
-        navigateToVocaGame={navigateToVocaGame}
-        onLongPress={handleLongPress}
-      />
-      
-      <FAB onPress={() => setIsModalVisible(true)} /> 
+        <CompoundOption
+          isVisible={isModalVisible} 
+          hideOption={() => setIsModalVisible(false)}
+        >
+          <CompoundOption.Background>
+            <CompoundOption.Container style={styles.modal}>
+              <CompoundOption.Title>새 단어장 만들기</CompoundOption.Title>
+              <Margin size={'M12'} />
+              <View style={styles.modal__input}>
+                <TextInput
+                  placeholder="단어장 이름을 입력하세요"
+                  value={newVocaName}
+                  onChangeText={setNewVocaName}
+                  autoFocus
+                />
+              </View>
+              <Margin size={'M12'} />
+              <View style={styles.modal__input}>
+                <SelectButton
+                  options={languages}
+                  selectedOption={selectedLanguage}
+                  onSelect={setSelectedLanguage}
+                  disabled={false} 
+                />
+              </View>
+              <CompoundOption.Divider />
+              
+              <View style={styles.modal__buttons}>
+                <CompoundOption.Button 
+                  onPress={() => setIsModalVisible(false)}>
+                  취소
+                </CompoundOption.Button>
+                <CompoundOption.Button 
+                  onPress={handleAddVoca}>
+                  추가
+                </CompoundOption.Button>
+              </View>
+            </CompoundOption.Container>
+          </CompoundOption.Background>
+        </CompoundOption>
 
+        <CompoundOption
+          isVisible={contextMenu.isVisible}
+          hideOption={() => setContextMenu(prev => ({ ...prev, isVisible: false }))}
+        >
+          <CompoundOption.Background>
+            <CompoundOption.Container>
+              <CompoundOption.Title>{contextMenu.selectedVocaTitle} 단어장</CompoundOption.Title>
 
-
-      <CompoundOption
-        isVisible={isModalVisible} 
-        hideOption={() => setIsModalVisible(false)}
-      >
-        <CompoundOption.Background>
-          <CompoundOption.Container style={styles.modal}>
-            <CompoundOption.Title>새 단어장 만들기</CompoundOption.Title>
-            <Margin size={'M12'} />
-            <View style={styles.modal__input}>
-              <TextInput
-                placeholder="단어장 이름을 입력하세요"
-                value={newVocaName}
-                onChangeText={setNewVocaName}
-                autoFocus
-              />
-            </View>
-            <Margin size={'M12'} />
-            <View style={styles.modal__input}>
-              <SelectButton
-                options={languages}
-                selectedOption={selectedLanguage}
-                onSelect={setSelectedLanguage}
-                disabled={false} 
-              />
-            </View>
-            <CompoundOption.Divider />
-            
-            <View style={styles.modal__buttons}>
-              <CompoundOption.Button 
-                onPress={() => setIsModalVisible(false)}>
-                취소
+              <Margin size={'M12'} />
+              <CompoundOption.Button
+                onPress={() => {
+                  navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex: contextMenu.selectedVocaId! });
+                }}>
+                단어장 수정하기
               </CompoundOption.Button>
-              <CompoundOption.Button 
-                onPress={handleAddVoca}>
-                추가
+
+              <CompoundOption.Button
+                onPress={() => navigateToVocaContent(contextMenu.selectedVocaId!)}>
+                단어로 이동
               </CompoundOption.Button>
-            </View>
-          </CompoundOption.Container>
-        </CompoundOption.Background>
-      </CompoundOption>
-
-
-
-      <CompoundOption
-        isVisible={contextMenu.isVisible}
-        hideOption={() => setContextMenu(prev => ({ ...prev, isVisible: false }))}
-      >
-        <CompoundOption.Background>
-          <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedVocaTitle} 단어장</CompoundOption.Title>
-
-            <Margin size={'M12'} />
-            <CompoundOption.Button
-              onPress={() => {
-                navigation.navigate(VocaNavigations.VOCACONTENTEDIT, { vocaIndex: contextMenu.selectedVocaId! });
-              }}>
-              단어장 수정하기
-            </CompoundOption.Button>
-
-            <CompoundOption.Button
-              onPress={() => navigateToVocaContent(contextMenu.selectedVocaId!)}>
-              단어로 이동
-            </CompoundOption.Button>
-            <CompoundOption.Button
-              isDanger
-              onPress={() => {
-                console.log('삭제:', contextMenu.selectedVocaId);
-              }}>
-              삭제하기
-            </CompoundOption.Button>
-          </CompoundOption.Container>
-        </CompoundOption.Background>
-      </CompoundOption>
-    </SafeAreaView>
+              <CompoundOption.Button
+                isDanger
+                onPress={() => {
+                  console.log('삭제:', contextMenu.selectedVocaId);
+                }}>
+                삭제하기
+              </CompoundOption.Button>
+            </CompoundOption.Container>
+          </CompoundOption.Background>
+        </CompoundOption>
+      </SafeAreaView>
+    </PullToRefresh>
   );
 };
 

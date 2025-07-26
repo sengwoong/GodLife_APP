@@ -40,8 +40,6 @@ function MainScreen() {
 
   const { data: recommendContent, isLoading: isLoadingRecommend } = useUserRecommend(1, 10);
 
-  console.log("bestPosts", bestPosts);
-
   const popularAvatars = bestUsers?.users.slice(0, 3).map(user => ({
     id: user.id,
     image: user.profileImage,

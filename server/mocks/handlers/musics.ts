@@ -11,19 +11,6 @@ export const musicHandlers = [
     })
   }),
 
-  http.put(`${BASE_URL}/musics/playlist/:playlist_id/music/:music_id/user/:user_id`, async ({ params, request }) => {
-    const body = await request.json() as MusicRequest
-    return HttpResponse.json({
-      id: params.music_id,
-      ...body,
-      userId: params.user_id
-    })
-  }),
-
-  http.delete(`${BASE_URL}/musics/playlist/:playlist_id/music/:music_id/user/:user_id`, () => {
-    return new HttpResponse(null, { status: 200 })
-  }),
-
   http.get(`${BASE_URL}/musics/playlist/:playlist_id`, ({ params, request }) => {
     const url = new URL(request.url);
     const index = parseInt(url.searchParams.get('index') || '-1', 10);
@@ -78,7 +65,7 @@ export const musicHandlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/musics/liked/:user_id`, ({ params, request }) => {
+  http.get(`${BASE_URL}/musiclikes/musics/liked/:user_id`, ({ params, request }) => {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = parseInt(url.searchParams.get('size') || '10', 10);
@@ -103,5 +90,30 @@ export const musicHandlers = [
       size,
       number: page
     });
+  }),
+
+  http.get(`${BASE_URL}/musiclikes/music/:music_id/user/:user_id/check`, async ({ params, request }) => {
+    return HttpResponse.json({
+      isLiked: true
+    })
+  }),
+
+  http.post(`${BASE_URL}/musiclikes/music/:music_id/user/:user_id`, async ({ params, request }) => {
+    return HttpResponse.json({
+      isLiked: true
+    })
+  }),
+
+  http.put(`${BASE_URL}/musics/music/:music_id/user/:user_id`, async ({ params, request }) => {
+    const body = await request.json() as MusicRequest
+    return HttpResponse.json({
+      id: params.music_id,
+      ...body,
+      userId: params.user_id
+    })
+  }),
+
+  http.delete(`${BASE_URL}/musics/music/:music_id/user/:user_id`, () => {
+    return new HttpResponse(null, { status: 200 })
   }),
 ] 

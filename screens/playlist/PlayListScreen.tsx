@@ -13,6 +13,8 @@ import PlaylistSearch from '../../components/playlist/PlaylistSearch';
 import PlaylistList from '../../components/playlist/PlaylistList';
 import { useCreatePlayList, useDeletePlayList } from '../../server/query/hooks/usePlayList';
 import useAuthStore from '../../store/useAuthStore';
+import { PullToRefresh } from '../../components/common/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<PlayListStackParamList>,
@@ -31,6 +33,7 @@ function PlayListScreen() {
 
   const { mutate: deletePlayList } = useDeletePlayList();
   const { mutate: createPlayList } = useCreatePlayList();
+  const queryClient = useQueryClient();
 
   const navigateToPlayListContent = (playlistId: number) => {
     navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
@@ -50,6 +53,7 @@ function PlayListScreen() {
   if (!userId) {
     throw new Error('User ID is undefined');
   }
+  
   const handleAddPlaylist = () => {
     setIsModalVisible(false); 
     createPlayList({
@@ -70,95 +74,104 @@ function PlayListScreen() {
     });
   };
 
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 플레이리스트 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['playlists', userId] });
+    queryClient.invalidateQueries({ queryKey: ['playlist'] });
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Margin size={'M16'} />
-      <View style={styles.header}>
-        <Text style={styles.header__title}>플레이리스트</Text>
-        <Text style={styles.header__subtitle}>플레이리스트를 선택하세요</Text>
-      </View>
-      <Margin size={'M12'} />
-      <PlaylistSearch />
-      <PlaylistList
-        navigateToMusic={navigateToMusic}
-        onLongPress={handleLongPress}
-      />
-      
-      <FAB onPress={() => setIsModalVisible(true)} />
+    <PullToRefresh onRefresh={handleRefresh} isFlatList={true}>
+      <SafeAreaView style={styles.container}>
+        <Margin size={'M16'} />
+        <View style={styles.header}>
+          <Text style={styles.header__title}>플레이리스트</Text>
+          <Text style={styles.header__subtitle}>플레이리스트를 선택하세요</Text>
+        </View>
+        <Margin size={'M12'} />
+        <PlaylistSearch />
+        <PlaylistList
+          navigateToMusic={navigateToMusic}
+          onLongPress={handleLongPress}
+        />
+        
+        <FAB onPress={() => setIsModalVisible(true)} />
 
-      <CompoundOption
-        isVisible={isModalVisible}
-        hideOption={() => setIsModalVisible(false)}
-        animationType="slide">
-        <CompoundOption.Background>
-          <CompoundOption.Container style={styles.modal}>
-            <CompoundOption.Title>새 플레이리스트 만들기</CompoundOption.Title>
-            <Margin size={'M12'} />
-            <View style={styles.modal__input}>
-              <TextInput
-                placeholder="플레이리스트 이름을 입력하세요"
-                value={newPlaylistName}
-                onChangeText={setNewPlaylistName}
-                autoFocus
-              />
-            </View>
-            <Margin size={'M12'} />
-            <CompoundOption.Divider />
-            
-            <View style={styles.modal__buttons}>
-              <CompoundOption.Button 
-                onPress={() => setIsModalVisible(false)}>
-                취소
-              </CompoundOption.Button>
-              <CompoundOption.Button 
-                onPress={handleAddPlaylist}>
-                추가
-              </CompoundOption.Button>
-            </View>
-          </CompoundOption.Container>
-        </CompoundOption.Background>
-      </CompoundOption>
+        <CompoundOption
+          isVisible={isModalVisible}
+          hideOption={() => setIsModalVisible(false)}
+          animationType="slide">
+          <CompoundOption.Background>
+            <CompoundOption.Container style={styles.modal}>
+              <CompoundOption.Title>새 플레이리스트 만들기</CompoundOption.Title>
+              <Margin size={'M12'} />
+              <View style={styles.modal__input}>
+                <TextInput
+                  placeholder="플레이리스트 이름을 입력하세요"
+                  value={newPlaylistName}
+                  onChangeText={setNewPlaylistName}
+                  autoFocus
+                />
+              </View>
+              <Margin size={'M12'} />
+              <CompoundOption.Divider />
+              
+              <View style={styles.modal__buttons}>
+                <CompoundOption.Button 
+                  onPress={() => setIsModalVisible(false)}>
+                  취소
+                </CompoundOption.Button>
+                <CompoundOption.Button 
+                  onPress={handleAddPlaylist}>
+                  추가
+                </CompoundOption.Button>
+              </View>
+            </CompoundOption.Container>
+          </CompoundOption.Background>
+        </CompoundOption>
 
-      <CompoundOption
-        isVisible={contextMenu.isVisible}
-        hideOption={() => setContextMenu(prev => ({ ...prev, isVisible: false }))}
-      >
-        <CompoundOption.Background>
-          <CompoundOption.Container>
-            <CompoundOption.Title>{contextMenu.selectedPlaylistTitle} 플레이리스트</CompoundOption.Title>
-            <CompoundOption.Button
-              onPress={() => {
-                navigation.navigate(PlayListNavigations.PLAYLISTEDIT, { playListIndex: contextMenu.selectedPlaylistId! });
-                setContextMenu(prev => ({ ...prev, isVisible: false }));
-              }}>
-              수정하기
-            </CompoundOption.Button>
-            <CompoundOption.Divider />
-            <CompoundOption.Button
-              onPress={() => {
-                navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
-                  playListIndex: contextMenu.selectedPlaylistId!,
-                });
-                setContextMenu(prev => ({ ...prev, isVisible: false }));
-              }}>
-              뮤직 플레이
-            </CompoundOption.Button>
-      
-            <CompoundOption.Divider />
-            <CompoundOption.Button
-              isDanger
-              onPress={() => {
-                if (contextMenu.selectedPlaylistId) {
-                  deletePlayList(contextMenu.selectedPlaylistId);
-                }
-                setContextMenu(prev => ({ ...prev, isVisible: false }));
-              }}>
-              삭제하기
-            </CompoundOption.Button>
-          </CompoundOption.Container>
-        </CompoundOption.Background>
-      </CompoundOption>
-    </SafeAreaView>
+        <CompoundOption
+          isVisible={contextMenu.isVisible}
+          hideOption={() => setContextMenu(prev => ({ ...prev, isVisible: false }))}
+        >
+          <CompoundOption.Background>
+            <CompoundOption.Container>
+              <CompoundOption.Title>{contextMenu.selectedPlaylistTitle} 플레이리스트</CompoundOption.Title>
+              <CompoundOption.Button
+                onPress={() => {
+                  navigation.navigate(PlayListNavigations.PLAYLISTEDIT, { playListIndex: contextMenu.selectedPlaylistId! });
+                  setContextMenu(prev => ({ ...prev, isVisible: false }));
+                }}>
+                수정하기
+              </CompoundOption.Button>
+              <CompoundOption.Divider />
+              <CompoundOption.Button
+                onPress={() => {
+                  navigation.navigate(PlayListNavigations.PLAYLISTCONTENT, { 
+                    playListIndex: contextMenu.selectedPlaylistId!,
+                  });
+                  setContextMenu(prev => ({ ...prev, isVisible: false }));
+                }}>
+                뮤직 플레이
+              </CompoundOption.Button>
+        
+              <CompoundOption.Divider />
+              <CompoundOption.Button
+                isDanger
+                onPress={() => {
+                  if (contextMenu.selectedPlaylistId) {
+                    deletePlayList({ playlistId: contextMenu.selectedPlaylistId, userId });
+                  }
+                  setContextMenu(prev => ({ ...prev, isVisible: false }));
+                }}>
+                삭제하기
+              </CompoundOption.Button>
+            </CompoundOption.Container>
+          </CompoundOption.Background>
+        </CompoundOption>
+      </SafeAreaView>
+    </PullToRefresh>
   );
 }
 

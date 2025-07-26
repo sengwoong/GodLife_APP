@@ -13,8 +13,23 @@ const generateWords = (voca_id: string | number, count = 100) => {
 };
 
 export const wordHandlers = [
-  // Read 작업
-  // 단어장의 단어 목록 조회
+  http.post(`${BASE_URL}/words`, async ({ request }) => {
+    const body = await request.json() as WordRequest;
+    return HttpResponse.json({
+      id: Date.now(),
+      ...body
+    });
+  }),
+
+  http.get(`${BASE_URL}/words/word/:word_id`, ({ params }) => {
+    const { word_id } = params;
+    return HttpResponse.json({
+      id: word_id,
+      word: `Word ${word_id}`,
+      meaning: `Meaning for word ${word_id}`
+    });
+  }),
+
   http.get(`${BASE_URL}/words/voca/:voca_id`, ({ params, request }) => {
     const { voca_id } = params;
     const url = new URL(request.url);
@@ -25,7 +40,6 @@ export const wordHandlers = [
 
     const words = generateWords(Number(voca_id));
     
-    // 특정 인덱스의 단어만 반환
     if (index !== null) {
       const wordIndex = parseInt(index, 10);
       if (wordIndex >= 0 && wordIndex < words.length) {
@@ -39,13 +53,11 @@ export const wordHandlers = [
       }
     }
 
-    // 검색어로 필터링
     const filteredWords = words.filter(word => 
       word.word.toLowerCase().includes(search) || 
       word.meaning.toLowerCase().includes(search)
     );
 
-    // 페이지네이션 처리
     const start = page * size;
     const end = start + size;
     const paginatedWords = filteredWords.slice(start, end);
@@ -59,16 +71,6 @@ export const wordHandlers = [
     });
   }),
 
-  // Create 작업
-  http.post(`${BASE_URL}/words`, async ({ request }) => {
-    const body = await request.json() as WordRequest;
-    return HttpResponse.json({
-      id: Date.now(),
-      ...body
-    });
-  }),
-
-  // Update 작업
   http.put(`${BASE_URL}/words/word/:word_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as WordRequest;
     return HttpResponse.json({
@@ -78,7 +80,6 @@ export const wordHandlers = [
     });
   }),
 
-  // Delete 작업
   http.delete(`${BASE_URL}/words/word/:word_id/user/:user_id`, ({ params }) => {
     return HttpResponse.json({
       id: params.word_id,

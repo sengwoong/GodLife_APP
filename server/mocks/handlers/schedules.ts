@@ -162,7 +162,45 @@ let scheduleDatabase: Array<{
 ];
 
 export const scheduleHandlers = [
-  // 스케줄 조회 (월 단위 또는 일 단위)
+  http.post(`${BASE_URL}/schedules/user/:userId`, async ({ params, request }) => {
+    try {
+      const body = await request.json() as ScheduleRequest
+      const userId = Number(params.userId);
+      if (!userId) {
+        return new HttpResponse(null, { status: 400 });
+      }
+      console.log('Creating schedule with body:', body);
+      
+      if (!body.scheduleTitle || !body.scheduleTitle.trim()) {
+        console.error('Schedule title is required');
+        return new HttpResponse(null, { status: 400 });
+      }
+      
+      const day = body.day || new Date().toISOString().split('T')[0];
+      
+      const newSchedule = {
+        id: Date.now(),
+        title: body.scheduleTitle,
+        content: body.content || '',
+        time: body.startTime || '00:00',
+        day: day || new Date().toISOString().split('T')[0],
+        userId: userId,
+        hasAlarm: body.hasAlarm || false
+      };
+      
+      console.log('New schedule to be added:', newSchedule);
+      
+      scheduleDatabase.push(newSchedule);
+      
+      console.log('Schedule added to database. Total schedules:', scheduleDatabase.length);
+      
+      return HttpResponse.json(newSchedule)
+    } catch (error) {
+      console.error('Error in schedule creation:', error);
+      return new HttpResponse(null, { status: 500 });
+    }
+  }),
+
   http.get(`${BASE_URL}/schedules/user/:userId`, async ({ request, params }) => {
     const url = new URL(request.url);
     const year = url.searchParams.get('year');
@@ -173,19 +211,16 @@ export const scheduleHandlers = [
     console.log('Fetching schedules with params:', { year, month, day, userId });
     console.log('Total schedules in database:', scheduleDatabase.length);
     
-    // 해당 사용자의 스케줄만 필터링
     const userSchedules = scheduleDatabase.filter(schedule => schedule.userId === userId);
     console.log('User schedules:', userSchedules.length);
     
     let filteredSchedules = userSchedules;
     
     if (year && month && day) {
-      // 일 단위 조회 (특정 날짜의 스케줄만)
       const targetDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       filteredSchedules = userSchedules.filter(schedule => schedule.day === targetDate);
       console.log('Day filter - targetDate:', targetDate, 'found:', filteredSchedules.length);
     } else if (year && month) {
-      // 월 단위 조회 (해당 월의 모든 스케줄)
       const targetYearMonth = `${year}-${String(month).padStart(2, '0')}`;
       filteredSchedules = userSchedules.filter(schedule => schedule.day.startsWith(targetYearMonth));
       console.log('Month filter - targetYearMonth:', targetYearMonth, 'found:', filteredSchedules.length);
@@ -202,13 +237,11 @@ export const scheduleHandlers = [
     })
   }),
 
-  // 단일 일정 조회
   http.get(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, ({ params }) => {
     const { scheduleId, userId } = params;
     const scheduleIdNum = Number(scheduleId);
     const userIdNum = Number(userId);
     
-    // 데이터베이스에서 해당 스케줄 찾기
     const schedule = scheduleDatabase.find(s => s.id === scheduleIdNum && s.userId === userIdNum);
 
     if (!schedule) {
@@ -218,64 +251,17 @@ export const scheduleHandlers = [
     return HttpResponse.json(schedule);
   }),
 
-  // Create 작업
-  http.post(`${BASE_URL}/schedules/user/:userId`, async ({ params, request }) => {
-    try {
-      const body = await request.json() as ScheduleRequest
-      const userId = Number(params.userId);
-      // 유저아이티 체크
-      if (!userId) {
-        return new HttpResponse(null, { status: 400 });
-      }
-      console.log('Creating schedule with body:', body);
-      
-      // 필수 필드 검증
-      if (!body.scheduleTitle || !body.scheduleTitle.trim()) {
-        console.error('Schedule title is required');
-        return new HttpResponse(null, { status: 400 });
-      }
-      
-      // 스프링 LocalDate 형식으로 저장 (YYYY-MM-DD)
-      const day = body.day || new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
-      
-      const newSchedule = {
-        id: Date.now(),
-        title: body.scheduleTitle,
-        content: body.content || '',
-        time: body.startTime || '00:00',
-        day: day || new Date().toISOString().split('T')[0],
-        userId: userId,
-        hasAlarm: body.hasAlarm || false
-      };
-      
-      console.log('New schedule to be added:', newSchedule);
-      
-      // 데이터베이스에 추가
-      scheduleDatabase.push(newSchedule);
-      
-      console.log('Schedule added to database. Total schedules:', scheduleDatabase.length);
-      
-      return HttpResponse.json(newSchedule)
-    } catch (error) {
-      console.error('Error in schedule creation:', error);
-      return new HttpResponse(null, { status: 500 });
-    }
-  }),
-
-  // Update 작업
   http.put(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, async ({ params, request }) => {
     const body = await request.json() as ScheduleRequest
     const scheduleId = Number(params.scheduleId);
     const userId = Number(params.userId);
     
-    // 데이터베이스에서 해당 스케줄 찾기
     const scheduleIndex = scheduleDatabase.findIndex(s => s.id === scheduleId && s.userId === userId);
     
     if (scheduleIndex === -1) {
       return new HttpResponse(null, { status: 404 });
     }
     
-    // 스케줄 업데이트
     scheduleDatabase[scheduleIndex] = {
       ...scheduleDatabase[scheduleIndex],
       title: body.scheduleTitle,
@@ -288,19 +274,16 @@ export const scheduleHandlers = [
     return HttpResponse.json(scheduleDatabase[scheduleIndex])
   }),
 
-  // Delete 작업
   http.delete(`${BASE_URL}/schedules/schedule/:scheduleId/user/:userId`, ({ params }) => {
     const scheduleId = Number(params.scheduleId);
     const userId = Number(params.userId);
     
-    // 데이터베이스에서 해당 스케줄 찾기
     const scheduleIndex = scheduleDatabase.findIndex(s => s.id === scheduleId && s.userId === userId);
     
     if (scheduleIndex === -1) {
       return new HttpResponse(null, { status: 404 });
     }
     
-    // 스케줄 삭제
     scheduleDatabase.splice(scheduleIndex, 1);
     
     return new HttpResponse(null, { status: 200 })

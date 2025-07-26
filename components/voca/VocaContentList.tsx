@@ -1,9 +1,10 @@
 import React from 'react';
-import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle } from 'react-native';
+import { FlatList, ActivityIndicator, TouchableOpacity, View, Text, StyleSheet, TextStyle, RefreshControl } from 'react-native';
 import { colors, getFontStyle, spacing } from '../../constants';
 import { useInfiniteWords } from '../../server/query/hooks/useWord';
 import { useSearchStore } from '../../store/useSearchStore';
 import { useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Word {
   id: number;
@@ -29,6 +30,7 @@ const WordItem = ({ item, onPress }: { item: Word; onPress: (id: number) => void
 
 const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail }) => {
   const searchText = useSearchStore(state => state.searchText);
+  const queryClient = useQueryClient();
   
   const route = useRoute();
   const { vocaIndex } = route.params as { vocaIndex: number };
@@ -40,7 +42,15 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail 
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteWords(vocaIndex, searchText);
+
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    queryClient.invalidateQueries({ queryKey: ['words', vocaIndex] });
+    queryClient.invalidateQueries({ queryKey: ['vocas'] });
+    await refetch();
+  };
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.GREEN} />;
@@ -62,6 +72,16 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail 
       }}
       onEndReachedThreshold={0.5}
       ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color={colors.GREEN} /> : null}
+      refreshControl={
+        <RefreshControl
+          refreshing={isLoading}
+          onRefresh={handleRefresh}
+          colors={[colors.GREEN]}
+          tintColor={colors.GREEN}
+          title="당겨서 새로고침"
+          titleColor={colors.LIGHT_BLACK}
+        />
+      }
     />
   );
 };

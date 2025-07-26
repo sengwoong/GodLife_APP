@@ -16,6 +16,7 @@ import ScrollWheelPicker from '../../components/ScrollWheelPicker';
 import { useSchedules, useSchedulesByDay, useCreateSchedule } from '../../server/query/hooks/useSchedule';
 import { Schedule } from '../../types';
 import Calendar from '../../components/calendar/Calendar';
+import { PullToRefresh } from '../../components/common/PullToRefresh';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<calendarStackParamList>,
@@ -50,14 +51,6 @@ function CalendarHomeScreen() {
   const { data: dayScheduleData, isLoading: dayLoading } = useSchedulesByDay(1, year, month, selectedDate);
   const { mutate: createSchedule } = useCreateSchedule();
 
-  // 디버깅을 위한 로그
-  console.log('CalendarHomeScreen - monthScheduleData:', monthScheduleData);
-  console.log('CalendarHomeScreen - dayScheduleData:', dayScheduleData);
-  console.log('CalendarHomeScreen - year, month, selectedDate:', year, month, selectedDate);
-  console.log('CalendarHomeScreen - loading states:', { monthLoading, dayLoading });
-
-
-
   const hideOption = () => {
     setIsVisible(false);
     setEditedSchedule(null);
@@ -86,7 +79,7 @@ function CalendarHomeScreen() {
       const timeString = `${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}`;
       const dayString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       
-      console.log('Creating schedule with data:', {
+      createSchedule({
         userId: 1,
         scheduleData: {
           scheduleTitle: editedSchedule.title.trim(),
@@ -98,193 +91,171 @@ function CalendarHomeScreen() {
         }
       });
       
-      createSchedule({
-        userId: 1,
-        scheduleData: {
-          scheduleTitle: editedSchedule.title.trim(),
-          content: editedSchedule.content || '',
-          startTime: timeString,
-          endTime: timeString,
-          day: dayString,
-          hasAlarm: alarmEnabled
-        }
-      }, {
-        onSuccess: (data) => {
-          console.log('Schedule created successfully:', data);
-          Alert.alert('성공', alarmEnabled ? '스케줄과 알람이 생성되었습니다.' : '스케줄이 생성되었습니다.');
-          setEditedSchedule(null);
-          setIsVisible(false);
-          setAlarmEnabled(false);
-        },
-        onError: (error: any) => {
-          console.error('Schedule creation failed:', error);
-          Alert.alert('오류', '스케줄 생성에 실패했습니다.');
-        }
-      });
+      hideOption();
     } else {
       Alert.alert('오류', '제목을 입력해주세요.');
     }
   }
 
-  const monthYear = useMemo(() => {
-    const lastDate = new Date(year, month, 0).getDate();
-    const firstDOW = new Date(year, month - 1, 1).getDay();
-    const startDate = new Date(year, month - 1, 1); 
-    return { year, month, lastDate, firstDOW, startDate };
-  }, [year, month]);
-
-
   const onChangePressItem = (itemindex: number) => {
-    navigation.navigate(CalendarNavigations.CALENDAREDIT, {calendaritemIndex: itemindex});
+    console.log('Selected item:', itemindex);
   };
 
   const moveToToday = () => {
-    const { year, month, firstDOW } = getMonthYearDetails();
-    setYear(year);
-    setMonth(month);
-    setSelectedDate(firstDOW);
+    const today = new Date();
+    setYear(today.getFullYear());
+    setMonth(today.getMonth() + 1);
+    setSelectedDate(today.getDate());
+    setDay(today.getDate());
   };
 
   const handleDateChange = (newYear: number, newMonth: number, newDate: number) => {
-    console.log('handleDateChange called:', { newYear, newMonth, newDate });
     setYear(newYear);
     setMonth(newMonth);
     setSelectedDate(newDate);
     setDay(newDate);
   };
 
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 일정 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['schedules', 1, year, month] });
+    queryClient.invalidateQueries({ queryKey: ['schedulesByDay', 1, year, month, selectedDate] });
+  };
 
   return (
-    <SafeAreaView>
-      {monthLoading ? (
-        <Text>로딩 중...</Text>
-      ) : (
-        <>
-          <Calendar 
-            year={year}
-            month={month}
-            day={selectedDate}
-            schedules={monthScheduleData?.content || []}
-            onDateChange={handleDateChange}
-          />
-
-          <View style={styles.rowContainer}>
-            <Text style={styles.SelectDayText}>{selectedDate}일 할일</Text>
-            <CustomButton 
-              size='text_size' 
-              label='생성하기' 
-              color='BLACK' 
-              shape='rounded' 
-              style={{ flexWrap: 'nowrap' }} 
-              onPress={showOption}
+    <PullToRefresh onRefresh={handleRefresh}>
+      <SafeAreaView>
+        {monthLoading ? (
+          <Text>로딩 중...</Text>
+        ) : (
+          <>
+            <Calendar 
+              year={year}
+              month={month}
+              day={selectedDate}
+              schedules={monthScheduleData?.content || []}
+              onDateChange={handleDateChange}
             />
-          </View>
 
-          <EventList posts={dayScheduleData?.content || []} onChangePressItem={onChangePressItem} />
-        </>
-      )}
-
-      {isVisible && (
-        <CompoundOption isVisible={isVisible} hideOption={hideOption}>
-          <CompoundOption.Background>
-            <CompoundOption.Container style={styles.editContainer}>
-              <Text style={styles.header}>새 일정 생성</Text>
-              <View style={styles.pickerContainer}>
-                <ScrollWheelPicker
-                  data={Array.from({ length: 14 }, (_, i) => 2020 + i)}
-                  onValueChange={(newYear) => {
-                    setYear(newYear);
-                    if (editedSchedule) {
-                      const newDayString = `${newYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                      setEditedSchedule(prev => prev ? { ...prev, day: newDayString } : null);
-                    }
-                  }}
-                  selectedValue={year}
-                />
-                <ScrollWheelPicker
-                  data={Array.from({ length: 12 }, (_, i) => i + 1)}
-                  onValueChange={(newMonth) => {
-                    setMonth(newMonth);
-                    if (editedSchedule) {
-                      const newDayString = `${year}-${String(newMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                      setEditedSchedule(prev => prev ? { ...prev, day: newDayString } : null);
-                    }
-                  }}
-                  selectedValue={month}
-                />
-                <ScrollWheelPicker
-                  data={Array.from({ length: 31 }, (_, i) => i + 1)}
-                  onValueChange={(newDay) => {
-                    setDay(newDay);
-                    if (editedSchedule) {
-                      const newDayString = `${year}-${String(month).padStart(2, '0')}-${String(newDay).padStart(2, '0')}`;
-                      setEditedSchedule(prev => prev ? { ...prev, day: newDayString } : null);
-                    }
-                  }}
-                  selectedValue={day}
-                />
-              </View>
-              
-              <Text style={styles.timeLabel}>시간</Text>
-              <View style={styles.timePickerContainer}>
-                <ScrollWheelPicker
-                  data={Array.from({ length: 24 }, (_, i) => i)}
-                  onValueChange={(hour) => {
-                    setSelectedHour(hour);
-                    const timeString = `${String(hour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}`;
-                    setEditedSchedule(prev => prev ? { ...prev, time: timeString } : null);
-                  }}
-                  selectedValue={selectedHour}
-                />
-                <Text style={styles.timeSeparator}>:</Text>
-                <ScrollWheelPicker
-                  data={Array.from({ length: 6 }, (_, i) => i * 10)}
-                  onValueChange={(minute) => {
-                    setSelectedMinute(minute);
-                    const timeString = `${String(selectedHour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                    setEditedSchedule(prev => prev ? { ...prev, time: timeString } : null);
-                  }}
-                  selectedValue={selectedMinute}
-                />
-              </View>
-              
-              <TextInput
-                style={styles.input}
-                placeholder="제목"
-                value={editedSchedule?.title || ''}
-                onChangeText={(text) => setEditedSchedule(prev => prev ? { ...prev, title: text || '' } : null)}
+            <View style={styles.rowContainer}>
+              <Text style={styles.SelectDayText}>{selectedDate}일 할일</Text>
+              <CustomButton 
+                size='text_size' 
+                label='생성하기' 
+                color='BLACK' 
+                shape='rounded' 
+                style={{ flexWrap: 'nowrap' }} 
+                onPress={showOption}
               />
-              <TextInput
-                style={styles.input}
-                placeholder="내용"
-                value={editedSchedule?.content || ''}
-                onChangeText={(text) => setEditedSchedule(prev => prev ? { ...prev, content: text || '' } : null)}
-              />
+            </View>
 
-              {/* 알람 설정 */}
-              <View style={styles.alarmContainer}>
-                <TouchableOpacity 
-                  style={styles.alarmToggle}
-                  onPress={() => setAlarmEnabled(!alarmEnabled)}
-                >
-                  <Text style={styles.alarmLabel}>알람 설정</Text>
-                  <Text style={styles.alarmToggleText}>{alarmEnabled ? 'ON' : 'OFF'}</Text>
-                </TouchableOpacity>
-              </View>
+            <EventList posts={dayScheduleData?.content || []} onChangePressItem={onChangePressItem} />
+          </>
+        )}
 
-              <View style={styles.buttonContainer}>
-                <CompoundOption.Button onPress={handleSave}>
-                  저장
-                </CompoundOption.Button>
-                <CompoundOption.Button onPress={hideOption} isDanger>
-                  취소
-                </CompoundOption.Button>
-              </View>
-            </CompoundOption.Container>
-          </CompoundOption.Background>
-        </CompoundOption>
-      )}
-    </SafeAreaView>
+        {isVisible && (
+          <CompoundOption isVisible={isVisible} hideOption={hideOption}>
+            <CompoundOption.Background>
+              <CompoundOption.Container style={styles.editContainer}>
+                <Text style={styles.header}>새 일정 생성</Text>
+                <View style={styles.pickerContainer}>
+                  <ScrollWheelPicker
+                    data={Array.from({ length: 14 }, (_, i) => 2020 + i)}
+                    onValueChange={(newYear) => {
+                      setYear(newYear);
+                      if (editedSchedule) {
+                        const newDayString = `${newYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        setEditedSchedule(prev => prev ? { ...prev, day: newDayString } : null);
+                      }
+                    }}
+                    selectedValue={year}
+                  />
+                  <ScrollWheelPicker
+                    data={Array.from({ length: 12 }, (_, i) => i + 1)}
+                    onValueChange={(newMonth) => {
+                      setMonth(newMonth);
+                      if (editedSchedule) {
+                        const newDayString = `${year}-${String(newMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        setEditedSchedule(prev => prev ? { ...prev, day: newDayString } : null);
+                      }
+                    }}
+                    selectedValue={month}
+                  />
+                  <ScrollWheelPicker
+                    data={Array.from({ length: 31 }, (_, i) => i + 1)}
+                    onValueChange={(newDay) => {
+                      setDay(newDay);
+                      if (editedSchedule) {
+                        const newDayString = `${year}-${String(month).padStart(2, '0')}-${String(newDay).padStart(2, '0')}`;
+                        setEditedSchedule(prev => prev ? { ...prev, day: newDayString } : null);
+                      }
+                    }}
+                    selectedValue={day}
+                  />
+                </View>
+                
+                <Text style={styles.timeLabel}>시간</Text>
+                <View style={styles.timePickerContainer}>
+                  <ScrollWheelPicker
+                    data={Array.from({ length: 24 }, (_, i) => i)}
+                    onValueChange={(hour) => {
+                      setSelectedHour(hour);
+                      const timeString = `${String(hour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}`;
+                      setEditedSchedule(prev => prev ? { ...prev, time: timeString } : null);
+                    }}
+                    selectedValue={selectedHour}
+                  />
+                  <Text style={styles.timeSeparator}>:</Text>
+                  <ScrollWheelPicker
+                    data={Array.from({ length: 6 }, (_, i) => i * 10)}
+                    onValueChange={(minute) => {
+                      setSelectedMinute(minute);
+                      const timeString = `${String(selectedHour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                      setEditedSchedule(prev => prev ? { ...prev, time: timeString } : null);
+                    }}
+                    selectedValue={selectedMinute}
+                  />
+                </View>
+                
+                <TextInput
+                  style={styles.input}
+                  placeholder="제목"
+                  value={editedSchedule?.title || ''}
+                  onChangeText={(text) => setEditedSchedule(prev => prev ? { ...prev, title: text || '' } : null)}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="내용"
+                  value={editedSchedule?.content || ''}
+                  onChangeText={(text) => setEditedSchedule(prev => prev ? { ...prev, content: text || '' } : null)}
+                />
+
+                {/* 알람 설정 */}
+                <View style={styles.alarmContainer}>
+                  <TouchableOpacity 
+                    style={styles.alarmToggle}
+                    onPress={() => setAlarmEnabled(!alarmEnabled)}
+                  >
+                    <Text style={styles.alarmLabel}>알람 설정</Text>
+                    <Text style={styles.alarmToggleText}>{alarmEnabled ? 'ON' : 'OFF'}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.buttonContainer}>
+                  <CompoundOption.Button onPress={handleSave}>
+                    저장
+                  </CompoundOption.Button>
+                  <CompoundOption.Button onPress={hideOption} isDanger>
+                    취소
+                  </CompoundOption.Button>
+                </View>
+              </CompoundOption.Container>
+            </CompoundOption.Background>
+          </CompoundOption>
+        )}
+      </SafeAreaView>
+    </PullToRefresh>
   );
 }
 

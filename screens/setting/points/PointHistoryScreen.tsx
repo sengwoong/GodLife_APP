@@ -1,13 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextStyle } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextStyle, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, getFontStyle } from '../../../constants';
 import { useInfinitePointHistory } from '../../../server/query/hooks/usePoint';
 import { Point } from '../../../types/point';
 import { formatDate } from '../../../utils/dateUtils';
+import { PullToRefresh } from '../../../components/common/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 function PointHistoryScreen() {
   const userId = 1; // 실제 사용시에는 로그인된 사용자 ID를 사용
+  const queryClient = useQueryClient();
+  
   const { 
     data, 
     fetchNextPage, 
@@ -15,6 +19,13 @@ function PointHistoryScreen() {
     isLoading,
     isFetchingNextPage 
   } = useInfinitePointHistory(userId, 'earn');
+
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 포인트 히스토리 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['pointHistory', userId, 'earn'] });
+    queryClient.invalidateQueries({ queryKey: ['points'] });
+  };
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -39,18 +50,30 @@ function PointHistoryScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={data?.pages.flatMap(page => page.content) || []}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => `history-${item.id}-${index}`}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          isFetchingNextPage ? <ActivityIndicator /> : null
-        }
-      />
-    </SafeAreaView>
+    <PullToRefresh onRefresh={handleRefresh} isFlatList={true}>
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={data?.pages.flatMap(page => page.content) || []}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => `history-${item.id}-${index}`}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingNextPage ? <ActivityIndicator /> : null
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={handleRefresh}
+              colors={[colors.GREEN]}
+              tintColor={colors.GREEN}
+              title="당겨서 새로고침"
+              titleColor={colors.LIGHT_BLACK}
+            />
+          }
+        />
+      </SafeAreaView>
+    </PullToRefresh>
   );
 }
 

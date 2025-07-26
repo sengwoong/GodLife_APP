@@ -103,7 +103,37 @@ const generateMockSharedPosts = (userId: number) => {
 };
 
 export const postHandlers = [
-  // Read
+  // Read - 카테고리별 포스트 조회 (usePost 훅과 일치)
+  http.get(`${BASE_URL}/posts/category/:category`, ({ params, request }) => {
+    const url = new URL(request.url);
+    const { category } = params;
+    const search = url.searchParams.get('search')?.toLowerCase() || '';
+    const page = parseInt(url.searchParams.get('page') || '0', 10);
+    const size = parseInt(url.searchParams.get('size') || '10', 10);
+
+    const allPosts = generateMockPosts(category as string, 100);
+    
+    const filteredPosts = allPosts.filter(post => 
+      post.postContent.toLowerCase().includes(search) ||
+      post.userName.toLowerCase().includes(search) ||
+      post.title.toLowerCase().includes(search)
+    );
+
+    const start = page * size;
+    const end = start + size;
+    const paginatedPosts = filteredPosts.slice(start, end);
+
+    return HttpResponse.json({
+      content: paginatedPosts,
+      totalPages: Math.ceil(filteredPosts.length / size),
+      totalElements: filteredPosts.length,
+      size,
+      number: page,
+      last: end >= filteredPosts.length,
+    });
+  }),
+
+  // 기존 /posts 엔드포인트도 유지 (호환성)
   http.get(`${BASE_URL}/posts`, ({ request }) => {
     const url = new URL(request.url);
     const category = url.searchParams.get('category') || 'all';
@@ -164,10 +194,11 @@ export const postHandlers = [
     });
   }),
 
+  // bestPosts 응답 구조 수정 (MainScreen과 일치)
   http.get(`${BASE_URL}/posts/best`, () => {
     const bestPosts = generateMockPosts('post', 10);
     return HttpResponse.json({
-      bestPosts
+      posts: bestPosts  // posts 배열로 감싸기
     });
   }),
 

@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 
-// 타입 정의
 export interface Word {
   id: number;
   word: string;
@@ -32,59 +31,6 @@ interface UpdateWordData {
   };
 }
 
-// Read 작업
-// 단어 목록 조회 (무한 스크롤)
-export function useInfiniteWords(vocaId: number, searchText: string) {
-  return useInfiniteQuery<WordResponse, Error>({
-    queryKey: ['words', vocaId, searchText],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch words');
-      }
-      return response.json() as Promise<WordResponse>;
-    },
-    getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.number + 1;
-      return nextPage < lastPage.totalPages ? nextPage : undefined;
-    },
-    initialPageParam: 0,
-  });
-}
-
-// 단일 단어 조회
-export function useWord(vocaId: number, wordIndex: number) {
-  return useQuery<Word, Error>({
-    queryKey: ['word', vocaId, wordIndex],
-    queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?index=${wordIndex}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch word');
-      }
-      const data = await response.json();
-      return data.content[0];
-    },
-    enabled: wordIndex !== undefined,
-  });
-}
-
-// 단어장의 모든 단어 조회
-export function useWords(vocaId: number, page = 0, size = 10, search = '') {
-  return useQuery<WordResponse, Error>({
-    queryKey: ['words', vocaId, page, size, search],
-    queryFn: async () => {
-      const response = await fetch(
-        `${BASE_URL}/words/voca/${vocaId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch words');
-      }
-      return response.json();
-    },
-  });
-}
-
-// Create 작업
 export function useCreateWord() {
   const queryClient = useQueryClient();
   
@@ -108,7 +54,54 @@ export function useCreateWord() {
   });
 }
 
-// Update 작업
+export function useInfiniteWords(vocaId: number, searchText: string) {
+  return useInfiniteQuery<WordResponse, Error>({
+    queryKey: ['words', vocaId, searchText],
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch words');
+      }
+      return response.json() as Promise<WordResponse>;
+    },
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.number + 1;
+      return nextPage < lastPage.totalPages ? nextPage : undefined;
+    },
+    initialPageParam: 0,
+  });
+}
+
+export function useWord(vocaId: number, wordIndex: number) {
+  return useQuery<Word, Error>({
+    queryKey: ['word', vocaId, wordIndex],
+    queryFn: async () => {
+      const response = await fetch(`${BASE_URL}/words/word/${wordIndex}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch word');
+      }
+      const data = await response.json();
+      return data.content[0];
+    },
+    enabled: wordIndex !== undefined,
+  });
+}
+
+export function useWords(vocaId: number, page = 0, size = 10, search = '') {
+  return useQuery<WordResponse, Error>({
+    queryKey: ['words', vocaId, page, size, search],
+    queryFn: async () => {
+      const response = await fetch(
+        `${BASE_URL}/words/voca/${vocaId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch words');
+      }
+      return response.json();
+    },
+  });
+}
+
 export function useUpdateWord() {
   const queryClient = useQueryClient();
   
@@ -133,7 +126,6 @@ export function useUpdateWord() {
   });
 }
 
-// Delete 작업
 export function useDeleteWord() {
   const queryClient = useQueryClient();
   

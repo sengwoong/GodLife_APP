@@ -12,6 +12,8 @@ import { getFontStyle } from '../../constants';
 import { colors } from '../../constants';
 import VocaContentList from '../../components/voca/VocaContentList';
 import VocaContentSearch from '../../components/voca/VocaContentSearch';
+import { PullToRefresh } from '../../components/common/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<VocaStackParamList>,
@@ -22,6 +24,7 @@ function VocaContentScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<RouteProp<VocaStackParamList, 'VocaContent'>>();
   const { vocaIndex } = route.params || {};
+  const queryClient = useQueryClient();
  
   const navigateToVocaUpdateWord = (wordIndex: number) => {
     navigation.navigate(VocaNavigations.WORDCONTENTEDIT, { vocaIndex, wordIndex });
@@ -31,21 +34,30 @@ function VocaContentScreen() {
     navigation.navigate(VocaNavigations.WORDCONTENTEDIT, {vocaIndex, wordIndex: undefined });
   };
 
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 단어 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['words', vocaIndex] });
+    queryClient.invalidateQueries({ queryKey: ['vocas'] });
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Margin size={'M16'} />
-      <View style={styles.header}>
-        <Text style={styles.header__title}>단어 목록</Text>
-        <Text style={styles.header__subtitle}>학습할 단어를 선택하세요</Text>
-      </View>
-      <Margin size={'M12'} />
-      <VocaContentSearch />
-      <Margin size={'M4'} />
-      <View style={styles.content}>
-        <VocaContentList navigateToWordDetail={navigateToVocaUpdateWord} />
-      </View>
-      <FAB onPress={navigateToVocaAddWord} />
-    </SafeAreaView>
+    <PullToRefresh onRefresh={handleRefresh} isFlatList={true}>
+      <SafeAreaView style={styles.container}>
+        <Margin size={'M16'} />
+        <View style={styles.header}>
+          <Text style={styles.header__title}>단어 목록</Text>
+          <Text style={styles.header__subtitle}>학습할 단어를 선택하세요</Text>
+        </View>
+        <Margin size={'M12'} />
+        <VocaContentSearch />
+        <Margin size={'M4'} />
+        <View style={styles.content}>
+          <VocaContentList navigateToWordDetail={navigateToVocaUpdateWord} />
+        </View>
+        <FAB onPress={navigateToVocaAddWord} />
+      </SafeAreaView>
+    </PullToRefresh>
   );
 }
 

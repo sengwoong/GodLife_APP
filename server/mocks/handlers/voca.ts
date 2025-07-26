@@ -3,6 +3,17 @@ import { BASE_URL } from '../../common/types/constants'
 import { VocaRequest } from '../../common/types/serverType'
 
 export const vocaHandlers = [
+  http.post(`${BASE_URL}/vocas/user/:user_id`, async ({ params, request }) => {
+    const body = await request.json() as VocaRequest;
+    return HttpResponse.json({
+      id: Date.now(), 
+      vocaTitle: body.vocaTitle,
+      description: body.description || '', 
+      userId: params.user_id,
+      languages: body.languages || ''
+    });
+  }),
+
   http.get(`${BASE_URL}/vocas/voca/:voca_id`, ({ params }) => {
     const voca_id = Number(params.voca_id);
     return HttpResponse.json({
@@ -101,17 +112,6 @@ export const vocaHandlers = [
     );
 
     return HttpResponse.json(filteredVocas);
-  }),
-
-  http.post(`${BASE_URL}/vocas/user/:user_id`, async ({ params, request }) => {
-    const body = await request.json() as VocaRequest;
-    return HttpResponse.json({
-      id: Date.now(), 
-      vocaTitle: body.vocaTitle,
-      description: body.description || '', 
-      userId: params.user_id,
-      languages: body.languages || ''
-    });
   }),
 
   http.put(`${BASE_URL}/vocas/voca/:voca_id/user/:user_id`, async ({ params, request }) => {

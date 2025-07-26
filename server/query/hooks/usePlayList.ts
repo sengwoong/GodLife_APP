@@ -10,7 +10,6 @@ interface PlaylistResponse {
   number: number;
 }
 
-// Create
 export function useCreatePlayList() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -33,7 +32,38 @@ export function useCreatePlayList() {
   });
 }
 
-// Update
+export function useSelectPlaylistShare(userId: number) {
+  return useQuery({
+    queryKey: ['playlists', 'share', userId],
+    queryFn: () => fetch(`${BASE_URL}/playlists/share/user/${userId}`).then(res => res.json()),
+  });
+}
+
+export function useUserPlaylist({ userId, searchText = '', page = 0, size = 10 }: UserPlaylistParams) {
+  return useInfiniteQuery<PlaylistResponse, Error>({
+    queryKey: ['userPlaylist', userId, searchText, page, size],
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await fetch(`${BASE_URL}/playlists/user/${userId}?page=${pageParam}&size=${size}&search=${encodeURIComponent(searchText)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch playlists');
+      }
+      return response.json() as Promise<PlaylistResponse>;
+    },
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.number + 1;
+      return nextPage < lastPage.totalPages ? nextPage : undefined;
+    },
+    initialPageParam: 0,
+  });
+}
+
+export function usePlayList(playListIndex: number, userId: number) {
+  return useQuery({
+    queryKey: ['playlists', playListIndex, userId],
+    queryFn: () => fetch(`${BASE_URL}/playlists/playlist/${playListIndex}/user/${userId}`).then(res => res.json()),
+  });
+}
+
 export function useUpdatePlayList() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -98,7 +128,6 @@ export function useUpdatePlaylistShare() {
   });
 }
 
-// Delete
 export function useDeletePlayList() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -114,32 +143,6 @@ export function useDeletePlayList() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['playlists'] });
     },
-  });
-}
-
-// Read
-export function useUserPlaylist({ userId, searchText = '', page = 0, size = 10 }: UserPlaylistParams) {
-  return useInfiniteQuery<PlaylistResponse, Error>({
-    queryKey: ['userPlaylist', userId, searchText, page, size],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`${BASE_URL}/playlists/user/${userId}?page=${pageParam}&size=${size}&search=${encodeURIComponent(searchText)}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch playlists');
-      }
-      return response.json() as Promise<PlaylistResponse>;
-    },
-    getNextPageParam: (lastPage) => {
-      const nextPage = lastPage.number + 1;
-      return nextPage < lastPage.totalPages ? nextPage : undefined;
-    },
-    initialPageParam: 0,
-  });
-}
-
-export function usePlayList(playListIndex: number, userId: number) {
-  return useQuery({
-    queryKey: ['playlists', playListIndex, userId],
-    queryFn: () => fetch(`${BASE_URL}/playlists/playlist/${playListIndex}/user/${userId}`).then(res => res.json()),
   });
 }
 

@@ -8,6 +8,8 @@ import { PlayListNavigations } from '../../constants';
 import { useInfiniteMusic } from '../../server/query/hooks/useMusic';
 import { Music } from '../../types/music';
 import { useSearchStore } from '../../store/useSearchStore';
+import { PullToRefresh } from '../../components/common/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 type PlayListContentScreenRouteProp = RouteProp<PlayListStackParamList, 'PlayListContent'>;
 type PlayListNavigationProp = StackNavigationProp<PlayListStackParamList>;
@@ -16,9 +18,9 @@ function PlayListContentScreen() {
   const route = useRoute<PlayListContentScreenRouteProp>();
   const navigation = useNavigation<PlayListNavigationProp>();
   const { playListIndex } = route.params;
+  const queryClient = useQueryClient();
 
   const searchText = useSearchStore(state => state.searchText);
-
 
   const { data, fetchNextPage, hasNextPage } = useInfiniteMusic(playListIndex, searchText);
 
@@ -41,6 +43,12 @@ function PlayListContentScreen() {
     });
   };
 
+  // 새로고침 핸들러
+  const handleRefresh = async () => {
+    // 음악 관련 쿼리들을 무효화하여 새로고침
+    queryClient.invalidateQueries({ queryKey: ['musics', playListIndex] });
+    queryClient.invalidateQueries({ queryKey: ['playlists'] });
+  };
 
   const musicList: Music[] | undefined = data?.pages.flatMap(page => 
     page.content.map(item => ({
@@ -62,18 +70,20 @@ function PlayListContentScreen() {
     }
   };
 
-  return (  
-    <>
-      <PlayListLayout
-        title={`플레이리스트 ${playListIndex + 1}`}
-        onPlayAll={handlePlayAll}
-        onShuffle={handleShuffle}
-        onMenuPress={handleMenu}
-        musicList={musicList}
-        onItemPress={handleMusicItemPress}
-      />
-      <FAB onPress={handleAddMusic} />
-    </>
+  return (
+    <PullToRefresh onRefresh={handleRefresh}>
+      <>
+        <PlayListLayout
+          title={`플레이리스트 ${playListIndex + 1}`}
+          onPlayAll={handlePlayAll}
+          onShuffle={handleShuffle}
+          onMenuPress={handleMenu}
+          musicList={musicList}
+          onItemPress={handleMusicItemPress}
+        />
+        <FAB onPress={handleAddMusic} />
+      </>
+    </PullToRefresh>
   );
 }
 
