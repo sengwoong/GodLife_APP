@@ -102,8 +102,8 @@ export function useUpdatePlaylistShare() {
 export function useDeletePlayList() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (playlistId: number) => {
-      const response = await fetch(`${BASE_URL}/playlists/${playlistId}`, {
+    mutationFn: async ({ playlistId, userId }: { playlistId: number, userId: number }) => {
+      const response = await fetch(`${BASE_URL}/playlists/playlist/${playlistId}/user/${userId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -136,10 +136,10 @@ export function useUserPlaylist({ userId, searchText = '', page = 0, size = 10 }
   });
 }
 
-export function usePlayList(playListIndex: number) {
+export function usePlayList(playListIndex: number, userId: number) {
   return useQuery({
-    queryKey: ['playlists', playListIndex],
-    queryFn: () => fetch(`${BASE_URL}/playlists/${playListIndex}`).then(res => res.json()),
+    queryKey: ['playlists', playListIndex, userId],
+    queryFn: () => fetch(`${BASE_URL}/playlists/playlist/${playListIndex}/user/${userId}`).then(res => res.json()),
   });
 }
 

@@ -3,22 +3,18 @@ import { BASE_URL } from '../../common/types/constants'
 import { VocaRequest } from '../../common/types/serverType'
 
 export const vocaHandlers = [
-  // Read 작업
-  // 단일 단어장 조회
-  http.get(`${BASE_URL}/vocas/voca/:vocaId`, ({ params }) => {
-    const vocaId = Number(params.vocaId);
-    // Mock data for single voca
+  http.get(`${BASE_URL}/vocas/voca/:voca_id`, ({ params }) => {
+    const voca_id = Number(params.voca_id);
     return HttpResponse.json({
-      id: vocaId,
-      vocaTitle: `기본 단어장 ${vocaId}`,
+      id: voca_id,
+      vocaTitle: `기본 단어장 ${voca_id}`,
       languages: 'English',
-      description: `기본 설명 ${vocaId}`
+      description: `기본 설명 ${voca_id}`
     });
   }),
 
-  // 사용자 단어장 목록 조회
-  http.get(`${BASE_URL}/vocas/user/:userId`, ({ params, request }) => {
-    const { userId } = params;
+  http.get(`${BASE_URL}/vocas/user/:user_id`, ({ params, request }) => {
+    const { user_id } = params;
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
     const page = parseInt(url.searchParams.get('page') || '0', 10);
@@ -28,7 +24,7 @@ export const vocaHandlers = [
       id: i + 1,
       vocaTitle: `단어장 ${i + 1}`,
       languages: ['English', '日本語', 'Tiếng Việt'][i % 3],
-      userId: Number(userId),
+      userId: Number(user_id),
       description: `설명 ${i + 1}`,
       createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
     })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -50,8 +46,8 @@ export const vocaHandlers = [
     });
   }),
 
-  // 내 단어장 조회
-  http.get(`${BASE_URL}/vocas/my/:userId`, ({ request }) => {
+  http.get(`${BASE_URL}/vocas/my/:user_id`, ({ params, request }) => {
+    const { user_id } = params;
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
 
@@ -70,8 +66,8 @@ export const vocaHandlers = [
     return HttpResponse.json(filteredVocas);
   }),
 
-  // 구매한 단어장 조회
-  http.get(`${BASE_URL}/vocas/purchased/:userId`, ({ request }) => {
+  http.get(`${BASE_URL}/vocas/purchased/:user_id`, ({ params, request }) => {
+    const { user_id } = params;
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
 
@@ -89,8 +85,8 @@ export const vocaHandlers = [
     return HttpResponse.json(filteredVocas);
   }),
 
-  // 학습중인 단어장 조회
-  http.get(`${BASE_URL}/vocas/study/:userId`, ({ request }) => {
+  http.get(`${BASE_URL}/vocas/study/:user_id`, ({ params, request }) => {
+    const { user_id } = params;
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
 
@@ -107,40 +103,36 @@ export const vocaHandlers = [
     return HttpResponse.json(filteredVocas);
   }),
 
-  // Create 작업
-  http.post(`${BASE_URL}/vocas/user/:userId`, async ({ params, request }) => {
+  http.post(`${BASE_URL}/vocas/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as VocaRequest;
     return HttpResponse.json({
       id: Date.now(), 
       vocaTitle: body.vocaTitle,
       description: body.description || '', 
-      userId: params.userId,
+      userId: params.user_id,
       languages: body.languages || ''
     });
   }),
 
-  // Update 작업
-  http.put(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/vocas/voca/:voca_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as VocaRequest;
     return HttpResponse.json({
-      id: Number(params.vocaId),
+      id: Number(params.voca_id),
       ...body,
-      userId: params.userId
+      userId: params.user_id
     });
   }),
 
-  // 단어장 공유 상태 업데이트
-  http.put(`${BASE_URL}/vocas/share/:vocaId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/vocas/share/:voca_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as {isShared: boolean}
     return HttpResponse.json({
-      id: Number(params.vocaId),
+      id: Number(params.voca_id),
       isShared: body.isShared,
-      userId: Number(params.userId)
+      userId: Number(params.user_id)
     });
   }),
 
-  // Delete 작업
-  http.delete(`${BASE_URL}/vocas/voca/:vocaId/user/:userId`, () => {
+  http.delete(`${BASE_URL}/vocas/voca/:voca_id/user/:user_id`, () => {
     return new HttpResponse(null, { status: 200 })
   }),
 ] 

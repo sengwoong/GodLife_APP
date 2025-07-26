@@ -3,27 +3,27 @@ import { BASE_URL } from '../../common/types/constants'
 import { WordRequest } from '../../common/types/serverType'
 
 // 단어 목록 생성 헬퍼 함수
-const generateWords = (vocaId: string | number, count = 100) => {
+const generateWords = (voca_id: string | number, count = 100) => {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     word: `Word ${i + 1}`,
     meaning: `Meaning for word ${i + 1}`,
-    vocaId: Number(vocaId),
+    vocaId: Number(voca_id),
   }));
 };
 
 export const wordHandlers = [
   // Read 작업
   // 단어장의 단어 목록 조회
-  http.get(`${BASE_URL}/words/voca/:vocaId`, ({ params, request }) => {
-    const { vocaId } = params;
+  http.get(`${BASE_URL}/words/voca/:voca_id`, ({ params, request }) => {
+    const { voca_id } = params;
     const url = new URL(request.url);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
     const index = url.searchParams.get('index');
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = parseInt(url.searchParams.get('size') || '10', 10);
 
-    const words = generateWords(Number(vocaId));
+    const words = generateWords(Number(voca_id));
     
     // 특정 인덱스의 단어만 반환
     if (index !== null) {
@@ -69,20 +69,20 @@ export const wordHandlers = [
   }),
 
   // Update 작업
-  http.put(`${BASE_URL}/words/word/:wordId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/words/word/:word_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as WordRequest;
     return HttpResponse.json({
-      id: params.wordId,
+      id: params.word_id,
       ...body,
-      userId: params.userId,
+      userId: params.user_id,
     });
   }),
 
   // Delete 작업
-  http.delete(`${BASE_URL}/words/word/:wordId/user/:userId`, ({ params }) => {
+  http.delete(`${BASE_URL}/words/word/:word_id/user/:user_id`, ({ params }) => {
     return HttpResponse.json({
-      id: params.wordId,
-      userId: params.userId,
+      id: params.word_id,
+      userId: params.user_id,
       deleted: true
     });
   }),

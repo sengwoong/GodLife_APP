@@ -4,10 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
-import { useMyVocas, useUpdateVocaShare } from '../../../server/query/hooks/useVoca';
+import { useUserVocas, useUpdateVocaShare } from '../../../server/query/hooks/useVoca';
 
 function MyWordsScreen() {
-  const { data: myWordsList, isLoading } = useMyVocas(1);
+  const { data: myWordsList, isLoading } = useUserVocas({ userId: 1, page: 0, size: 10, search: '' });
   const updateShare = useUpdateVocaShare();
 
   const toggleSharing = async (id: number, currentShared: boolean) => {

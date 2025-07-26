@@ -9,13 +9,12 @@ import { Voca } from '../../types/voca';
 
 interface VocaListProps {
   userId: number;
-  navigateToVocaContent: (vocaIndex: number) => void;
   navigateToVocaGame: (vocaIndex: number) => void;
   onLongPress: (id: number, vocaTitle: string) => void;
 }
 
 
-const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaContent, navigateToVocaGame, onLongPress }) => {
+const VocaList: React.FC<VocaListProps> = ({ userId, navigateToVocaGame, onLongPress }) => {
   
   const searchText = useSearchStore(state => state.searchText);
   const {

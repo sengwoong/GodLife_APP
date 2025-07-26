@@ -3,7 +3,7 @@ import { BASE_URL } from '../../common/types/constants'
 import { MusicRequest } from '../../common/types/serverType'
 
 export const musicHandlers = [
-  http.post(`${BASE_URL}/musics/playlist/:playlistId`, async ({ request }) => {
+  http.post(`${BASE_URL}/musics/playlist/:playlist_id`, async ({ params, request }) => {
     const body = await request.json() as MusicRequest
     return HttpResponse.json({
       id: Date.now(),
@@ -11,20 +11,20 @@ export const musicHandlers = [
     })
   }),
 
-  http.put(`${BASE_URL}/musics/playlist/:playlistId/music/:musicId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/musics/playlist/:playlist_id/music/:music_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as MusicRequest
     return HttpResponse.json({
-      id: params.musicId,
+      id: params.music_id,
       ...body,
-      userId: params.userId
+      userId: params.user_id
     })
   }),
 
-  http.delete(`${BASE_URL}/musics/playlist/:playlistId/music/:musicId/user/:userId`, () => {
+  http.delete(`${BASE_URL}/musics/playlist/:playlist_id/music/:music_id/user/:user_id`, () => {
     return new HttpResponse(null, { status: 200 })
   }),
 
-  http.get(`${BASE_URL}/musics/playlist/:playlistId`, ({ params, request }) => {
+  http.get(`${BASE_URL}/musics/playlist/:playlist_id`, ({ params, request }) => {
     const url = new URL(request.url);
     const index = parseInt(url.searchParams.get('index') || '-1', 10);
     const search = url.searchParams.get('search')?.toLowerCase() || '';
@@ -67,18 +67,18 @@ export const musicHandlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/musics/:musicId`, ({ params }) => {
-    const { musicId } = params;
+  http.get(`${BASE_URL}/musics/:music_id`, ({ params }) => {
+    const { music_id } = params;
     return HttpResponse.json({
-      id: musicId,
-      musicTitle: `Music ${musicId}`,
-      musicUrl: `https://example.com/music${musicId}.com`,
+      id: music_id,
+      musicTitle: `Music ${music_id}`,
+      musicUrl: `https://example.com/music${music_id}.com`,
       color: '#000000',
-      imageUrl: `https://example.com/image${musicId}.jpg`
+      imageUrl: `https://example.com/image${music_id}.jpg`
     });
   }),
 
-  http.get(`${BASE_URL}/musics/liked/:userId`, ({ request }) => {
+  http.get(`${BASE_URL}/musics/liked/:user_id`, ({ params, request }) => {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = parseInt(url.searchParams.get('size') || '10', 10);

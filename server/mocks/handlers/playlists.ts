@@ -4,50 +4,40 @@ import { PlaylistRequest } from '../../common/types/serverType'
 import { PlaylistShareRequest } from '../../../types/playlist'
 
 export const playlistHandlers = [
-  http.post(`${BASE_URL}/playlists/user/:userId`, async ({ params, request }) => {
+  http.post(`${BASE_URL}/playlists/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as PlaylistRequest
     return HttpResponse.json({
       id: Date.now(),
       ...body,
-      userId: params.userId
+      userId: params.user_id
     })
   }),
 
-  http.put(`${BASE_URL}/playlists/playlist/:playlistId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as PlaylistRequest
     return HttpResponse.json({
-      id: params.playlistId,
+      id: params.playlist_id,
       ...body,
-      userId: params.userId
+      userId: params.user_id
     })
   }),
 
-  http.put(`${BASE_URL}/playlists/:playlistId`, async ({ params, request }) => {
-    const { playlistId } = params;
-    const body = await request.json() as PlaylistRequest;
-    
-    return HttpResponse.json({
-      id: Number(playlistId),
-      ...body,
-    });
-  }),
-
-  http.put(`${BASE_URL}/playlists/share/:playlistId/user/:userId`, async ({ params, request }) => {
+  http.put(`${BASE_URL}/playlists/share/:playlist_id/user/:user_id`, async ({ params, request }) => {
     const body = await request.json() as PlaylistShareRequest;
     return HttpResponse.json({
-      id: Number(params.playlistId),
+      id: Number(params.playlist_id),
       isShared: body.isShared,
-      userId: Number(params.userId)
+      userId: Number(params.user_id)
     });
   }),
 
-  http.delete(`${BASE_URL}/playlists/playlist/:playlistId/user/:userId`, () => {
+  http.delete(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, () => {
     return new HttpResponse(null, { status: 200 })
   }),
 
-  http.get(`${BASE_URL}/playlists/user/:userId`, ({ params, request }) => {
+  http.get(`${BASE_URL}/playlists/user/:user_id`, ({ params, request }) => {
     const url = new URL(request.url);
-    const { userId } = params;
+    const { user_id } = params;
     const search = url.searchParams.get('search')?.toLowerCase() || '';
     const page = parseInt(url.searchParams.get('page') || '0', 10);
     const size = parseInt(url.searchParams.get('size') || '10', 10);
@@ -56,6 +46,7 @@ export const playlistHandlers = [
       id: i + 1,
       playlistTitle: `Playlist ${i + 1}`,
       createdAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
+      userId: Number(user_id)
     })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     const filteredPlaylists = allPlaylists.filter(playlist =>
@@ -75,10 +66,12 @@ export const playlistHandlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/playlists/:playListIndex`, ({ params }) => {
+  // 단일 플레이리스트 조회 (user_id는 쿼리스트링에서 받거나, 없으면 1로 처리)
+  http.get(`${BASE_URL}/playlists/playlist/:playlist_id/user/:user_id`, ({ params }) => {
     return HttpResponse.json({
-      id: params.playListIndex,
-      playlistTitle: `Playlist ${params.playListIndex}`
+      id: params.playlist_id,
+      playlistTitle: `Playlist ${params.playlist_id}`,
+      userId: Number(params.user_id)
     })
   }),
 ]
