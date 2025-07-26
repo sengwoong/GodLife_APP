@@ -13,7 +13,8 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { MainDrawerParamList } from '../../navigations/drawer/MainDrawerNavigator';
 import { CompoundOption } from '../../components/Modal';
 import ScrollWheelPicker from '../../components/ScrollWheelPicker';
-import { useSchedules, useSchedulesByDay, useCreateSchedule, Schedule } from '../../server/query/hooks/useSchedule';
+import { useSchedules, useSchedulesByDay, useCreateSchedule } from '../../server/query/hooks/useSchedule';
+import { Schedule } from '../../types';
 import Calendar from '../../components/calendar/Calendar';
 
 type Navigation = CompositeNavigationProp<
@@ -68,6 +69,7 @@ function CalendarHomeScreen() {
     
     setEditedSchedule({
       id: Date.now(),
+      userId: 1,
       content: '',
       time: timeString,
       title: '',

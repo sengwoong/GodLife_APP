@@ -1,10 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from '../../common/types/constants';
 import { ScheduleRequest } from '../../common/types/serverType';
-import { Schedule } from '../../../types';
-
-
-
+import { Schedule, CreateScheduleData } from '../../../types';
 
 interface ScheduleResponse {
   content: Schedule[];
@@ -84,15 +81,7 @@ export function useSchedule(scheduleId: number, userId: number) {
   });
 }
 
-// 스케줄 생성 시 필요한 데이터 타입
-export interface CreateScheduleData {
-  scheduleTitle: string;
-  content: string;
-  startTime: string;
-  endTime: string;
-  day: string;
-  hasAlarm: boolean;
-}
+
 
 // Create 작업
 export function useCreateSchedule() {

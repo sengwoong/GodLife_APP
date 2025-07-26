@@ -28,6 +28,8 @@ export interface UpdateUserRequest {
   email: string
 }
 
+
+
 export interface ScheduleRequest {
   scheduleTitle: string
   content: string
@@ -44,6 +46,19 @@ export interface PlaylistRequest {
 export interface MusicRequest {
   musicTitle: string
   musicUrl: string
+}
+
+
+
+export interface PostRequest {
+  title: string
+  content: string
+  imageUrl?: string
+}
+
+export interface CommentRequest {
+  content: string
+  postId: number
 }
 
 

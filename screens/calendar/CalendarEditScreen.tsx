@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { colors, getFontStyle, spacing } from '../../constants';
-import { useSchedule, useUpdateSchedule, useDeleteSchedule, Schedule } from '../../server/query/hooks/useSchedule';
+import { useSchedule, useUpdateSchedule, useDeleteSchedule } from '../../server/query/hooks/useSchedule';
+import { Schedule } from '../../types';
 import Margin from '../../components/division/Margin';
 
 type CalendarEditRouteProp = RouteProp<{
@@ -35,6 +36,7 @@ const CalendarEditScreen = () => {
     content: '',
     time: '',
     day: new Date().toISOString().split('T')[0],
+    userId: 1,
     hasAlarm: false
   });
 
