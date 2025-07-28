@@ -6,7 +6,7 @@ import { colors, getFontStyle, PostNavigations, spacing } from '../../constants'
 import CustomButton from '../../components/CustomButton';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import Margin from '../../components/division/Margin';
-import { usePost } from '../../server/query/hooks/usePost';
+import { useInfinitePosts, useLikePost, useLikeStatus } from '../../server/query/hooks/usePost';
 import { Post } from '../../types/post';
 import PostContentSearch from '../../components/post/PostContentSearch';
 
@@ -14,18 +14,21 @@ type PostScreenNavigationProp = StackNavigationProp<PostStackParamList>;
 
 export const PostScreen = () => {
   const navigation = useNavigation<PostScreenNavigationProp>();
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  const [activeCategory, setActiveCategory] = useState('post');
+  const [activeCategory, setActiveCategory] = useState('POST');
   const [searchQuery, setSearchQuery] = useState('');
-  const [page, setPage] = useState(0);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
   
-  const { data: postsData, isLoading } = usePost(activeCategory, searchQuery, page);
+  // 임시 사용자 ID (실제로는 인증된 사용자 ID 사용)
+  const currentUserId = 1;
+  
+  const { data: postsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfinitePosts(searchQuery, activeCategory);
+  const likePostMutation = useLikePost();
 
   const CategoryButtons = [
-    { label: 'post', id: 'post' },
-    { label: 'shop', id: 'shop' },
-    { label: 'music', id: 'music' },
-    { label: 'like', id: 'like' },
+    { label: 'post', id: 'POST' },
+    { label: 'shop', id: 'SHOP' },
+    { label: 'music', id: 'MUSIC' },
+    { label: 'voca', id: 'VOCA' },
   ];
 
   const handlePostPress = (post: Post) => {
@@ -33,37 +36,25 @@ export const PostScreen = () => {
   };
 
   const toggleLike = (postId: number) => {
+    // 로컬 상태 먼저 업데이트 (즉시 UI 반영)
     setLikedPosts(prev => {
       const newLikedPosts = new Set(prev);
-      if (newLikedPosts.has(postId.toString())) {
-        newLikedPosts.delete(postId.toString());
+      if (newLikedPosts.has(postId)) {
+        newLikedPosts.delete(postId);
       } else {
-        newLikedPosts.add(postId.toString());
+        newLikedPosts.add(postId);
       }
       return newLikedPosts;
     });
+    
+    // API 호출
+    likePostMutation.mutate({ postId, userId: currentUserId });
   };
 
-  const handlePlayAll = () => {
-    console.log('Play all songs');
-  };
-
-  const handleShuffle = () => {
-    console.log('Shuffle songs');
-  };
-
-  const handleMenu = () => {
-    console.log('Open menu');
-  };
-
-  const handleItemPress = (id: number) => {
-    console.log('Selected song:', id);
-  };
 
   // 카테고리 변경 시 페이지 리셋
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    setPage(0); // 페이지 리셋
   };
 
   const renderPost = ({ item }: ListRenderItemInfo<Post>) => (
@@ -76,17 +67,18 @@ export const PostScreen = () => {
         <Text style={styles.postContent}>{item.postContent}</Text>
         <Image source={{ uri: item.postImage }} style={styles.postImage} />
         <View style={styles.postFooter}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => toggleLike(item.id)}
-          >
-            <Text style={styles.actionButtonText}>
-              {likedPosts.has(item.id.toString()) ? '❤️' : '🤍'} {item.likes}
-            </Text>
-          </TouchableOpacity>
+                      <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => toggleLike(item.id)}
+              disabled={likePostMutation.isPending}
+            >
+              <Text style={styles.actionButtonText}>
+                {likedPosts.has(item.id) ? '❤️' : '🤍'} {item.likes}
+              </Text>
+            </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
             <Text style={styles.actionButtonText}>
-              💬 {item.comments?.length || 0}
+              💬 {typeof item.comments === 'number' ? item.comments : 0}
             </Text>
           </TouchableOpacity>
         </View>
@@ -116,19 +108,19 @@ export const PostScreen = () => {
       
       {/* 모든 카테고리에 대해 동일한 FlatList 사용 */}
       <FlatList
-        data={postsData?.content || []}
+        data={postsData?.pages.flatMap(page => page.content) || []}
         renderItem={renderPost}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.postContainer}
         onEndReached={() => {
-          if (postsData && page < postsData.totalPages - 1) {
-            setPage(prev => prev + 1);
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
           }
         }}
         onEndReachedThreshold={0.5}
         refreshing={isLoading}
         onRefresh={() => {
-          setPage(0);
+          refetch();
         }}
       />
     </View>

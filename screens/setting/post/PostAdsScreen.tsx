@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, getFontStyle, spacing } from '../../../constants';
 import SearchBar from '../../../components/searchbar/SearchBar';
 import Margin from '../../../components/division/Margin';
-import { useMyPostAds, useTogglePostAd } from '../../../server/query/hooks/usePost';
+import { useUserPostAds, useTogglePostAd } from '../../../server/query/hooks/usePost';
 import { formatDate } from '../../../utils/dateUtils';
 
 interface PostAd {
@@ -17,12 +17,12 @@ interface PostAd {
 
 function PostAdsScreen() {
   const userId = 1;
-  const { data: postAdsData, isLoading, refetch } = useMyPostAds(userId);
+  const { data: postAdsData, isLoading, refetch } = useUserPostAds(userId);
   const toggleAdMutation = useTogglePostAd();
 
   const toggleAdStatus = async (id: number) => {
     try {
-      await toggleAdMutation.mutateAsync(id);
+      await toggleAdMutation.mutateAsync({ adId: id, userId: userId });
       refetch();
     } catch (error) {
       console.error('광고 상태 변경 실패:', error);

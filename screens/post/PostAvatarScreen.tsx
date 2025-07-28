@@ -17,6 +17,7 @@ import { useUser, useUserAllPosts } from '../../server/query/hooks/useUser';
 import { useUserVocas } from '../../server/query/hooks/useVoca';
 import { useUserPlaylist } from '../../server/query/hooks/usePlayList';
 import { useUserPosts } from '../../server/query/hooks/usePost';
+import { useToggleFollow, useFollowStatus } from '../../server/query/hooks/useFollow';
 import { Voca } from '../../types/voca';
 import { BasePost } from '../../types/post';
 import { Playlist } from '../../types/playlist';
@@ -74,6 +75,10 @@ export const PostAvatarScreen = () => {
   const {data: userVocas} = useUserVocas({userId: '1', page: currentPage, size: pageSize});
   const {data: userPlaylists} = useUserPlaylist({userId: '1', searchText: '', page: currentPage, size: pageSize});
   const {data: userPosts} = useUserPosts({userId: '1', page: currentPage, size: pageSize});
+  
+  // 팔로우 관련 훅
+  const toggleFollowMutation = useToggleFollow();
+  const { data: followStatus } = useFollowStatus(1, 1); // 임시로 같은 사용자 ID 사용
 
   const renderItems = () => {
     switch (activeCategory) {
@@ -98,8 +103,8 @@ export const PostAvatarScreen = () => {
         ));
       
       case '재생목록':
-        if (!userPlaylists?.content) return null;
-        return userPlaylists.content.map((playlist, index) => (
+        if (!userPlaylists?.pages?.[0]?.content) return null;
+        return userPlaylists.pages[0].content.map((playlist: any, index: number) => (
           <View key={`playlist-${index}`} style={styles.content__item}>
             <ItemCard item={playlist} type="playlist" />
             <ItemInfo item={playlist} />
@@ -127,7 +132,7 @@ export const PostAvatarScreen = () => {
       case '단어장':
         return userVocas?.totalPages || 0;
       case '재생목록':
-        return userPlaylists?.totalPages || 0;
+        return userPlaylists?.pages?.[0]?.totalPages || 0;
       case '포스트':
         return userPosts?.totalPages || 0;
       default:
@@ -172,8 +177,14 @@ export const PostAvatarScreen = () => {
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.actions__follow}>
-            <Text style={styles.actions__followText}>팔로우</Text>
+          <TouchableOpacity 
+            style={styles.actions__follow}
+            onPress={() => toggleFollowMutation.mutate({ followerId: 1, followingId: 1 })}
+            disabled={toggleFollowMutation.isPending}
+          >
+            <Text style={styles.actions__followText}>
+              {followStatus?.isFollowing ? '언팔로우' : '팔로우'}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actions__message}>
             <Text style={styles.actions__messageText}>메시지</Text>

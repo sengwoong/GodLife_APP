@@ -59,6 +59,7 @@ export interface PostComment {
   createdAt: string;
   likes: number;
   userId: number;
+  userName: string;
 }
 
 export interface SharedPost {
@@ -70,4 +71,12 @@ export interface SharedPost {
   thumbnail: string | null;
   createdAt: string;
   userId: number;
+}
+
+export interface PostLikeResponse {
+  postId: number;
+  userId: number;
+  isLiked: boolean;
+  createdAt?: string;
+  totalLikes: number;
 }

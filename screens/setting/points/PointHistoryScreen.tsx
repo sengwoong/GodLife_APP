@@ -18,26 +18,31 @@ function PointHistoryScreen() {
     hasNextPage, 
     isLoading,
     isFetchingNextPage 
-  } = useInfinitePointHistory(userId, 'earn');
+  } = useInfinitePointHistory(userId, 'EARN');
 
   // 새로고침 핸들러
   const handleRefresh = async () => {
     // 포인트 히스토리 관련 쿼리들을 무효화하여 새로고침
-    queryClient.invalidateQueries({ queryKey: ['pointHistory', userId, 'earn'] });
-    queryClient.invalidateQueries({ queryKey: ['points'] });
+    queryClient.invalidateQueries({ queryKey: ['points', userId, 'EARN'] });
+    queryClient.invalidateQueries({ queryKey: ['pointSummary', userId] });
   };
 
   if (isLoading) {
-    return <ActivityIndicator />;
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={colors.GREEN} />
+      </SafeAreaView>
+    );
   }
 
   const renderItem = ({ item }: { item: Point }) => (
     <View style={styles.historyItem}>
-      <View>
+      <View style={styles.itemLeft}>
         <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.content}>{item.content}</Text>
         <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
       </View>
-      <Text style={[styles.points, { color: colors.BLUE }]}>
+      <Text style={[styles.points, { color: colors.GREEN }]}>
         +{item.points}p
       </Text>
     </View>
@@ -59,7 +64,7 @@ function PointHistoryScreen() {
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            isFetchingNextPage ? <ActivityIndicator /> : null
+            isFetchingNextPage ? <ActivityIndicator color={colors.GREEN} /> : null
           }
           refreshControl={
             <RefreshControl
@@ -90,17 +95,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
   },
+  itemLeft: {
+    flex: 1,
+    marginRight: spacing.M12,
+  },
   title: {
-    ...getFontStyle('body', 'medium', 'regular'),
+    ...getFontStyle('body', 'medium', 'medium'),
     marginBottom: spacing.M4,
-  }as TextStyle,
+    color: colors.BLACK,
+  } as TextStyle,
+  content: {
+    ...getFontStyle('body', 'small', 'regular'),
+    marginBottom: spacing.M4,
+    color: colors.LIGHT_BLACK,
+  } as TextStyle,
   date: {
     ...getFontStyle('body', 'small', 'regular'),
-    color: colors.BLACK,
-  }as TextStyle,
+    color: colors.GRAY,
+  } as TextStyle,
   points: {
-    ...getFontStyle('body', 'medium', 'medium'),
-  }as TextStyle,
+    ...getFontStyle('body', 'medium', 'bold'),
+  } as TextStyle,
 });
 
 export default PointHistoryScreen; 

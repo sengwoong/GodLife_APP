@@ -3,7 +3,7 @@ export interface Point {
   title: string;
   content: string;
   points: number;
-  type: 'earn' | 'use';
+  type: 'EARN' | 'USE';
   createdAt: string;
   userId: number;
 }
@@ -19,5 +19,29 @@ export interface PointRequest {
   title: string;
   content: string;
   points: number;
-  type: 'earn' | 'use';
+  type: 'EARN' | 'USE';
+}
+
+export interface Receipt {
+  id: number;
+  itemName: string;
+  itemType: string;
+  price: number;
+  quantity: number;
+  totalAmount: number;
+  purchaseDate: string;
+  transactionId: string;
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
+  createdAt: string;
+  userId: number;
+}
+
+export interface ReceiptRequest {
+  itemName: string;
+  itemType: string;
+  price: number;
+  quantity: number;
+  transactionId: string;
+  purchaseDate?: string;
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED';
 } 

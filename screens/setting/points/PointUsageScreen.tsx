@@ -18,23 +18,28 @@ function PointUsageScreen() {
     hasNextPage, 
     isLoading,
     isFetchingNextPage 
-  } = useInfinitePointHistory(userId, 'use');
+  } = useInfinitePointHistory(userId, 'USE');
 
   // 새로고침 핸들러
   const handleRefresh = async () => {
     // 포인트 사용 내역 관련 쿼리들을 무효화하여 새로고침
-    queryClient.invalidateQueries({ queryKey: ['pointHistory', userId, 'use'] });
-    queryClient.invalidateQueries({ queryKey: ['points'] });
+    queryClient.invalidateQueries({ queryKey: ['points', userId, 'USE'] });
+    queryClient.invalidateQueries({ queryKey: ['pointSummary', userId] });
   };
 
   if (isLoading) {
-    return <ActivityIndicator />;
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={colors.GREEN} />
+      </SafeAreaView>
+    );
   }
 
   const renderItem = ({ item }: { item: Point }) => (
     <View style={styles.historyItem}>
-      <View>
+      <View style={styles.itemLeft}>
         <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.content}>{item.content}</Text>
         <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
       </View>
       <Text style={[styles.points, { color: colors.RED }]}>
@@ -59,7 +64,7 @@ function PointUsageScreen() {
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={
-            isFetchingNextPage ? <ActivityIndicator /> : null
+            isFetchingNextPage ? <ActivityIndicator color={colors.GREEN} /> : null
           }
           refreshControl={
             <RefreshControl
@@ -90,16 +95,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.LIGHT_GRAY,
   },
+  itemLeft: {
+    flex: 1,
+    marginRight: spacing.M12,
+  },
   title: {
     ...getFontStyle('body', 'medium', 'medium'),
     marginBottom: spacing.M4,
+    color: colors.BLACK,
+  } as TextStyle,
+  content: {
+    ...getFontStyle('body', 'small', 'regular'),
+    marginBottom: spacing.M4,
+    color: colors.LIGHT_BLACK,
   } as TextStyle,
   date: {
     ...getFontStyle('body', 'small', 'regular'),
-    color: colors.BLACK,
+    color: colors.GRAY,
   } as TextStyle,
   points: {
-    ...getFontStyle('body', 'medium', 'medium'),
+    ...getFontStyle('body', 'medium', 'bold'),
   } as TextStyle,
 });
 

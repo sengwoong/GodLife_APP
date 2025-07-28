@@ -5,6 +5,7 @@ import { useInfiniteWords } from '../../server/query/hooks/useWord';
 import { useSearchStore } from '../../store/useSearchStore';
 import { useRoute } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
+import useAuthStore from '../../store/useAuthStore';
 
 interface Word {
   id: number;
@@ -34,7 +35,7 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail 
   
   const route = useRoute();
   const { vocaIndex } = route.params as { vocaIndex: number };
-
+  const userId = useAuthStore(state => state.user);
   const {
     data,
     isLoading,
@@ -43,7 +44,7 @@ const VocaContentList: React.FC<VocaContentListProps> = ({ navigateToWordDetail 
     hasNextPage,
     isFetchingNextPage,
     refetch,
-  } = useInfiniteWords(vocaIndex, searchText);
+  } = useInfiniteWords(vocaIndex, userId as number, searchText);
 
   // 새로고침 핸들러
   const handleRefresh = async () => {

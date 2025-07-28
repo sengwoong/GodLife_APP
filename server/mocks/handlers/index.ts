@@ -7,6 +7,7 @@ import { playlistHandlers } from './playlists'
 import { musicHandlers } from './musics'
 import { postHandlers } from './posts'
 import { pointHandlers } from './points'
+import { followHandlers } from './follows'
 
 
 export const handlers = [
@@ -18,5 +19,6 @@ export const handlers = [
   ...playlistHandlers,
   ...musicHandlers,
   ...postHandlers,
-  ...pointHandlers
+  ...pointHandlers,
+  ...followHandlers
 ] 

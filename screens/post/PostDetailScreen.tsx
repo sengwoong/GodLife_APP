@@ -9,7 +9,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { PostNavigations } from '../../constants';
 import { PostStackParamList } from '../../navigations/stack/beforeLogin/PostStackNavigator';
 import PostMenu from '../../components/PostMenu';
-import { useSinglePost } from '../../server/query/hooks/usePost';
+import { useSharedPost, useCommentsByPost, useCreateComment, useLikePost, useLikeStatus } from '../../server/query/hooks/usePost';
 import { Comment } from '../../types/post';
 
 type PostDetailScreenNavigationProp = StackNavigationProp<PostStackParamList>;
@@ -20,7 +20,14 @@ export const PostDetailScreen = () => {
   const { postId } = route.params;
   const navigation = useNavigation<PostDetailScreenNavigationProp>();
 
-  const { data: post, isLoading } = useSinglePost(postId.toString());
+  const { data: post, isLoading } = useSharedPost(postId.toString());
+  const { data: commentsData, isLoading: commentsLoading } = useCommentsByPost(postId);
+  const createCommentMutation = useCreateComment();
+  
+  // 임시 사용자 ID (실제로는 인증된 사용자 ID 사용)
+  const currentUserId = 1;
+  const { data: likeStatus } = useLikeStatus(postId, currentUserId);
+  const likePostMutation = useLikePost();
   
   const CategoryButtons = [
     { label: '상품정보', id: 'product-info' },
@@ -61,20 +68,7 @@ export const PostDetailScreen = () => {
     []
   );
 
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: 1,
-      content: "아주 좋은 상품이에요!",
-      userName: "구매자1",
-      createdAt: "2024-03-20"
-    },
-    {
-      id: 2,
-      content: "매우 만족합니다",
-      userName: "구매자2", 
-      createdAt: "2024-03-19"
-    }
-  ]);
+  const comments = commentsData?.content || [];
 
   const navigateToContent = (Index: number) => {
     console.log(Index);
@@ -132,7 +126,14 @@ export const PostDetailScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.product__price}>{post.price} point</Text>
                 <View style={styles.product__actions}>
-                  <CustomButton color="BLACK" shape="rounded" size="text_size" label={`좋아요 ${post.likes}`} />
+                  <CustomButton 
+                    color="BLACK" 
+                    shape="rounded" 
+                    size="text_size" 
+                    label={`${likeStatus?.isLiked ? '❤️' : '🤍'} 좋아요 ${post.likes}`}
+                    onPress={() => likePostMutation.mutate({ postId: post.id, userId: currentUserId })}
+                    disabled={likePostMutation.isPending}
+                  />
                   <CustomButton color="BLACK" shape="rounded" size="text_size" label="장바구니" />
                 </View>
               </View>
@@ -159,21 +160,32 @@ export const PostDetailScreen = () => {
             <View style={styles.section}>
               <Text style={styles.section__title}>구매평</Text>
               <Margin size={'M4'} />
-              <BulletinBoard 
-                data={comments.map(comment => ({
-                  id: comment.id,
-                  title: comment.userName,
-                  content: comment.content
-                }))} 
-                onItemPress={navigateToContent} 
-              />
+              {commentsLoading ? (
+                <Text>댓글 로딩중...</Text>
+              ) : (
+                <BulletinBoard 
+                  data={comments.map(comment => ({
+                    id: comment.id,
+                    title: comment.userName,
+                    content: comment.content
+                  }))} 
+                  onItemPress={navigateToContent} 
+                />
+              )}
               <Margin size={'M8'} />
               <TextInput 
                 placeholder="구매평을 남기기 위해 댓글을 작성 하세요" 
                 style={styles.section__input} 
               />
               <Margin size={'M4'} />
-              <CustomButton size="large" label="구매평 남기기" />
+              <CustomButton 
+                size="large" 
+                label="구매평 남기기" 
+                onPress={() => {
+                  // 댓글 작성 로직 추가 예정
+                  console.log('댓글 작성');
+                }}
+              />
             </View>
 
             <View style={styles.section}>

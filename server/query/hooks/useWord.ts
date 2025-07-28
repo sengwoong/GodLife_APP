@@ -54,11 +54,11 @@ export function useCreateWord() {
   });
 }
 
-export function useInfiniteWords(vocaId: number, searchText: string) {
+export function useInfiniteWords(vocaId: number, userId: number, searchText: string) {
   return useInfiniteQuery<WordResponse, Error>({
     queryKey: ['words', vocaId, searchText],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
+      const response = await fetch(`${BASE_URL}/words/voca/${vocaId}/user/${userId}?page=${pageParam}&search=${encodeURIComponent(searchText)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch words');
       }
@@ -87,12 +87,12 @@ export function useWord(vocaId: number, wordIndex: number) {
   });
 }
 
-export function useWords(vocaId: number, page = 0, size = 10, search = '') {
+export function useWords(vocaId: number, userId: number, page = 0, size = 10, search = '') {
   return useQuery<WordResponse, Error>({
     queryKey: ['words', vocaId, page, size, search],
     queryFn: async () => {
       const response = await fetch(
-        `${BASE_URL}/words/voca/${vocaId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}`
+        `${BASE_URL}/words/voca/${vocaId}/user/${userId}?page=${page}&size=${size}&search=${encodeURIComponent(search)}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch words');
